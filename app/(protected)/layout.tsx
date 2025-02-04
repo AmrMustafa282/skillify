@@ -1,29 +1,20 @@
 "use client";
-import { useEffect, useState } from "react";
-import useUserStore from "@/zustand/userStore";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import useCheckUserExpiration from "@/hooks/useCheckUserExpiration";
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
- const router = useRouter();
- const { user } = useUserStore();
- const [isMounted, setIsMounted] = useState(false);
- console.log(user);
- useCheckUserExpiration();
- // Ensure we only access persisted state after mount
- useEffect(() => {
-  setIsMounted(true);
- }, []);
+export default function MePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
- useEffect(() => {
-  if (isMounted && !user) {
-   router.push("/login");
-  }
- }, [isMounted, user, router]);
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
- if (!isMounted) return null; // Prevent hydration mismatch
+  if (status === "loading") return <p>Loading...</p>;
+  if (!session) return null;
 
- return <>{children}</>;
-};
-
-export default ProtectedLayout;
+  return <h1>Welcome, {session.user?.name}!</h1>;
+}
