@@ -26,7 +26,8 @@ export function SignupForm({
     const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
-    const role = formDate.get("role");
+    const role = formData.get("role");
+    console.log(role);
     const router = useRouter();
     try {
       const req = await axios.post("/api/v1/auth/signup", {
@@ -167,8 +168,10 @@ function SignUpContent({ role, handleSignup }) {
                 </>
               )}
             </div>
+            <Input type="hidden" name="role" value={role} />
+
             <Button type="submit" className="w-full">
-              Login
+              signup
             </Button>
           </div>
           <div className="text-center text-sm">
