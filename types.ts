@@ -13,3 +13,11 @@ export interface UserStoreState {
   setExpiration: (expiresAt: number | null) => void;
   clearUser: () => void;
 }
+
+
+
+export enum Role {
+  ROLE_ADMIN = 'ROLE_ADMIN',
+  ROLE_RECRUITER = 'ROLE_RECRUITER',
+  ROLE_CANDIDATE = 'ROLE_CANDIDATE',
+}
