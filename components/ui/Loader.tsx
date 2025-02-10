@@ -4,9 +4,9 @@
 import { PulseLoader } from "react-spinners";
 
 export default function Loader() {
- return (
-  <div className="flex items-center justify-center h-screen">
-   <PulseLoader color="#3498db" size={10} />
-  </div>
- );
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <PulseLoader color="#3498db" size={10} />
+    </div>
+  );
 }

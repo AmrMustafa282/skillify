@@ -1,18 +1,20 @@
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import useAuthenticate from "@/hooks/useAuthenticate";
+import type React from "react";
 
-function AuthSignInButton({ provider, children }) {
-  const { signIn } = useAuthenticate();
+interface AuthSignInButtonProps {
+  provider: string;
+  children?: React.ReactNode;
+}
+
+export const AuthSignInButton: React.FC<AuthSignInButtonProps> = ({ provider, children }) => {
+  const handleClick = async () => {
+    await signIn(provider, { callbackUrl: "/" });
+  };
+
   return (
-    <Button
-      variant="outline"
-      className="w-full"
-      type="button"
-      onClick={() => signIn(provider, { callbackUrl: "/me" })}
-    >
+    <Button variant={"outline"} onClick={handleClick}>
       {children}
     </Button>
   );
-}
-
-export { AuthSignInButton };
+};
