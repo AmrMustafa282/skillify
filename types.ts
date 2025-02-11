@@ -48,7 +48,9 @@ export type QuestionType =
   | "paragraph"
   | "multiple-choice"
   | "checkboxes"
-  | "dropdown";
+  | "dropdown"
+  | "linearScale"
+  | "dateTime";
 
 export interface Question {
   id: string;
@@ -56,6 +58,9 @@ export interface Question {
   title: string;
   required: boolean;
   options?: string[];
+  min?: number;
+  max?: number;
+  description?: string;
 }
 
 export interface SortableQuestionProps {

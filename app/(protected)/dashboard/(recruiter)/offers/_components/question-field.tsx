@@ -12,26 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type QuestionType =
-  | "shortAnswer"
-  | "paragraph"
-  | "multipleChoice"
-  | "checkboxes"
-  | "dropdown"
-  | "linearScale"
-  | "dateTime";
-
-type Question = {
-  id: string;
-  type: QuestionType;
-  title: string;
-  description?: string;
-  required: boolean;
-  options?: string[];
-  min?: number;
-  max?: number;
-};
+import { Question } from "@/types";
 
 type QuestionFieldProps = {
   question: Question;
@@ -56,11 +37,11 @@ export default function QuestionField({ question, onUpdate, onDelete }: Question
 
   const renderQuestionInput = () => {
     switch (question.type) {
-      case "shortAnswer":
+      case "short-answer":
         return <Input disabled placeholder="Short answer text" />;
       case "paragraph":
         return <Textarea disabled placeholder="Long answer text" />;
-      case "multipleChoice":
+      case "multiple-choice":
         return (
           <RadioGroup>
             {question.options?.map((option, index) => (

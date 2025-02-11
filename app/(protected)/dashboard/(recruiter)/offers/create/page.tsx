@@ -13,26 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import QuestionField from "../_components/question-field";
-
-type QuestionType =
-  | "shortAnswer"
-  | "paragraph"
-  | "multipleChoice"
-  | "checkboxes"
-  | "dropdown"
-  | "linearScale"
-  | "dateTime";
-
-type Question = {
-  id: string;
-  type: QuestionType;
-  title: string;
-  description?: string;
-  required: boolean;
-  options?: string[];
-  min?: number;
-  max?: number;
-};
+import { Question, QuestionType } from "@/types";
 
 type FormData = {
   title: string;
@@ -48,7 +29,7 @@ const initialFormData: FormData = {
 
 const defaultQuestion: Question = {
   id: "",
-  type: "shortAnswer",
+  type: "short-answer",
   title: "",
   description: "",
   required: false,
@@ -57,7 +38,7 @@ const defaultQuestion: Question = {
 
 export default function FormCreator() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [selectedQuestionType, setSelectedQuestionType] = useState<QuestionType>("shortAnswer");
+  const [selectedQuestionType, setSelectedQuestionType] = useState<QuestionType>("short-answer");
 
   const updateFormMetadata = (field: "title" | "description", value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -116,7 +97,9 @@ export default function FormCreator() {
         <QuestionField
           key={question.id}
           question={question}
-          onUpdate={(updatedQuestion: Question) => updateQuestion(question.id, updatedQuestion)}
+          onUpdate={(updatedQuestion: Partial<Question>) =>
+            updateQuestion(question.id, updatedQuestion)
+          }
           onDelete={() => deleteQuestion(question.id)}
         />
       ))}

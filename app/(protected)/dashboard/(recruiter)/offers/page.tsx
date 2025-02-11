@@ -3,7 +3,7 @@ import { columns, Payment } from "@/components/payment/columns";
 import { DataTable } from "@/components/payment/data-table";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 async function getData(): Promise<Payment[]> {
   // Fetch data from your API here.
