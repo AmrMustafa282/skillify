@@ -55,7 +55,12 @@ export function SignupForm({ className, ...props }: React.ComponentPropsWithoutR
 
   const onSubmit = async (values: z.infer<typeof recruiterSchema>) => {
     try {
-      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register`, values);
+      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register`, values, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(req);
       if (req.status === 200) {
         toast.success("Signup successful");
         setTimeout(() => {
@@ -63,7 +68,8 @@ export function SignupForm({ className, ...props }: React.ComponentPropsWithoutR
         }, 2000);
       }
     } catch (err) {
-      toast.error("Signup failed");
+      // todo: update error message in production
+      toast.error(`Signup failed:${err.message}`);
     }
   };
 
