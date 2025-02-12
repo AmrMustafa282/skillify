@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import type React from "react";
 import Loader from "../ui/Loader";
+import useAuthenticate from "@/hooks/useAuthenticate";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -32,8 +33,7 @@ const formSchema = z.object({
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
-  const { status } = useSession();
-
+  const { signIn, status } = useAuthenticate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,17 +52,18 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: values.email,
-        password: values.password,
-      });
+      // const result = await signIn("credentials", {
+      //   redirect: false,
+      //   email: values.email,
+      //   password: values.password,
+      // });
 
-      if (result?.error) {
-        toast.error("Invalid email or password.");
-        return;
-      }
-
+      // if (result?.error) {
+      //   toast.error("Invalid email or password.");
+      //   return;
+      // }
+      const result = await signIn("google", { callbackUrl: "/dashboard" });
+      console.log(result);
       toast.success("Login successful!");
       router.push("/");
     } catch (error) {
