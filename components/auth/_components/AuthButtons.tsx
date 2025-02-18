@@ -1,4 +1,4 @@
-import { AuthSignInButton } from "@/components/ui/AuthSignInButton";
+import { AuthSignInButton } from "@/components/auth/_components/AuthSignInButton";
 import React from "react";
 
 export const AuthButtons: React.FC = () => {
