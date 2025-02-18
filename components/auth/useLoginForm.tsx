@@ -1,5 +1,6 @@
 import useAuthenticate from "@/hooks/useAuthenticate";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -30,23 +31,13 @@ export function useLoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // const result = await signIn("credentials", {
-      //   redirect: false,
-      //   email: values.email,
-      //   password: values.password,
-      // });
-
-      // if (result?.error) {
-      //   toast.error("Invalid email or password.");
-      //   return;
-      // }
-      // todo: sign in with a provider
-      const result = await signIn("google", { callbackUrl: "/dashboard" });
-      console.log(result);
-      // todo: add login with database
-
-      toast.success("Login successful!");
-      router.push("/");
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+      });
+      setTimeout(() => {
+        router.replace("/");
+      }, 2000);
     } catch (error) {
       console.error("Login failed", error);
       toast.error("An unexpected error occurred.");
