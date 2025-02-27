@@ -1,11 +1,11 @@
-import useAuthenticate from "@/hooks/useAuthenticate";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -14,7 +14,7 @@ const formSchema = z.object({
 
 export function useLoginForm() {
   const router = useRouter();
-  const { signIn, status } = useAuthenticate();
+  const { status } = useSession();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,9 +35,6 @@ export function useLoginForm() {
         email: values.email,
         password: values.password,
       });
-      setTimeout(() => {
-        router.replace("/");
-      }, 2000);
     } catch (error) {
       console.error("Login failed", error);
       toast.error("An unexpected error occurred.");

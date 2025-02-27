@@ -1,8 +1,6 @@
-import { Role } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
@@ -11,28 +9,24 @@ const baseSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum([Role.ROLE_USER, Role.ROLE_ADMIN]),
 });
 
 const userSchema = baseSchema;
 
 export function useSignupForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>(Role.ROLE_USER);
-
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       username: "",
       email: "",
       password: "",
-      role: Role.ROLE_USER,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
-      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register`, values, {
+      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, values, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -53,5 +47,5 @@ export function useSignupForm() {
     }
   };
 
-  return { form, role, setRole, onSubmit };
+  return { form, onSubmit };
 }

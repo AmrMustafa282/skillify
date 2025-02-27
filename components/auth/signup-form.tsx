@@ -24,11 +24,6 @@ export function SignupForm({ className, ...props }: React.ComponentPropsWithoutR
       label: "Password",
       type: "password",
     },
-    {
-      name: "role",
-      type: "hidden",
-      label: "",
-    },
   ];
   return (
     <AuthForm
