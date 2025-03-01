@@ -87,3 +87,8 @@ export type FieldValue = {
   type?: string;
   placeholder?: string;
 };
+
+export enum View {
+  PERSONAL = "personal",
+  ORGANIZATION = "organization",
+}

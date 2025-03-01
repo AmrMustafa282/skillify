@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Loader from "@/components/ui/Loader";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -15,11 +15,13 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/ui/toggle-theme";
-import useAuthenticate from "@/hooks/useAuthenticate";
+import { View } from "@/types";
+
 
 export default function MePage({ children }: { children: React.ReactNode }) {
-  const { session, status } = useAuthenticate();
+  const { data:session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -29,12 +31,10 @@ export default function MePage({ children }: { children: React.ReactNode }) {
   if (status === "loading") return <Loader />;
   if (!session) return null;
 
-  //@ts-expect-error
-  const role = session?.user?.role;
 
   return (
     <SidebarProvider>
-      <AppSidebar role={role} />
+      <AppSidebar view={pathname.includes(View.ORGANIZATION)?View.ORGANIZATION:View.PERSONAL} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">

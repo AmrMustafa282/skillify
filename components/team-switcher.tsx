@@ -12,24 +12,40 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import CreateOrg from "./create-org";
+
+interface DropDownItem {
+  name: string;
+  logo: React.ElementType;
+  plan: string;
+  url: string;
+}
 
 export function TeamSwitcher({
   teams,
+  personal,
 }: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
+  teams: (DropDownItem & { id: string })[];
+  personal: DropDownItem;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const params = useParams();
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const [activeTeam, setActiveTeam] = React.useState(personal);
+  const handleClick = (item: DropDownItem) => {
+    setActiveTeam(item);
+    router.push(item.url);
+  };
 
   return (
     <SidebarMenu>
@@ -56,27 +72,38 @@ export function TeamSwitcher({
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
+            <DropdownMenuItem
+              onClick={() => handleClick(personal)}
+              className={cn(
+                pathname.includes("dashboard") && !pathname.includes("organization") && "bg-accent",
+                "gap-2 p-2"
+              )}
+            >
+              <div className="flex size-6 items-center justify-center rounded-sm border">
+                <personal.logo className="size-4 shrink-0" />
+              </div>
+              {personal.name}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs text-muted-foreground">Teams</DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {teams.map((item, index) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                key={item.name}
+                onClick={() => handleClick(item)}
+                className={cn(
+                  pathname.includes("organization") && params.org_id == item.id && "bg-accent",
+                  "gap-2 p-2"
+                )}
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-4 shrink-0" />
+                  <item.logo className="size-4 shrink-0" />
                 </div>
-                {team.name}
+                {item.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
-            </DropdownMenuItem>
+            <CreateOrg />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

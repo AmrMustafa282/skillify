@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   AudioWaveform,
@@ -12,6 +10,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  House
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -25,10 +24,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Role } from "@/types";
+import { View } from "@/types";
+import { useSession } from "next-auth/react";
 
 const DATA = {
-  [Role.ROLE_ADMIN]: {
+  [View.PERSONAL]: {
     user: {
       name: "admin",
       email: "m@example.com",
@@ -39,18 +39,30 @@ const DATA = {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
         plan: "Enterprise",
+        url: "/dashboard/organization/1",
+        id:"1"
       },
       {
         name: "Acme Corp.",
         logo: AudioWaveform,
         plan: "Startup",
+        url: "/dashboard/organization/2",
+        id:"2"
       },
       {
         name: "Evil Corp.",
         logo: Command,
         plan: "Free",
+        url: "/dashboard/organization/3",
+        id:"3"
       },
     ],
+    personal: {
+      name: "Personal",
+      logo: House,
+      plan: "Free",
+      url: "/dashboard",
+    },
     navMain: [
       {
         title: "Job Offers",
@@ -156,9 +168,9 @@ const DATA = {
       },
     ],
   },
-  [Role.ROLE_RECRUITER]: {
+  [View.ORGANIZATION]: {
     user: {
-      name: "recruiter",
+      name: "admin",
       email: "m@example.com",
       avatar: "/avatars/shadcn.jpg",
     },
@@ -167,18 +179,30 @@ const DATA = {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
         plan: "Enterprise",
+        url: "/dashboard/organization/1",
+        id:"1"
       },
       {
         name: "Acme Corp.",
         logo: AudioWaveform,
         plan: "Startup",
+        url: "/dashboard/organization/2",
+        id:"2"
       },
       {
         name: "Evil Corp.",
         logo: Command,
         plan: "Free",
+        url: "/dashboard/organization/3",
+        id:"3"
       },
     ],
+    personal: {
+      name: "Personal",
+      logo: House,
+      plan: "Free",
+      url: "/dashboard",
+    },
     navMain: [
       {
         title: "Job Offers",
@@ -188,135 +212,7 @@ const DATA = {
         items: [
           {
             title: "Ovreview",
-            url: "/dashboard/offers",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Models",
-        url: "#",
-        icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  },
-  [Role.ROLE_CANDIDATE]: {
-    user: {
-      name: "candidate",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-      },
-    ],
-    navMain: [
-      {
-        title: "Job Offers",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Ovreview",
-            url: "offers",
+            url: "dashboard/",
           },
           {
             title: "Starred",
@@ -415,21 +311,23 @@ const DATA = {
 };
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  role: Role;
+  view: View;
 }
 
-export function AppSidebar({ role, ...props }: AppSidebarProps) {
+export function AppSidebar({ view, ...props }: AppSidebarProps) {
+  const { data: session } = useSession();
+  console.log(session);
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={DATA[role].teams} />
+        <TeamSwitcher teams={DATA[view].teams} personal={DATA[view].personal} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={DATA[role].navMain} />
-        <NavProjects projects={DATA[role].projects} />
+        <NavMain items={DATA[view].navMain} />
+        <NavProjects projects={DATA[view].projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={DATA[role].user} />
+        <NavUser user={DATA[view].user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
