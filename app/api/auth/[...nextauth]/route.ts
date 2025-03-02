@@ -15,7 +15,7 @@ export const authConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
           email: credentials?.email,
           password: credentials?.password,
         });
@@ -73,7 +73,7 @@ export const authConfig = {
       if (account?.provider === "google") {
         // Call your backend API to find or register the user
         try {
-          const res = await axios.post(`${process.env.API_URL}/api/v1/oauth`, {
+          const res = await axios.post(`${process.env.API_URL}/auth/oauth`, {
             email: profile?.email,
             name: profile?.name,
             googleId: profile?.sub,
@@ -95,7 +95,7 @@ export const authConfig = {
       if (account?.provider === "github") {
         // Call your backend API to find or register the user
         try {
-          const res = await axios.post(`${process.env.API_URL}/api/v1/oauth`, {
+          const res = await axios.post(`${process.env.API_URL}/auth/oauth`, {
             email: profile?.email,
             name: profile?.name,
             githubId: profile?.sub,

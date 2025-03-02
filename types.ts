@@ -15,6 +15,7 @@ export interface UserStoreState {
 }
 
 export enum Role {
+  ROLE_USER = "ROLE_USER",
   ROLE_ADMIN = "ROLE_ADMIN",
   ROLE_RECRUITER = "ROLE_RECRUITER",
   ROLE_CANDIDATE = "ROLE_CANDIDATE",
@@ -78,4 +79,11 @@ export type Form = {
   title: string;
   description: string;
   questions: Question[];
+};
+
+export type FieldValue = {
+  name: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
 };

@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -23,8 +24,61 @@ const useAuthenticate = () => {
       setIsSessionExpired(now > expiresAt);
     }
   }, [session]);
-  console.log({ session, status, isSessionExpired, signIn, signOut });
-  return { session, status, isSessionExpired, signIn, signOut };
+
+  const refreshAccessToken = async () => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/refresh`,
+        {},
+        {
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+      if (res.status === 200) {
+        // Update session with new access token
+        signIn("credentials", {
+          accessToken: res.data.accessToken,
+          refreshToken: session?.refreshToken,
+        });
+        return res.data.accessToken;
+      }
+    } catch (error) {
+      console.error("Refresh token error:", error);
+      signOut();
+    }
+  };
+
+  //  authorization from backend server
+  const fetchData = async (url: string) => {
+    if (session?.accessToken) {
+      try {
+        const res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+        });
+        return res.data;
+      } catch (error) {
+        console.error("Fetch data error:", error);
+        if (error.response?.status === 401 && session.refreshToken) {
+          const newAccessToken = await refreshAccessToken();
+          if (newAccessToken) {
+            try {
+              const res = await axios.get(url, {
+                headers: {
+                  Authorization: `Bearer ${newAccessToken}`,
+                },
+              });
+              return res.data;
+            } catch (error) {
+              console.error("Fetch data error after refresh:", error);
+            }
+          }
+        }
+      }
+    }
+  };
+  return { session, status, isSessionExpired, signIn, signOut, fetchData };
 };
 
 export default useAuthenticate;

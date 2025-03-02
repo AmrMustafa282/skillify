@@ -17,22 +17,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${inter.className} bg-background text-foreground antialiased`}>
         {/* <MouseMoveEffect /> */}
-        <ThemeProvider
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        >
-          <main className="flex flex-col  h-screen">
-            <AuthProvider>
-              <div>{children}</div>
-            </AuthProvider>
-            <Toaster position="top-center" reverseOrder={false} />
-          </main>
-        </ThemeProvider>
+        > */}
+        <main className="flex flex-col  h-screen">
+          <AuthProvider>
+            <div>{children}</div>
+          </AuthProvider>
+          <Toaster position="top-center" reverseOrder={false} />
+        </main>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );

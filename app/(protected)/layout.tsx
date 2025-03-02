@@ -15,11 +15,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/ui/toggle-theme";
+import useAuthenticate from "@/hooks/useAuthenticate";
 
 export default function MePage({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { session, status } = useAuthenticate();
   const router = useRouter();
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
