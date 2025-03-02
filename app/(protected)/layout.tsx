@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Loader from "@/components/ui/Loader";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -17,7 +17,6 @@ import {
 import { ModeToggle } from "@/components/ui/toggle-theme";
 import { View } from "@/types";
 
-
 export default function MePage({ children }: { children: React.ReactNode }) {
   const { data:session, status } = useSession();
   const router = useRouter();
@@ -30,7 +29,6 @@ export default function MePage({ children }: { children: React.ReactNode }) {
 
   if (status === "loading") return <Loader />;
   if (!session) return null;
-
 
   return (
     <SidebarProvider>

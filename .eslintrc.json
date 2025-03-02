@@ -7,7 +7,7 @@
   ],
   "plugins": ["@typescript-eslint", "react-hooks", "prettier"],
   "rules": {
-    "prettier/prettier": "warn",
+    // "prettier/prettier": "warn",
     "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/ban-ts-comment": "off",

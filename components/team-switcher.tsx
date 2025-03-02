@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import CreateOrg from "./create-org";
 
 interface DropDownItem {
   name: string;
@@ -103,7 +102,16 @@ export function TeamSwitcher({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <CreateOrg />
+            {/* <CreateOrg /> */}
+            <DropdownMenuItem
+              onClick={() => router.push("/dashboard/organization/create")}
+              className="gap-2 p-2"
+            >
+              <div className="flex size-6 items-center justify-center rounded-sm border">
+                <Plus className="size-4 shrink-0" />
+              </div>
+              Create Organization
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
