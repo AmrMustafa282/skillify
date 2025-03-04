@@ -160,7 +160,7 @@ export const authConfig = {
           );
 
           console.log("res", res.data);
-          const user = res.data.data;
+          const user = res.data.data.user;
 
           if (res.status && user) {
             user.is_subscribed = true;
@@ -209,6 +209,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.username = user.username;
         token.is_subscribed = user.is_subscribed;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
@@ -220,6 +221,7 @@ export const authConfig = {
     async session({ session, token }: { session: any; token: any }) {
       session.user.id = token.id;
       session.user.email = token.email;
+      session.user.name = token.username;
       session.user.is_subscribed = token.is_subscribed;
       session.accessToken = token.accessToken; // Include accessToken in the session
       session.refreshToken = token.refreshToken; // Include refreshToken in the session

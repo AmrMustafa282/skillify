@@ -25,44 +25,35 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { View } from "@/types";
+
+import axios from "axios";
 import { useSession } from "next-auth/react";
 
 const DATA = {
   [View.PERSONAL]: {
-    user: {
-      name: "admin",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
     teams: [
       {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
         plan: "Enterprise",
         url: "/dashboard/organization/1",
-        id:"1"
+        id: "1",
       },
       {
         name: "Acme Corp.",
         logo: AudioWaveform,
         plan: "Startup",
         url: "/dashboard/organization/2",
-        id:"2"
+        id: "2",
       },
       {
         name: "Evil Corp.",
         logo: Command,
         plan: "Free",
         url: "/dashboard/organization/3",
-        id:"3"
+        id: "3",
       },
     ],
-    personal: {
-      name: "Personal",
-      logo: House,
-      plan: "Free",
-      url: "/dashboard",
-    },
     navMain: [
       {
         title: "Job Offers",
@@ -169,40 +160,29 @@ const DATA = {
     ],
   },
   [View.ORGANIZATION]: {
-    user: {
-      name: "admin",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
     teams: [
       {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
         plan: "Enterprise",
         url: "/dashboard/organization/1",
-        id:"1"
+        id: "1",
       },
       {
         name: "Acme Corp.",
         logo: AudioWaveform,
         plan: "Startup",
         url: "/dashboard/organization/2",
-        id:"2"
+        id: "2",
       },
       {
         name: "Evil Corp.",
         logo: Command,
         plan: "Free",
         url: "/dashboard/organization/3",
-        id:"3"
+        id: "3",
       },
     ],
-    personal: {
-      name: "Personal",
-      logo: House,
-      plan: "Free",
-      url: "/dashboard",
-    },
     navMain: [
       {
         title: "Job Offers",
@@ -310,24 +290,34 @@ const DATA = {
   },
 };
 
+const PERSONAL_ORG = {
+  name: "Personal",
+  logo: House,
+  plan: "Free",
+  url: "/dashboard",
+};
+
+
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   view: View;
 }
 
 export function AppSidebar({ view, ...props }: AppSidebarProps) {
   const { data: session } = useSession();
-  console.log(session);
+  const USER = { name: session?.user?.name, email: session?.user?.email, avatar: "" };
+
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={DATA[view].teams} personal={DATA[view].personal} />
+        <TeamSwitcher teams={DATA[view].teams} personal={PERSONAL_ORG} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={DATA[view].navMain} />
-        <NavProjects projects={DATA[view].projects} />
+        {/* <NavMain items={DATA[view].navMain} /> */}
+        {/* <NavProjects projects={DATA[view].projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={DATA[view].user} />
+        <NavUser user={USER} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
