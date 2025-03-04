@@ -10,7 +10,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-  House
+  House,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -297,15 +297,20 @@ const PERSONAL_ORG = {
   url: "/dashboard",
 };
 
-
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   view: View;
 }
 
 export function AppSidebar({ view, ...props }: AppSidebarProps) {
   const { data: session } = useSession();
-  const USER = { name: session?.user?.name, email: session?.user?.email, avatar: "" };
-
+  let USER = { name: "", email: "", avatar: "" };
+  if (session) {
+    USER = {
+      name: session.user?.name || "",
+      email: session.user?.email || "",
+      avatar: "",
+    };
+  }
 
   return (
     <Sidebar collapsible="icon" {...props}>
