@@ -166,8 +166,8 @@ export const authConfig = {
             user.is_subscribed = true;
 
             // Extract accessToken and refreshToken from the response
-            const accessToken = user.accessToken;
-            const refreshToken = user.refreshToken;
+            const accessToken = res.data.data.accessToken;
+            const refreshToken = res.data.data.refreshToken;
 
             // Return the user object along with the tokens
             return {
@@ -210,6 +210,7 @@ export const authConfig = {
         token.id = user.id;
         token.email = user.email;
         token.username = user.username;
+        token.user = user;
         token.is_subscribed = user.is_subscribed;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
@@ -222,6 +223,7 @@ export const authConfig = {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.name = token.username;
+      session.user = token.user
       session.user.is_subscribed = token.is_subscribed;
       session.accessToken = token.accessToken; // Include accessToken in the session
       session.refreshToken = token.refreshToken; // Include refreshToken in the session

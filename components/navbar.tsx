@@ -3,11 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import { ModeToggle } from "./ui/toggle-theme";
-import useAuthenticate from "@/hooks/useAuthenticate";
-import { Skeleton } from "./ui/skeleton";
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Navbar() {
-  const { status, signOut } = useAuthenticate();
+  const { status } = useSession();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">

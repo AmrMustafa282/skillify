@@ -26,11 +26,12 @@ import {
 } from "@/components/ui/sidebar";
 import { View } from "@/types";
 
-import axios from "axios";
-import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authConfig } from "@/app/api/auth/[...nextauth]/route";
+import { server } from "@/lib/api";
 
 const DATA = {
-  [View.PERSONAL]: {
+  ["amr"]: {
     teams: [
       {
         name: "Acme Inc",
@@ -292,30 +293,38 @@ const DATA = {
 
 const PERSONAL_ORG = {
   name: "Personal",
-  logo: House,
   plan: "Free",
   url: "/dashboard",
 };
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  view: View;
-}
-
-export function AppSidebar({ view, ...props }: AppSidebarProps) {
-  const { data: session } = useSession();
-  let USER = { name: "", email: "", avatar: "" };
+export async function AppSidebar() {
+  const session = await getServerSession(authConfig);
+  // console.log(session?.user)
+  let USER = { username: "", email: "", avatar: "" };
+  let ORGS;
   if (session) {
     USER = {
-      name: session.user?.name || "",
+      username: session.user?.username || "",
       email: session.user?.email || "",
       avatar: "",
     };
+    try {
+      const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`);
+      ORGS = res.data.data.map((org: any) => ({
+        name: org.name,
+        plan: org.plan,
+        url: `/dashboard/organization/${org.id}`,
+        id: org.id,
+      }));
+    } catch (error) {
+      console.error("Error during fetching orgs:", error);
+    }
   }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
-        <TeamSwitcher teams={DATA[view].teams} personal={PERSONAL_ORG} />
+        <TeamSwitcher orgs={ORGS} personal={PERSONAL_ORG} />
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={DATA[view].navMain} /> */}

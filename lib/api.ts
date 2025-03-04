@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { headers } from "next/headers";
 
-export const call = {
+export const server = {
   get: async (url: string, options?: AxiosRequestConfig) => {
     //@ts-ignore
     return axios.get(url, {

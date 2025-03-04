@@ -1,17 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Home, Plus, Search } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import {
   SidebarMenu,
@@ -21,99 +22,127 @@ import {
 } from "@/components/ui/sidebar";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface DropDownItem {
   name: string;
-  logo: React.ElementType;
-  plan: string;
   url: string;
 }
 
 export function TeamSwitcher({
-  teams,
+  orgs,
   personal,
 }: {
-  teams: (DropDownItem & { id: string })[];
+  orgs: (DropDownItem & { id: string })[];
   personal: DropDownItem;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const params = useParams();
   const { isMobile } = useSidebar();
+  const [open, setOpen] = React.useState(false);
   const [activeTeam, setActiveTeam] = React.useState(personal);
-  const handleClick = (item: DropDownItem) => {
+
+  const handleSelect = (item: DropDownItem) => {
     setActiveTeam(item);
     router.push(item.url);
+    setOpen(false);
   };
+
+  const isPersonalActive = pathname.includes("dashboard") && !pathname.includes("organization");
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeTeam.logo className="size-4" />
-              </div>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"></div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-[--radix-popover-trigger-width] min-w-56 p-0 flex flex-col"
             align="start"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            <DropdownMenuItem
-              onClick={() => handleClick(personal)}
+            {/* Personal team at the top */}
+            <Button
+              variant="ghost"
               className={cn(
-                pathname.includes("dashboard") && !pathname.includes("organization") && "bg-accent",
-                "gap-2 p-2"
+                "flex w-full justify-start gap-2 rounded-none px-2 py-3 text-sm font-normal",
+                isPersonalActive && "bg-accent"
               )}
+              onClick={() => handleSelect(personal)}
             >
               <div className="flex size-6 items-center justify-center rounded-sm border">
-                <personal.logo className="size-4 shrink-0" />
+                <Home className="size-4 shrink-0" />
               </div>
-              {personal.name}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Teams</DropdownMenuLabel>
-            {teams.map((item, index) => (
-              <DropdownMenuItem
-                key={item.name}
-                onClick={() => handleClick(item)}
-                className={cn(
-                  pathname.includes("organization") && params.org_id == item.id && "bg-accent",
-                  "gap-2 p-2"
-                )}
-              >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <item.logo className="size-4 shrink-0" />
+              <span>{personal.name}</span>
+              {isPersonalActive && <Check className="ml-auto" />}
+            </Button>
+
+            <Separator />
+
+            {/* Organizations combobox in the middle */}
+            <div className="pt-1 ">
+              {/* <p className="px-2 text-xs font-medium text-muted-foreground mb-2">Teams</p> */}
+              {/* <Separator /> */}
+              <Command className=" ">
+                <div className="flex items-center">
+                  {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
+                  <CommandInput
+                    placeholder="Search organization..."
+                    className="h-9 flex-1 border-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
                 </div>
-                {item.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            {/* <CreateOrg /> */}
-            <DropdownMenuItem
-              onClick={() => router.push("/dashboard/organization/create")}
-              className="gap-2 p-2"
+                <CommandList>
+                  <CommandEmpty>No organization found.</CommandEmpty>
+                  <CommandGroup>
+                    {orgs.map((org) => (
+                      <CommandItem key={org.id} value={org.name} onSelect={() => handleSelect(org)}>
+                        {org.name}
+                        <Check
+                          className={cn(
+                            "ml-auto",
+                            pathname.includes("organization") && params.org_id === org.id
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </div>
+
+            <Separator />
+
+            {/* Create organization at the bottom */}
+            <Button
+              variant="ghost"
+              className="flex w-full justify-start gap-2 rounded-none px-2 py-3 text-sm font-normal"
+              onClick={() => {
+                router.push("/dashboard/organization/create");
+                setOpen(false);
+              }}
             >
               <div className="flex size-6 items-center justify-center rounded-sm border">
                 <Plus className="size-4 shrink-0" />
               </div>
-              Create Organization
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <span>Create Organization</span>
+            </Button>
+          </PopoverContent>
+        </Popover>
       </SidebarMenuItem>
     </SidebarMenu>
   );
