@@ -10,8 +10,6 @@
 // import { Plus } from "lucide-react";
 // import CreateOrgForm from "@/app/(protected)/dashboard/organization/create/_components/create-org-form";
 
-
-
 // const CreateOrg = () => {
 //   const [open, setOpen] = useState(false);
 

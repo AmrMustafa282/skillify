@@ -92,3 +92,8 @@ export enum View {
   PERSONAL = "personal",
   ORGANIZATION = "organization",
 }
+
+export enum ORG_ROLES {
+  ROLE_ORG_ADMIN = "Admin",
+  ROLE_ORG_MEMBER = "Member",
+}

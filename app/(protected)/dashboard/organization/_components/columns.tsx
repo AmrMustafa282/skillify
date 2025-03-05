@@ -24,7 +24,9 @@ export const columns: ColumnDef<Org>[] = [
     accessorKey: "id",
     header: () => <div className="">ID</div>,
     cell: ({ row }) => {
-      return <div className="">{row.getValue("id")}</div>;
+      const id = row.getValue("id") as string;
+      const shortId = id.split("-")[0];
+      return <div className="">{shortId}..</div>;
     },
   },
   {
@@ -40,7 +42,6 @@ export const columns: ColumnDef<Org>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -51,6 +52,11 @@ export const columns: ColumnDef<Org>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => window.location.assign(`/dashboard/organization/${row.original.id}`)}
+            >
+              Open
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
               Copy payment ID
             </DropdownMenuItem>

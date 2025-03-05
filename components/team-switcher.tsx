@@ -42,15 +42,16 @@ export function TeamSwitcher({
   const params = useParams();
   const { isMobile } = useSidebar();
   const [open, setOpen] = React.useState(false);
-  const [activeTeam, setActiveTeam] = React.useState(personal);
+  const isPersonalActive = pathname.includes("dashboard") && !pathname.includes("organization");
+  const [activeTeam, setActiveTeam] = React.useState(
+    isPersonalActive ? personal : orgs.find((org) => org.id === params.org_id) || personal
+  );
 
   const handleSelect = (item: DropDownItem) => {
     setActiveTeam(item);
     router.push(item.url);
     setOpen(false);
   };
-
-  const isPersonalActive = pathname.includes("dashboard") && !pathname.includes("organization");
 
   return (
     <SidebarMenu>
@@ -59,9 +60,11 @@ export function TeamSwitcher({
           <PopoverTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"></div>
+              <div className="flex  aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <Home className="size-4 shrink-0" />
+              </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{activeTeam.name}</span>
               </div>

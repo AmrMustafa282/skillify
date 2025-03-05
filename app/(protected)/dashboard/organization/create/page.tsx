@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Form,
   FormControl,
@@ -40,8 +40,7 @@ const CreateOrg = () => {
         form.reset();
         setTimeout(() => {
           router.push("/dashboard/organization");
-        }
-        , 1000);
+        }, 1000);
       }
     } catch (error: any) {
       toast.error("An unexpected error occurred.");

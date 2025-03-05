@@ -31,35 +31,12 @@ import { authConfig } from "@/app/api/auth/[...nextauth]/route";
 import { server } from "@/lib/api";
 
 const DATA = {
-  ["amr"]: {
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-        url: "/dashboard/organization/1",
-        id: "1",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-        url: "/dashboard/organization/2",
-        id: "2",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-        url: "/dashboard/organization/3",
-        id: "3",
-      },
-    ],
+  [View.PERSONAL]: {
     navMain: [
       {
         title: "Job Offers",
         url: "#",
-        icon: SquareTerminal,
+        // icon: SquareTerminal,
         isActive: true,
         items: [
           {
@@ -79,7 +56,7 @@ const DATA = {
       {
         title: "Models",
         url: "#",
-        icon: Bot,
+        // icon: Bot,
         items: [
           {
             title: "Genesis",
@@ -98,7 +75,7 @@ const DATA = {
       {
         title: "Documentation",
         url: "#",
-        icon: BookOpen,
+        // icon: BookOpen,
         items: [
           {
             title: "Introduction",
@@ -121,7 +98,7 @@ const DATA = {
       {
         title: "Settings",
         url: "#",
-        icon: Settings2,
+        // icon: Settings2,
         items: [
           {
             title: "General",
@@ -146,17 +123,17 @@ const DATA = {
       {
         name: "Design Engineering",
         url: "#",
-        icon: Frame,
+        // icon: Frame,
       },
       {
         name: "Sales & Marketing",
         url: "#",
-        icon: PieChart,
+        // icon: PieChart,
       },
       {
         name: "Travel",
         url: "#",
-        icon: Map,
+        // icon: Map,
       },
     ],
   },
@@ -327,7 +304,7 @@ export async function AppSidebar() {
         <TeamSwitcher orgs={ORGS} personal={PERSONAL_ORG} />
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavMain items={DATA[view].navMain} /> */}
+        <NavMain />
         {/* <NavProjects projects={DATA[view].projects} /> */}
       </SidebarContent>
       <SidebarFooter>

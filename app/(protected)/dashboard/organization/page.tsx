@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Org, columns } from "./columns";
-import { DataTable } from "./data-table";
+import { Org, columns } from "./_components/columns";
+import { DataTable } from "./_components/data-table";
 import { server } from "@/lib/api";
 import Link from "next/link";
 import { Plus } from "lucide-react";
@@ -14,7 +14,7 @@ export default async function OrgsPage() {
   const data = await getOrgs();
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <div className="flex w-full justify-between items-center mb-12">
         <h1 className="text-3xl font-bold">Organizations ({data.length})</h1>
         <Link href="/dashboard/organization/create" className="text-blue-500 underline">

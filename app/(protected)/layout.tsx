@@ -14,7 +14,7 @@ import { ModeToggle } from "@/components/ui/toggle-theme";
 export default function MePage({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <AppSidebar  />
+      <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -36,9 +36,8 @@ export default function MePage({ children }: { children: React.ReactNode }) {
             <ModeToggle />
           </div>
         </header>
-        {children}
+        <div className="container mx-auto py-10">{children}</div>
       </SidebarInset>
     </SidebarProvider>
-
   );
 }
