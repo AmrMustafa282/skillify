@@ -23,7 +23,12 @@ const ConfirmAction = ({ action, onAction, title, desc }: ConfirmActionProps) =>
   return (
     <AlertDialog>
       <AlertDialogTrigger className="w-full">
-        <Button className="w-full p-2 justify-start text-red-500 hover:text-red-600" variant={"ghost"}>{action ?? <Trash2 />}</Button>
+        <Button
+          className="w-full p-2 justify-start text-red-500 hover:text-red-600"
+          variant={"ghost"}
+        >
+          {action ?? <Trash2 />}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
