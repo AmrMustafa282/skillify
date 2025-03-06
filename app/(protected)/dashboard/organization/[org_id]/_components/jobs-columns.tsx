@@ -35,7 +35,7 @@ const deleteJob = async (orgId: string, job_id: string) => {
     });
     if (res.data.success) {
       toast.success("Organization deleted successfully");
-      window.location.assign("/dashboard/organization");
+      // window.location.assign("/dashboard/organization");
     } else {
       toast.error(res.data.error);
     }

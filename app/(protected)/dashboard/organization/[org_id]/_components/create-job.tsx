@@ -34,7 +34,7 @@ const createJobSchema = z.object({
 
 type CreateJobFormValues = z.infer<typeof createJobSchema>;
 
-export function CreateJobDialog({ getOrgJobs }: { getOrgJobs: () => void }) {
+export function CreateJobDialog({ setJobs }: { setJobs: any }) {
   const params = useParams();
   const [open, setOpen] = useState(false);
 
@@ -62,11 +62,11 @@ export function CreateJobDialog({ getOrgJobs }: { getOrgJobs: () => void }) {
       if (res.data.success) {
         toast.success("Job created successfully");
         form.reset();
+        setJobs((prev: any) => [...prev, res.data.data]);
       } else {
         toast.error(res.data.error);
       }
       setOpen(false);
-      getOrgJobs();
     } catch (error: any) {
       console.log(error.message);
     }
