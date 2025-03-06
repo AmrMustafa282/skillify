@@ -22,7 +22,7 @@ interface ConfirmActionProps {
 const ConfirmAction = ({ action, onAction, title, desc }: ConfirmActionProps) => {
   return (
     <AlertDialog>
-      <AlertDialogTrigger className="w-full">
+      <AlertDialogTrigger className="w-full" asChild>
         <Button
           className="w-full p-2 justify-start text-red-500 hover:text-red-600"
           variant={"ghost"}

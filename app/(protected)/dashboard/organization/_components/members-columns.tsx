@@ -11,49 +11,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { ORG_ROLES } from "@/types";
 import toast from "react-hot-toast";
 
-export type Member = {
-  userId: string;
-  email: string;
-  roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
+export type Org = {
+  id: string;
+  name: string;
+  createdBy: string;
+  memberCount: number;
 };
 
-export const columns: ColumnDef<Member>[] = [
+export const columns: ColumnDef<Org>[] = [
   {
-    accessorKey: "userId",
+    accessorKey: "id",
     header: () => <div className="">ID</div>,
     cell: ({ row }) => {
-      const userId = row.getValue("userId") as string;
-      const shortId = userId.split("-")[0];
+      const id = row.getValue("id") as string;
+      const shortId = id.split("-")[0];
       return <div className="">{shortId}..</div>;
     },
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "name",
+    header: "Name",
   },
   {
-    accessorKey: "roles",
-    header: "Role",
-    cell: ({ row }) => {
-      const roles = row.getValue("roles") as ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
-      return (
-        <Badge
-          variant={ORG_ROLES[roles[0]] === ORG_ROLES.ROLE_ORG_ADMIN ? "default" : "secondary"}
-          className="text-xs"
-        >
-          {ORG_ROLES[roles[0]]}
-        </Badge>
-      );
-    },
+    accessorKey: "memberCount",
+    header: "Members",
   },
   {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
+      const payment = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -65,9 +54,14 @@ export const columns: ColumnDef<Member>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
+              onClick={() => window.location.assign(`/dashboard/organization/${row.original.id}`)}
+            >
+              Open
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onClick={() => {
-                navigator.clipboard.writeText(row.getValue("userId"));
-                toast.success("Copied payment ID");
+                navigator.clipboard.writeText(payment.id);
+                toast.success("Payment ID copied to clipboard");
               }}
             >
               Copy payment ID

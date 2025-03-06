@@ -10,6 +10,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/ui/toggle-theme";
+import { Suspense } from "react";
+import Loader from "@/components/ui/Loader";
 
 export default function MePage({ children }: { children: React.ReactNode }) {
   return (
@@ -36,7 +38,17 @@ export default function MePage({ children }: { children: React.ReactNode }) {
             <ModeToggle />
           </div>
         </header>
-        <div className="container mx-auto py-10">{children}</div>
+        <div className="container mx-auto py-10">
+          <Suspense
+            fallback={
+              <div>
+                <Loader />
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -16,13 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Form,
   FormControl,
   FormField,
@@ -34,51 +27,46 @@ import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams } from "next/navigation";
 
-const roles = [
-  { id: "ROLE_ORG_ADMIN", name: "Admin" },
-  { id: "ROLE_ORG_HR", name: "HR" },
-  { id: "ROLE_ORG_INTERVIEWER", name: "Viewer" },
-];
-
-const inviteUserSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  role: z.string({
-    required_error: "Please select a role",
-  }),
+const createJobSchema = z.object({
+  title: z.string().nonempty({ message: "Please enter a title" }),
+  description: z.string().nonempty({ message: "Please enter a description" }),
 });
 
-type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
+type CreateJobFormValues = z.infer<typeof createJobSchema>;
 
-export function InviteUserDialog() {
+export function CreateJobDialog({ getOrgJobs }: { getOrgJobs: () => void }) {
   const params = useParams();
   const [open, setOpen] = useState(false);
-  const form = useForm<InviteUserFormValues>({
-    resolver: zodResolver(inviteUserSchema),
+
+  const form = useForm<CreateJobFormValues>({
+    resolver: zodResolver(createJobSchema),
     defaultValues: {
-      email: "",
-      role: "",
+      title: "",
+      description: "",
     },
   });
 
-  async function onSubmit(data: InviteUserFormValues) {
+  async function onSubmit(data: CreateJobFormValues) {
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}/members`,
+        `${process.env.NEXT_PUBLIC_API_URL}/jobs`,
         {
-          userEmail: data.email,
-          roleName: data.role,
+          title: data.title,
+          description: data.description,
+          organizationId: params.org_id,
         },
         {
           withCredentials: true,
         }
       );
       if (res.data.success) {
-        toast.success("User invited");
+        toast.success("Job created successfully");
         form.reset();
       } else {
         toast.error(res.data.error);
       }
       setOpen(false);
+      getOrgJobs();
     } catch (error: any) {
       console.log(error.message);
     }
@@ -87,26 +75,24 @@ export function InviteUserDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Invite User</Button>
+        <Button variant="outline">Create New</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Invite User</DialogTitle>
-          <DialogDescription>
-            Invite a new user to your organization. They will receive an email invitation.
-          </DialogDescription>
+          <DialogTitle>Create Job</DialogTitle>
+          <DialogDescription>Create a new job on this organization.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
-              name="email"
+              name="title"
               render={({ field }) => (
                 <FormItem className="grid grid-cols-4 items-center gap-x-4">
-                  <FormLabel className="text-right">Email</FormLabel>
+                  <FormLabel className="text-right">Title</FormLabel>
                   <FormControl className="col-span-3">
-                    <Input placeholder="email@example.com" {...field} />
+                    <Input placeholder="Front-End.." {...field} />
                   </FormControl>
                   <FormMessage className="col-span-3 col-start-2" />
                 </FormItem>
@@ -115,24 +101,13 @@ export function InviteUserDialog() {
 
             <FormField
               control={form.control}
-              name="role"
+              name="description"
               render={({ field }) => (
                 <FormItem className="grid grid-cols-4 items-center gap-x-4">
-                  <FormLabel className="text-right">Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl className="col-span-3">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel className="text-right">Description</FormLabel>
+                  <FormControl className="col-span-3">
+                    <Input placeholder="" {...field} />
+                  </FormControl>
                   <FormMessage className="col-span-3 col-start-2" />
                 </FormItem>
               )}
@@ -142,7 +117,7 @@ export function InviteUserDialog() {
               <Button type="button" variant={"outline"} onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Send Invitation</Button>
+              <Button type="submit">Create</Button>
             </DialogFooter>
           </form>
         </Form>

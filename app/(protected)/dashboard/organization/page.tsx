@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Org, columns } from "./_components/columns";
-import { DataTable } from "./_components/data-table";
+import { Org, columns } from "./_components/members-columns";
+import { DataTable } from "@/components/ui/data-table";
 import { server } from "@/lib/api";
 import Link from "next/link";
 import { Plus } from "lucide-react";
