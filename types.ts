@@ -97,3 +97,26 @@ export enum ORG_ROLES {
   ROLE_ORG_ADMIN = "Admin",
   ROLE_ORG_MEMBER = "Member",
 }
+
+export interface Org {
+  id: string;
+  name: string;
+  createdBy: string;
+  members: {
+    userId: string;
+    email: string;
+    roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
+  }[];
+}
+
+export interface Job {
+  id: string;
+  title: string;
+  description: string;
+  organizationId: string;
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: string;
+  createdAt: string;
+  active: boolean;
+}

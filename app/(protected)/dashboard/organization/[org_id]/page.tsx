@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
-import { Edit, MoreHorizontal, Settings } from "lucide-react";
+import { Edit, MoreHorizontal, Save, Settings, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -24,37 +24,27 @@ import { CreateJobDialog } from "./_components/create-job";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-
-export interface Org {
-  id: string;
-  name: string;
-  createdBy: string;
-  members: {
-    userId: string;
-    email: string;
-    roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
-  }[];
-}
-
-export interface Job {
-  id: string;
-  title: string;
-  description: string;
-  organizationId: string;
-  createdBy: string;
-  updatedBy: string;
-  updatedAt: string;
-  createdAt: string;
-  active: boolean;
-}
+import { Job, Org } from "@/types";
 
 const OrgPage = () => {
   const params = useParams();
   const router = useRouter();
   const [org, setOrg] = useState<Org | null>(null);
+  const [editedOrg, setEditedOrg] = useState<Org | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [onTitleEdit, setOnTitleEdit] = useState(false);
+  const [onEdit, setOnEdit] = useState(false);
   const [orgName, setOrgName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEdit = () => {
+    setEditedOrg({ ...org! });
+    setOnEdit(true);
+  };
+
+  const handleCancel = () => {
+    setOnEdit(false);
+    setEditedOrg(null);
+  };
 
   const deleteOrg = async () => {
     try {
@@ -68,6 +58,8 @@ const OrgPage = () => {
     }
   };
   const updateOrg = async (name: string) => {
+    if (!editedOrg) return;
+    setIsLoading(true);
     try {
       const res = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`,
@@ -81,12 +73,19 @@ const OrgPage = () => {
       if (res.data.success) {
         setOrg(res.data.data);
         toast.success("Organization updated successfully");
+        setOnEdit(false);
+      } else {
+        toast.error(res.data.error || "Failed to update or");
       }
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   const deleteJob = async (orgId: string, job_id: string) => {
+    if (!job_id || !orgId) return;
+    setIsLoading(true);
     try {
       const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job_id}`, {
         withCredentials: true,
@@ -99,6 +98,8 @@ const OrgPage = () => {
       }
     } catch (error: any) {
       console.log(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,27 +214,16 @@ const OrgPage = () => {
   ];
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <div className="flex w-full justify-between items-center mb-12">
         <div className="flex items-start gap-4">
-          {onTitleEdit ? (
+          {onEdit ? (
             <>
               <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} />
-              <div className="flex gap-4">
-                <Button variant={"ghost"} size={"sm"} onClick={() => setOnTitleEdit(false)}>
-                  cancel
-                </Button>
-                <Button size={"sm"} onClick={() => updateOrg(orgName)}>
-                  save
-                </Button>
-              </div>
             </>
           ) : (
             <>
               <h1 className="text-3xl font-bold"> {org.name}</h1>
-              <Button size={"icon"} variant={"ghost"} onClick={() => setOnTitleEdit(true)}>
-                <Edit />{" "}
-              </Button>
             </>
           )}
         </div>
@@ -242,11 +232,7 @@ const OrgPage = () => {
             <Settings className="h-6 w-6" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() => router.push(`/dashboard/organization/${params.org_id}/edit`)}
-            >
-              Edit
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
             {/* <DropdownMenuItem className="text-red-500"> */}
             <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
             {/* </DropdownMenuItem> */}
@@ -264,6 +250,16 @@ const OrgPage = () => {
         <CreateJobDialog setJobs={setJobs} />
       </div>
       <DataTable columns={job_columns} data={jobs} />
+      {onEdit && (
+        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-4">
+          <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isLoading}>
+            <X className="h-4 w-4 mr-1" /> Cancel
+          </Button>
+          <Button className="w-full" onClick={() => updateOrg(orgName)} disabled={isLoading}>
+            <Save className="h-4 w-4 mr-1" /> Save
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

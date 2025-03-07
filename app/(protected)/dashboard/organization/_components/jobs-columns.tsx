@@ -11,13 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-export type Org = {
-  id: string;
-  name: string;
-  createdBy: string;
-  memberCount: number;
-};
+import { Org } from "@/types";
 
 export const columns: ColumnDef<Org>[] = [
   {

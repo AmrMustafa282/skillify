@@ -14,7 +14,7 @@ import { Button } from "./button";
 
 interface ConfirmActionProps {
   action?: string;
-  onAction: () => void;
+  onAction: any;
   title?: string;
   desc?: string;
 }
