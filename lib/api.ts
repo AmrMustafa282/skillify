@@ -67,9 +67,8 @@ type ServerApi = {
 };
 
 // Helper function to get cookies from headers
-const getCookies = () => {
-  //@ts-ignore
-  const cookieHeader = headers().get("cookie");
+const getCookies = async () => {
+  const cookieHeader = (await headers()).get("cookie");
   return cookieHeader ? { cookie: cookieHeader } : {};
 };
 
@@ -79,7 +78,7 @@ export const server: ServerApi = {
     return axios.get<T>(url, {
       ...options,
       headers: {
-        ...getCookies(),
+        ...(await getCookies()),
         ...options?.headers,
       },
     });
@@ -90,7 +89,7 @@ export const server: ServerApi = {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        ...getCookies(),
+        ...(await getCookies()),
         ...options?.headers,
       },
     });
@@ -101,7 +100,7 @@ export const server: ServerApi = {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        ...getCookies(),
+        ...(await getCookies()),
         ...options?.headers,
       },
     });
@@ -111,7 +110,7 @@ export const server: ServerApi = {
     return axios.delete<T>(url, {
       ...options,
       headers: {
-        ...getCookies(),
+        ...(await getCookies()),
         ...options?.headers,
       },
     });
