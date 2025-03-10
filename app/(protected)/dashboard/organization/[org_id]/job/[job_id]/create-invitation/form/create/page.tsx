@@ -258,9 +258,9 @@ export default function CreateFormPage() {
   const activeElement = formElements.find((element) => element.id === activeId);
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex-1">
+        <div className="flex-1 space-y-2 ">
           <Input
             value={formTitle}
             onChange={(e) => setFormTitle(e.target.value)}
@@ -272,16 +272,6 @@ export default function CreateFormPage() {
             className="text-gray-500 border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setActiveTab("preview")}>
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
-          <Button onClick={saveForm}>
-            <Save className="mr-2 h-4 w-4" />
-            Save
-          </Button>
-        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -292,9 +282,42 @@ export default function CreateFormPage() {
         </TabsList>
 
         <TabsContent value="edit" className="space-y-4 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 2xl:grid-cols-4 gap-6">
+            {/* Form Builder */}
+            <div className="col-span-3 space-y-4 ">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={formElements.map((element) => element.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {formElements.map((element) => (
+                      <SortableFormElement
+                        key={element.id}
+                        element={element}
+                        activeElementId={activeElementId}
+                        setActiveElementId={setActiveElementId}
+                        updateElement={updateFormElement}
+                        duplicateFormElement={duplicateFormElement}
+                        deleteFormElement={deleteFormElement}
+                        isDragging={activeId === element.id}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+
+                <DragOverlay>
+                  {activeElement ? <DraggableFormElement element={activeElement} /> : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
             {/* Form Elements Sidebar */}
-            <div className="space-y-4">
+            <div className="space-y-4 bg-black col-span-3 2xl:col-span-1">
               <Card>
                 <CardContent className="p-4">
                   <h3 className="font-medium mb-3">Add Question</h3>
@@ -367,43 +390,8 @@ export default function CreateFormPage() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Form Builder */}
-            <div className="lg:col-span-3 space-y-4">
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={formElements.map((element) => element.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-4">
-                    {formElements.map((element) => (
-                      <SortableFormElement
-                        key={element.id}
-                        element={element}
-                        activeElementId={activeElementId}
-                        setActiveElementId={setActiveElementId}
-                        updateElement={updateFormElement}
-                        duplicateFormElement={duplicateFormElement}
-                        deleteFormElement={deleteFormElement}
-                        isDragging={activeId === element.id}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-
-                <DragOverlay>
-                  {activeElement ? <DraggableFormElement element={activeElement} /> : null}
-                </DragOverlay>
-              </DndContext>
-            </div>
           </div>
         </TabsContent>
-
         <TabsContent value="preview">
           <FormPreview title={formTitle} description={formDescription} elements={formElements} />
         </TabsContent>
@@ -412,6 +400,12 @@ export default function CreateFormPage() {
           <FormSettings />
         </TabsContent>
       </Tabs>
+      <div className="mt-6">
+        <Button onClick={saveForm} className="w-full">
+          <Save className="mr-2 h-4 w-4" />
+          Save
+        </Button>
+      </div>
     </div>
   );
 }

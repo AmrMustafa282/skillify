@@ -4,7 +4,7 @@ import { PlusCircle } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">My Forms</h1>
         <Link href="create-invitation/form/create">

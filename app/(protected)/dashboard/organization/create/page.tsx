@@ -49,7 +49,7 @@ const CreateOrg = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField

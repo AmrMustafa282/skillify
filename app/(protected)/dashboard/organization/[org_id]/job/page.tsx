@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
-import { Edit, MoreHorizontal, Save, Settings, X } from "lucide-react";
+import { MoreHorizontal, Save, Settings, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -15,18 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/ui/data-table";
-import { columns } from "./_components/columns";
-// import { job_columns } from "./_components/jobs-columns";
-import { InviteUserDialog } from "./_components/invite-user";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { CreateJobDialog } from "./_components/create-job";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Job, Org } from "@/types";
 
-const OrgPage = () => {
+const JobsPage = () => {
   const params = useParams();
   const router = useRouter();
   const [org, setOrg] = useState<Org | null>(null);
@@ -233,20 +229,27 @@ const OrgPage = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            {/* <DropdownMenuItem className="text-red-500"> */}
             <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
-            {/* </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       <div className="flex justify-between mb-4">
-        <h1 className="text-1xl font-semibold ">Organization's Members</h1>
-        <InviteUserDialog />
+        <h1 className="text-1xl font-semibold ">Organization's Jobs</h1>
+        <CreateJobDialog setJobs={setJobs} />
       </div>
-      <DataTable columns={columns} data={org.members} />
-      <Separator className="mb-8 mt-2" />
+      <DataTable columns={job_columns} data={jobs} />
+      {onEdit && (
+        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-4">
+          <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isLoading}>
+            <X className="h-4 w-4 mr-1" /> Cancel
+          </Button>
+          <Button className="w-full" onClick={() => updateOrg(orgName)} disabled={isLoading}>
+            <Save className="h-4 w-4 mr-1" /> Save
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
-export default OrgPage;
+export default JobsPage;

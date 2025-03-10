@@ -305,7 +305,7 @@ export async function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
-        {/* <NavProjects projects={DATA[view].projects} /> */}
+        {/* <NavProjects projects={DATA["personal"].projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={USER} />

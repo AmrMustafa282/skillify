@@ -19,7 +19,7 @@ import type { FormResponse } from "@/types";
 
 export default function FormResponsesPage() {
   const router = useRouter();
-  const { id } = useParams();
+  const { form_id } = useParams();
   const [responses, setResponses] = useState<FormResponse[]>([]);
 
   useEffect(() => {
@@ -36,18 +36,18 @@ export default function FormResponsesPage() {
     }));
 
     setResponses(mockResponses);
-  }, [id]);
+  }, [form_id]);
 
   return (
-    <div className="container mx-auto py-6">
-      <Button variant="ghost" onClick={() => router.push("/")} className="mb-6">
+    <div>
+      <Button variant="ghost" onClick={() => router.back()} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Forms
       </Button>
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Form {id} Responses</h1>
+          <h1 className="text-2xl font-bold">Form {form_id} Responses</h1>
           <p className="text-muted-foreground">View and analyze form submissions</p>
         </div>
         <div className="flex gap-2">

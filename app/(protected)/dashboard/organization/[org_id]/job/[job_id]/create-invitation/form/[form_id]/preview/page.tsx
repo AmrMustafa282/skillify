@@ -9,14 +9,14 @@ import { ElementType, type FormData, type FormElement } from "@/types";
 
 export default function PreviewFormPage() {
   const router = useRouter();
-  const { id } = useParams();
+  const { form_id } = useParams();
   const [formData, setFormData] = useState<FormData | null>(null);
 
   useEffect(() => {
     // In a real app, you would fetch the form data from a database
     // This is mock data for demonstration
     setFormData({
-      title: `Sample Form ${id}`,
+      title: `Sample Form ${form_id}`,
       description: "This is a preview of your form. Fill it out to see how it works.",
       elements: [
         {
@@ -56,11 +56,11 @@ export default function PreviewFormPage() {
         } as FormElement,
       ],
     });
-  }, [id]);
+  }, [form_id]);
 
   if (!formData) {
     return (
-      <div className="container mx-auto py-6">
+      <div>
         <div className="flex items-center justify-center h-[60vh]">
           <p>Loading form preview...</p>
         </div>
@@ -69,8 +69,8 @@ export default function PreviewFormPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <Button variant="ghost" onClick={() => router.push("/")} className="mb-6">
+    <div>
+      <Button variant="ghost" onClick={() => router.back()} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Forms
       </Button>
