@@ -18,10 +18,10 @@ const RecruiterLayout = ({ children }: { children: React.ReactNode }) => {
   if (status === "loading") return <Loader />;
   if (!session) return null;
 
-  //@ts-expect-error
-  const role = session?.user?.role;
+  // //@ts-expect-error
+  // const role = session?.user?.role;
 
-  if (role !== Role.ROLE_RECRUITER) return notFound();
+  // if (role !== Role.ROLE_RECRUITER) return notFound();
 
   return <div>{children}</div>;
 };

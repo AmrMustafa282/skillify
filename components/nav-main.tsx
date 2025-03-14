@@ -14,22 +14,187 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+const PERSONAL_NAV = [
+  {
+    title: "Job Offers",
+    url: "#",
+    // icon: SquareTerminal,
+    isActive: true,
+    items: [
+      {
+        title: "Ovreview",
+        url: "dashboard/",
+      },
+      {
+        title: "Starred",
+        url: "#",
+      },
+      {
+        title: "Settings",
+        url: "#",
+      },
+    ],
+  },
+  {
+    title: "Models",
+    url: "#",
+    // icon: Bot,
+    items: [
+      {
+        title: "Genesis",
+        url: "#",
+      },
+      {
+        title: "Explorer",
+        url: "#",
+      },
+      {
+        title: "Quantum",
+        url: "#",
+      },
+    ],
+  },
+  {
+    title: "Documentation",
+    url: "#",
+    // icon: BookOpen,
+    items: [
+      {
+        title: "Introduction",
+        url: "#",
+      },
+      {
+        title: "Get Started",
+        url: "#",
+      },
+      {
+        title: "Tutorials",
+        url: "#",
+      },
+      {
+        title: "Changelog",
+        url: "#",
+      },
+    ],
+  },
+  {
+    title: "Settings",
+    url: "#",
+    // icon: Settings2,
+    items: [
+      {
+        title: "General",
+        url: "#",
+      },
+      {
+        title: "Team",
+        url: "#",
+      },
+      {
+        title: "Billing",
+        url: "#",
+      },
+      {
+        title: "Limits",
+        url: "#",
+      },
+    ],
+  },
+];
+const ORG_NAV = [
+  {
+    title: "Organization",
+    url: "#",
+    // icon: SquareTerminal,
+    isActive: true,
+    items: [
+      {
+        title: "Ovreview",
+        url: "/dashboard/organization",
+      },
+      {
+        title: "Starred",
+        url: "#",
+      },
+      {
+        title: "Settings",
+        url: "#",
+      },
+    ],
+  },
+  // {
+  //   title: "Models",
+  //   url: "#",
+  //   // icon: Bot,
+  //   items: [
+  //     {
+  //       title: "Genesis",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Explorer",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Quantum",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Documentation",
+  //   url: "#",
+  //   // icon: BookOpen,
+  //   items: [
+  //     {
+  //       title: "Introduction",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Get Started",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Tutorials",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Changelog",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "#",
+  //   // icon: Settings2,
+  //   items: [
+  //     {
+  //       title: "General",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Team",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Billing",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Limits",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
+];
+
+export function NavMain() {
+  const pathname = usePathname();
+
+  const items = pathname.includes("organization") ? ORG_NAV : PERSONAL_NAV;
   const router = useRouter();
 
   return (
@@ -46,7 +211,7 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
+                  {/* {item.icon && <item.icon />} */}
                   <span>{item.title}</span>
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>

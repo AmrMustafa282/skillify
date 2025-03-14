@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   AudioWaveform,
@@ -12,6 +10,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  House,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -25,30 +24,141 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Role } from "@/types";
+import { View } from "@/types";
+
+import { getServerSession } from "next-auth";
+import { authConfig } from "@/app/api/auth/[...nextauth]/route";
+import { server } from "@/lib/api";
 
 const DATA = {
-  [Role.ROLE_ADMIN]: {
-    user: {
-      name: "admin",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
+  [View.PERSONAL]: {
+    navMain: [
+      {
+        title: "Job Offers",
+        url: "#",
+        // icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "Ovreview",
+            url: "dashboard/",
+          },
+          {
+            title: "Starred",
+            url: "#",
+          },
+          {
+            title: "Settings",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Models",
+        url: "#",
+        // icon: Bot,
+        items: [
+          {
+            title: "Genesis",
+            url: "#",
+          },
+          {
+            title: "Explorer",
+            url: "#",
+          },
+          {
+            title: "Quantum",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Documentation",
+        url: "#",
+        // icon: BookOpen,
+        items: [
+          {
+            title: "Introduction",
+            url: "#",
+          },
+          {
+            title: "Get Started",
+            url: "#",
+          },
+          {
+            title: "Tutorials",
+            url: "#",
+          },
+          {
+            title: "Changelog",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Settings",
+        url: "#",
+        // icon: Settings2,
+        items: [
+          {
+            title: "General",
+            url: "#",
+          },
+          {
+            title: "Team",
+            url: "#",
+          },
+          {
+            title: "Billing",
+            url: "#",
+          },
+          {
+            title: "Limits",
+            url: "#",
+          },
+        ],
+      },
+    ],
+    projects: [
+      {
+        name: "Design Engineering",
+        url: "#",
+        // icon: Frame,
+      },
+      {
+        name: "Sales & Marketing",
+        url: "#",
+        // icon: PieChart,
+      },
+      {
+        name: "Travel",
+        url: "#",
+        // icon: Map,
+      },
+    ],
+  },
+  [View.ORGANIZATION]: {
     teams: [
       {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
         plan: "Enterprise",
+        url: "/dashboard/organization/1",
+        id: "1",
       },
       {
         name: "Acme Corp.",
         logo: AudioWaveform,
         plan: "Startup",
+        url: "/dashboard/organization/2",
+        id: "2",
       },
       {
         name: "Evil Corp.",
         logo: Command,
         plan: "Free",
+        url: "/dashboard/organization/3",
+        id: "3",
       },
     ],
     navMain: [
@@ -156,280 +266,49 @@ const DATA = {
       },
     ],
   },
-  [Role.ROLE_RECRUITER]: {
-    user: {
-      name: "recruiter",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-      },
-    ],
-    navMain: [
-      {
-        title: "Job Offers",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Ovreview",
-            url: "/dashboard/offers",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Models",
-        url: "#",
-        icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  },
-  [Role.ROLE_CANDIDATE]: {
-    user: {
-      name: "candidate",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-      },
-    ],
-    navMain: [
-      {
-        title: "Job Offers",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Ovreview",
-            url: "offers",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Models",
-        url: "#",
-        icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  },
 };
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  role: Role;
-}
+const PERSONAL_ORG = {
+  name: "Personal",
+  plan: "Free",
+  url: "/dashboard",
+};
 
-export function AppSidebar({ role, ...props }: AppSidebarProps) {
+export async function AppSidebar() {
+  const session = await getServerSession(authConfig);
+  // console.log(session?.user)
+  let USER = { username: "", email: "", avatar: "" };
+  let ORGS;
+  if (session) {
+    USER = {
+      username: session.user?.username || "",
+      email: session.user?.email || "",
+      avatar: "",
+    };
+    try {
+      const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`);
+      ORGS = res.data.data.map((org: any) => ({
+        name: org.name,
+        plan: org.plan,
+        url: `/dashboard/organization/${org.id}`,
+        id: org.id,
+      }));
+    } catch (error) {
+      console.error("Error during fetching orgs:", error);
+    }
+  }
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
-        <TeamSwitcher teams={DATA[role].teams} />
+        <TeamSwitcher orgs={ORGS} personal={PERSONAL_ORG} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={DATA[role].navMain} />
-        <NavProjects projects={DATA[role].projects} />
+        <NavMain />
+        {/* <NavProjects projects={DATA[view].projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={DATA[role].user} />
+        <NavUser user={USER} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
