@@ -15,7 +15,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./_components/columns";
 import { InviteUserDialog } from "./_components/invite-user";
 import { Input } from "@/components/ui/input";
-import {  Org } from "@/types";
+import { Org } from "@/types";
 
 const OrgPage = () => {
   const params = useParams();
@@ -60,7 +60,6 @@ const OrgPage = () => {
   }, [params.org_id]);
 
   if (!org) return null;
-
 
   return (
     <div>

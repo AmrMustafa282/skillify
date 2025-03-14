@@ -1,6 +1,14 @@
 "use client";
 
-import { BookOpen, Bot, ChevronRight, SquareTerminal } from "lucide-react";
+import {
+  BookOpen,
+  Bot,
+  BriefcaseBusiness,
+  ChevronRight,
+  Mail,
+  Network,
+  SquareTerminal,
+} from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -109,7 +117,7 @@ const ORG_NAV = [
   {
     title: "Organization",
     url: "#",
-    icon: SquareTerminal,
+    icon: Network,
     isActive: true,
     params: "",
     items: [
@@ -130,13 +138,13 @@ const ORG_NAV = [
   {
     title: "Jobs",
     url: "#",
-    icon: Bot,
+    icon: BriefcaseBusiness,
     isActive: true,
     params: "org_id",
     items: [
       {
         title: "Overview",
-        url: (orgId: string) => `/dashboard/organization/${orgId}/job`,
+        url: (orgId?: string) => `/dashboard/organization/${orgId}/job`,
       },
       {
         title: "Explorer",
@@ -151,7 +159,7 @@ const ORG_NAV = [
   {
     title: "Invitations",
     url: "#",
-    icon: BookOpen,
+    icon: Mail,
     isActive: true,
     params: "job_id",
     items: [
@@ -175,6 +183,32 @@ const ORG_NAV = [
     ],
   },
   {
+    title: "Assessment",
+    url: "#",
+    icon: BookOpen,
+    isActive: true,
+    params: "job_id",
+    items: [
+      {
+        title: "Overview",
+        url: (orgId?: string, jobId?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/create-assessment`,
+      },
+      {
+        title: "Create-Assessment",
+        url: "create-assessment/form/create",
+      },
+      {
+        title: "Tutorials",
+        url: "#",
+      },
+      {
+        title: "Changelog",
+        url: "#",
+      },
+    ],
+  },
+  {
     title: "Job-Invitation",
     url: "#",
     icon: BookOpen,
@@ -183,7 +217,7 @@ const ORG_NAV = [
     items: [
       {
         title: "Overview",
-        url: (orgId?: string, jobId?: string, form_id) =>
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
       },
       {
@@ -262,7 +296,11 @@ export function NavMain() {
                               if (typeof subItem.url === "function") {
                                 // @ts-ignore
                                 router.push(
-                                  subItem.url(params.org_id, params.job_id, params.form_id)
+                                  subItem.url(
+                                    params.org_id as string,
+                                    params.job_id as string,
+                                    params.form_id as string
+                                  )
                                 );
                               } else {
                                 router.push(subItem.url);

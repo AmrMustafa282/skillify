@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const TABLIT_BREAKPOINT = 979;
+const TABLIT_BREAKPOINT = 1200;
 
 export function useIsMobile() {
   const [isTablit, setIsTablit] = React.useState<boolean | undefined>(undefined);
