@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Org, columns } from "./_components/members-columns";
+import { columns } from "./_components/members-columns";
 import { DataTable } from "@/components/ui/data-table";
 import { server } from "@/lib/api";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { Org } from "@/types";
 
 async function getOrgs() {
   const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`, {});

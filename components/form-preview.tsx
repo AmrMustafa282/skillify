@@ -212,6 +212,8 @@ export default function FormPreview({ title, description, elements }: FormPrevie
     }
   };
 
+  console.log(elements);
+
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <form onSubmit={handleSubmit}>

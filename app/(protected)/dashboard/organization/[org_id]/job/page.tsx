@@ -210,7 +210,7 @@ const JobsPage = () => {
   ];
 
   return (
-    <div className="flex flex-col h-full">
+    <div>
       <div className="flex w-full justify-between items-center mb-12">
         <div className="flex items-start gap-4">
           {onEdit ? (
@@ -239,7 +239,7 @@ const JobsPage = () => {
       </div>
       <DataTable columns={job_columns} data={jobs} />
       {onEdit && (
-        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-4">
+        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-12">
           <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isLoading}>
             <X className="h-4 w-4 mr-1" /> Cancel
           </Button>

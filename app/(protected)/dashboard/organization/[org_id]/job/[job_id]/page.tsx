@@ -116,7 +116,7 @@ const JobPage = () => {
     );
 
   return (
-    <div className="h-full flex flex-col ">
+    <div>
       <div className="flex w-full justify-between items-center mb-6">
         <div className="flex items-start gap-4 w-full">
           {onEdit ? (
@@ -234,7 +234,7 @@ const JobPage = () => {
         </div>
       </div>
       {onEdit && (
-        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-4">
+        <div className="w-full flex justify-end flex-grow items-end  gap-4 mt-12">
           <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isLoading}>
             <X className="h-4 w-4 mr-1" /> Cancel
           </Button>
