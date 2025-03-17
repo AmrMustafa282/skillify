@@ -95,8 +95,17 @@ export enum View {
 
 export enum ORG_ROLES {
   ROLE_ORG_ADMIN = "Admin",
-  ROLE_ORG_MEMBER = "Member",
+  ROLE_ORG_HR = "HR",
+  ROLE_ORG_INTERVIEWER = "Interviewer",
 }
+
+export type ORG_ROLE = "ROLE_ORG_ADMIN" | "ROLE_ORG_HR" | "ROLE_ORG_INTERVIEWER";
+
+export type Member = {
+  userId: string;
+  email: string;
+  roles: ORG_ROLE[];
+};
 
 export interface Org {
   id: string;
@@ -105,7 +114,7 @@ export interface Org {
   members: {
     userId: string;
     email: string;
-    roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
+    roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_HR" | "ROLE_ORG_INTERVIEWER"];
   }[];
 }
 

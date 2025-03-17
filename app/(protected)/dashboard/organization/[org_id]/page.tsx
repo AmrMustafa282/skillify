@@ -25,6 +25,24 @@ const OrgPage = () => {
   const [onEdit, setOnEdit] = useState(false);
   const [orgName, setOrgName] = useState("");
 
+  const fetchOrg = async () => {
+    try {
+      const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        setOrg(res.data.data);
+        setOrgName(res.data.data.name);
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrg();
+  }, [params.org_id]);
+
   const handleEdit = () => {
     setEditedOrg({ ...org! });
     setOnEdit(true);
@@ -41,23 +59,6 @@ const OrgPage = () => {
       toast.error(error.message);
     }
   };
-
-  useEffect(() => {
-    const getOrg = async () => {
-      try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
-          withCredentials: true,
-        });
-        if (res.data.success) {
-          setOrg(res.data.data);
-          setOrgName(res.data.data.name);
-        }
-      } catch (error: any) {
-        toast.error(error.message);
-      }
-    };
-    getOrg();
-  }, [params.org_id]);
 
   if (!org) return null;
 
@@ -81,15 +82,13 @@ const OrgPage = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            {/* <DropdownMenuItem className="text-red-500"> */}
             <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
-            {/* </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       <div className="flex justify-between mb-12">
         <h1 className="text-1xl font-semibold ">Organization's Members</h1>
-        <InviteUserDialog />
+        <InviteUserDialog onSuccess={fetchOrg} />
       </div>
       <DataTable columns={columns} data={org.members} />
     </div>

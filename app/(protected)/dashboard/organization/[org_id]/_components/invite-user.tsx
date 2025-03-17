@@ -49,7 +49,10 @@ const inviteUserSchema = z.object({
 
 type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
 
-export function InviteUserDialog() {
+interface InviteUserDialogProps {
+  onSuccess: () => void;
+}
+export function InviteUserDialog({ onSuccess }: InviteUserDialogProps) {
   const params = useParams();
   const [open, setOpen] = useState(false);
   const form = useForm<InviteUserFormValues>({
@@ -75,6 +78,7 @@ export function InviteUserDialog() {
       if (res.data.success) {
         toast.success("User invited");
         form.reset();
+        onSuccess();
       } else {
         toast.error(res.data.error);
       }

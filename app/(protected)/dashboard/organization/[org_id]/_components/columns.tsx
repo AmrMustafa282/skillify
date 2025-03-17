@@ -12,14 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { ORG_ROLES } from "@/types";
+import { Member, ORG_ROLE, ORG_ROLES } from "@/types";
 import toast from "react-hot-toast";
-
-export type Member = {
-  userId: string;
-  email: string;
-  roles: ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
-};
 
 export const columns: ColumnDef<Member>[] = [
   {
@@ -39,7 +33,7 @@ export const columns: ColumnDef<Member>[] = [
     accessorKey: "roles",
     header: "Role",
     cell: ({ row }) => {
-      const roles = row.getValue("roles") as ["ROLE_ORG_ADMIN" | "ROLE_ORG_MEMBER"];
+      const roles = row.getValue("roles") as ORG_ROLE[];
       return (
         <Badge
           variant={ORG_ROLES[roles[0]] === ORG_ROLES.ROLE_ORG_ADMIN ? "default" : "secondary"}
