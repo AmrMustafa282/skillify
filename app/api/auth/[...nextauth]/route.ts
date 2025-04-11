@@ -137,6 +137,7 @@ import type { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
+import { cookies } from "next/headers";
 
 export const authConfig = {
   providers: [
@@ -148,6 +149,7 @@ export const authConfig = {
       },
       async authorize(credentials) {
         try {
+          const cookiesStore = await cookies();
           const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
             {
@@ -168,12 +170,26 @@ export const authConfig = {
             // Extract accessToken and refreshToken from the response
             const accessToken = res.data.data.accessToken;
             const refreshToken = res.data.data.refreshToken;
+            cookiesStore.set("JWT", accessToken, {
+              // httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              path: "/",
+              maxAge: 30 * 60,
+            });
 
+            cookiesStore.set("JWT_REFRESH", refreshToken, {
+              // httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              path: "/",
+              maxAge: 7 * 24 * 60 * 60,
+            });
             // Return the user object along with the tokens
             return {
               ...user,
-              accessToken,
-              refreshToken,
+              // accessToken,
+              // refreshToken,
             };
           } else {
             return null; // Return null if authentication fails
@@ -201,6 +217,8 @@ export const authConfig = {
   // Customize session and JWT behavior
   session: {
     strategy: "jwt",
+    maxAge: 30 * 60, // 30 minutes
+
   },
 
   callbacks: {
@@ -212,8 +230,8 @@ export const authConfig = {
         token.username = user.username;
         token.user = user;
         token.is_subscribed = user.is_subscribed;
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
+        // token.accessToken = user.accessToken;
+        // token.refreshToken = user.refreshToken;
       }
       return token;
     },
@@ -225,8 +243,8 @@ export const authConfig = {
       session.user.name = token.username;
       session.user = token.user;
       session.user.is_subscribed = token.is_subscribed;
-      session.accessToken = token.accessToken; // Include accessToken in the session
-      session.refreshToken = token.refreshToken; // Include refreshToken in the session
+      // session.accessToken = token.accessToken; // Include accessToken in the session
+      // session.refreshToken = token.refreshToken; // Include refreshToken in the session
       return session;
     },
 

@@ -44,19 +44,6 @@ export function useLoginForm() {
       } else {
         const session: any = await getSession();
         if (session) {
-          Cookies.set("JWT", session.accessToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-          });
-
-          Cookies.set("JWT_REFRESH", session.refreshToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-          });
         }
       }
     } catch (error) {
