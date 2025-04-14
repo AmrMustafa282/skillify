@@ -227,3 +227,19 @@ export interface ColorPickerProps {
   color: string;
   onChange: (color: string) => void;
 }
+
+export interface AssessmentProps {
+  id: string;
+  name: string;
+  description: string;
+  timeLimit: number;
+  jobId: string;
+  jobTitle: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
