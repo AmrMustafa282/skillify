@@ -243,3 +243,22 @@ export interface AssessmentProps {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Assessment {
+  id: string;
+  name: string;
+  description: string;
+  timeLimit: number;
+  jobId: string;
+  orgId: string;
+  jobTitle: string;
+  startTime: string;
+  endTime: string;
+  status: AssessmentStatus;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AssessmentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
