@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/utils";
 import { Job } from "@/types";
 import Loader from "@/components/ui/Loader";
+import { API_URL } from "@/config";
 
 const JobPage = () => {
   const params = useParams();
@@ -43,13 +44,9 @@ const JobPage = () => {
 
     setIsLoading(true);
     try {
-      const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/jobs/${params.job_id}`,
-        editedJob,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.put(`${API_URL}/jobs/${params.job_id}`, editedJob, {
+        withCredentials: true,
+      });
       if (res.data.success) {
         setJob(res.data.data);
         toast.success("Job updated successfully");
@@ -69,7 +66,7 @@ const JobPage = () => {
 
     setIsLoading(true);
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job.id}`, {
+      const res = await axios.delete(`${API_URL}/jobs/${job.id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -89,7 +86,7 @@ const JobPage = () => {
     const getJob = async () => {
       setIsLoading(true);
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${params.job_id}`, {
+        const res = await axios(`${API_URL}/jobs/${params.job_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {

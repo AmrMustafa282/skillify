@@ -26,6 +26,7 @@ import {
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { API_URL } from "@/config";
 
 const createJobSchema = z.object({
   title: z.string().nonempty({ message: "Please enter a title" }),
@@ -49,7 +50,7 @@ export function CreateJobDialog({ setJobs }: { setJobs: any }) {
   async function onSubmit(data: CreateJobFormValues) {
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/jobs`,
+        `${API_URL}/jobs`,
         {
           title: data.title,
           description: data.description,

@@ -15,7 +15,7 @@
 //         password: { label: "Password", type: "password" },
 //       },
 //       async authorize(credentials) {
-//         const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+//         const res = await axios.post(`${API_URL}/auth/login`, {
 //           email: credentials?.email,
 //           password: credentials?.password,
 //         });
@@ -138,6 +138,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { cookies } from "next/headers";
+import { API_URL } from "@/config";
 
 export const authConfig = {
   providers: [
@@ -151,7 +152,7 @@ export const authConfig = {
         try {
           const cookiesStore = await cookies();
           const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            `${API_URL}/auth/login`,
             {
               email: credentials?.email,
               password: credentials?.password,
@@ -175,7 +176,7 @@ export const authConfig = {
               secure: process.env.NODE_ENV === "production",
               sameSite: "lax",
               path: "/",
-              maxAge: 30 * 60,
+              maxAge: 7 * 24 * 60 * 60,
             });
 
             cookiesStore.set("JWT_REFRESH", refreshToken, {
@@ -218,7 +219,6 @@ export const authConfig = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 60, // 30 minutes
-
   },
 
   callbacks: {

@@ -7,7 +7,7 @@ export default function HomePage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">My Assessments</h1>
-        <Link href="create-assessment/form/create">
+        <Link href="assessments/create">
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             Create Assessment

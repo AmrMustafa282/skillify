@@ -5,9 +5,10 @@ import { server } from "@/lib/api";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Org } from "@/types";
+import { API_URL } from "@/config";
 
 async function getOrgs() {
-  const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`, {});
+  const res = await server.get(`${API_URL}/orgs/user/current`, {});
   return res.data.data as Org[];
 }
 

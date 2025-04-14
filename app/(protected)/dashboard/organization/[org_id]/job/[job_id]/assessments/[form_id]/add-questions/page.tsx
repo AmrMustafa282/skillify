@@ -34,7 +34,6 @@ import {
   FileText,
   Trash2,
   Copy,
-  Eye,
   Save,
   GripVertical,
 } from "lucide-react";

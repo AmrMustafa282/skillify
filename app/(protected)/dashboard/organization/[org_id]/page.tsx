@@ -16,6 +16,7 @@ import { columns } from "./_components/columns";
 import { InviteUserDialog } from "./_components/invite-user";
 import { Input } from "@/components/ui/input";
 import { Org } from "@/types";
+import { API_URL } from "@/config";
 
 const OrgPage = () => {
   const params = useParams();
@@ -27,7 +28,7 @@ const OrgPage = () => {
 
   const fetchOrg = async () => {
     try {
-      const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+      const res = await axios(`${API_URL}/orgs/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -50,7 +51,7 @@ const OrgPage = () => {
 
   const deleteOrg = async () => {
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+      const res = await axios.delete(`${API_URL}/orgs/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) toast.success("Organization deleted successfully");

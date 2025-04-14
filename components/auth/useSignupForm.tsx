@@ -1,3 +1,4 @@
+import { API_URL } from "@/config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ export function useSignupForm() {
 
   const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
-      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, values, {
+      const req = await axios.post(`${API_URL}/auth/register`, values, {
         headers: {
           "Content-Type": "application/json",
         },

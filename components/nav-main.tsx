@@ -169,7 +169,7 @@ const ORG_NAV = [
           `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
       },
       {
-        title: "Create-Invitation",
+        title: "Create Invitation",
         url: "create-invitation/form/create",
       },
       {
@@ -192,11 +192,11 @@ const ORG_NAV = [
       {
         title: "Overview",
         url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-assessment`,
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments`,
       },
       {
-        title: "Create-Assessment",
-        url: "create-assessment/form/create",
+        title: "Create Assessment",
+        url: "assessments/create",
       },
       {
         title: "Tutorials",
@@ -221,7 +221,7 @@ const ORG_NAV = [
           `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
       },
       {
-        title: "Create-Invitation",
+        title: "Create Invitation",
         url: "create-invitation/form/create",
       },
       {

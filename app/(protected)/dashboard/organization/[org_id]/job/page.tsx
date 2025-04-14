@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Job, Org } from "@/types";
+import { API_URL } from "@/config";
 
 const JobsPage = () => {
   const params = useParams();
@@ -44,7 +45,7 @@ const JobsPage = () => {
 
   const deleteOrg = async () => {
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+      const res = await axios.delete(`${API_URL}/orgs/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) toast.success("Organization deleted successfully");
@@ -58,7 +59,7 @@ const JobsPage = () => {
     setIsLoading(true);
     try {
       const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`,
+        `${API_URL}/orgs/${params.org_id}`,
         {
           name,
         },
@@ -83,7 +84,7 @@ const JobsPage = () => {
     if (!job_id || !orgId) return;
     setIsLoading(true);
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job_id}`, {
+      const res = await axios.delete(`${API_URL}/jobs/${job_id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -102,7 +103,7 @@ const JobsPage = () => {
   useEffect(() => {
     const getOrg = async () => {
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+        const res = await axios(`${API_URL}/orgs/${params.org_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -116,7 +117,7 @@ const JobsPage = () => {
     };
     const getOrgJobs = async () => {
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/jobs/org/${params.org_id}`, {
+        const res = await axios(`${API_URL}/jobs/org/${params.org_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {

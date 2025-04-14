@@ -10,11 +10,9 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-  House,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
@@ -29,6 +27,7 @@ import { View } from "@/types";
 import { getServerSession } from "next-auth";
 import { authConfig } from "@/app/api/auth/[...nextauth]/route";
 import { server } from "@/lib/api";
+import { API_URL } from "@/config";
 
 const DATA = {
   [View.PERSONAL]: {
@@ -286,7 +285,7 @@ export async function AppSidebar() {
       avatar: "",
     };
     try {
-      const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`);
+      const res = await server.get(`${API_URL}/orgs/user/current`);
       ORGS = res.data.data.map((org: any) => ({
         name: org.name,
         plan: org.plan,

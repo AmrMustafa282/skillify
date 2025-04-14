@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/config";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -32,7 +33,7 @@ const CreateOrg = () => {
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/orgs`, values, {
+      const res = await axios.post(`${API_URL}/orgs`, values, {
         withCredentials: true,
       });
       if (res.data.success) {
