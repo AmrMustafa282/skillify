@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Edit, Save, Settings, X } from "lucide-react";
+import { Edit, Save, Settings, Trash2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -20,6 +20,7 @@ import { formatDate } from "@/lib/utils";
 import { Job } from "@/types";
 import Loader from "@/components/ui/Loader";
 import { API_URL } from "@/config";
+import ConfirmAction from "@/components/ui/confirm-action";
 
 const JobPage = () => {
   const params = useParams();
@@ -132,26 +133,14 @@ const JobPage = () => {
         <div className="flex items-center gap-2">
           {onEdit || (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
+              <DropdownMenuTrigger className="focus">
+                <Settings className="h-6 w-6" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" /> Edit Job
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+                  <Edit /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => {
-                    // This assumes your ConfirmAction component is used differently
-                    // If it's a modal trigger, you might need to adjust this
-                    const confirmed = window.confirm("Are you sure you want to delete this job?");
-                    if (confirmed) deleteJob();
-                  }}
-                >
-                  Delete Job
-                </DropdownMenuItem>
+                <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteJob}></ConfirmAction>
               </DropdownMenuContent>
             </DropdownMenu>
           )}

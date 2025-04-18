@@ -1,7 +1,7 @@
 "use client";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
-import { Settings } from "lucide-react";
+import { Edit, Settings, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -82,8 +82,10 @@ const OrgPage = () => {
             <Settings className="h-6 w-6" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+              <Edit className="" /> Edit
+            </DropdownMenuItem>
+            <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteOrg}></ConfirmAction>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

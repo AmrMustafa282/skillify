@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
-import { MoreHorizontal, Save, Settings, X } from "lucide-react";
+import { Edit, MoreHorizontal, Save, Settings, Trash2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -229,8 +229,10 @@ const JobsPage = () => {
             <Settings className="h-6 w-6" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+              <Edit /> Edit
+            </DropdownMenuItem>
+            <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteOrg}></ConfirmAction>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

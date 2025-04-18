@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Edit, Settings } from "lucide-react";
+import { Edit, Settings, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import CreateAssessmentForm from "../_components/create-assessment-form";
 import { useEffect, useState } from "react";
@@ -16,8 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AssessmentProps } from "@/types";
-
-
+import ConfirmAction from "@/components/ui/confirm-action";
 
 export default function CreateAssessmentPage() {
   const { form_id } = useParams();
@@ -31,6 +30,21 @@ export default function CreateAssessmentPage() {
 
   const handleCancel = () => {
     setOnEdit(false);
+  };
+
+  const deleteTest = async () => {
+    try {
+      const res = await axios.delete(`${API_URL}/tests/${form_id}`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        toast.success("Assessment deleted successfully");
+        router.push("/dashboard/organization/assessments");
+      }
+    } catch (error: any) {
+      console.log(error.message);
+      toast.error("Failed to delete assessment");
+    }
   };
 
   useEffect(() => {
@@ -64,27 +78,14 @@ export default function CreateAssessmentPage() {
           <h1 className="text-3xl font-bold">{assessment?.name}</h1>
           {onEdit || (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
+              <DropdownMenuTrigger className="focus">
+                <Settings className="h-6 w-6" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" /> Edit Job
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+                  <Edit /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => {
-                    // This assumes your ConfirmAction component is used differently
-                    // If it's a modal trigger, you might need to adjust this
-                    const confirmed = window.confirm("Are you sure you want to delete this job?");
-                    if (confirmed) {
-                    }
-                  }}
-                >
-                  Delete Job
-                </DropdownMenuItem>
+                <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteTest}></ConfirmAction>
               </DropdownMenuContent>
             </DropdownMenu>
           )}

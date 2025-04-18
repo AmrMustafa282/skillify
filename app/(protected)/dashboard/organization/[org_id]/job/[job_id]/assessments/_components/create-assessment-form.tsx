@@ -93,7 +93,7 @@ const CreateAssessmentForm = ({
       }
 
       const assessmentId = assessment ? assessment.id : res.data.data.id;
-      router.push(`${assessmentId}/add-questions`);
+      if (!assessment) router.push(`${assessmentId}/add-questions`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data.message);
