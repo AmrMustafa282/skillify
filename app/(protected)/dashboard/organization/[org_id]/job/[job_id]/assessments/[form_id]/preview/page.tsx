@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import FormPreview from "@/components/form-preview";
+import FormPreview from "@/components/assessment-preview";
 import { ElementType, type FormData, type FormElement } from "@/types";
 
 export default function PreviewFormPage() {

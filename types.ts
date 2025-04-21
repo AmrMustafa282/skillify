@@ -262,3 +262,44 @@ export interface Assessment {
 }
 
 export type AssessmentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export type AssessmentQuestionType = "MCQ" | "OPEN_ENDED";
+
+export interface AssessmentQuestion {
+  id: string;
+  type: AssessmentQuestionType;
+  text: string;
+  options?: {
+    choices: AssessmentQuestionOption[];
+  };
+  correctAnswer?: {
+    value: string;
+  };
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  order: number;
+  required: boolean;
+}
+
+export interface AssessmentQuestionOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  order?: number;
+}
+
+export interface AssessmentQuestionEditorProps {
+  element: AssessmentQuestion;
+  updateElement: (id: string, updates: Partial<AssessmentQuestion>) => void;
+}
+
+export interface AssessmentFormData {
+  title: string;
+  description: string;
+  elements: AssessmentQuestion[];
+}
+
+export interface AssessmentPreviewProps {
+  title: string;
+  description: string;
+  elements: AssessmentQuestion[];
+}

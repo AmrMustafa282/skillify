@@ -39,7 +39,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import FormElementEditor from "@/components/form-element-editor";
-import FormPreview from "@/components/form-preview";
+import FormPreview from "@/components/assessment-preview";
 import FormSettings from "@/components/form-settings";
 import { ElementType, type FormElement, type FormData } from "@/types";
 

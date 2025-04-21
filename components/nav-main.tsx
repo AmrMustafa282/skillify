@@ -196,7 +196,8 @@ const ORG_NAV = [
       },
       {
         title: "Create Assessment",
-        url: "assessments/create",
+        url: (orgId?: string, jobId?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/create`,
       },
       {
         title: "Tutorials",

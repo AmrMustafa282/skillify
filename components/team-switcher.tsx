@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Home, Plus, Search } from "lucide-react";
+import { Check, ChevronsUpDown, Home, Plus } from "lucide-react";
 
 import {
   Command,
@@ -77,7 +77,6 @@ export function TeamSwitcher({
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            {/* Personal team at the top */}
             <Button
               variant="ghost"
               className={cn(
