@@ -183,7 +183,7 @@ const ORG_NAV = [
     ],
   },
   {
-    title: "Assessment",
+    title: "Assessments",
     url: "#",
     icon: BookOpen,
     isActive: true,
@@ -210,28 +210,41 @@ const ORG_NAV = [
     ],
   },
   {
-    title: "Job-Invitation",
+    title: "Job-Assessment",
     url: "#",
     icon: BookOpen,
     isActive: true,
     params: "form_id",
     items: [
+      // {
+      //   title: "Overview-dummy",
+      //   url: (orgId?: string, jobId?: string, form_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
+      // },
       {
-        title: "Overview",
+        title: "Edit",
         url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}`,
       },
       {
-        title: "Create Invitation",
-        url: "create-invitation/form/create",
+        title: "Add Questions",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-questions`,
       },
       {
-        title: "Tutorials",
-        url: "#",
+        title: "Add Coding",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-coding`,
       },
       {
-        title: "Changelog",
-        url: "#",
+        title: "Preview",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/preview`,
+      },
+      {
+        title: "Responses",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
       },
     ],
   },
