@@ -141,7 +141,8 @@ export default function FormElementEditor({
       const newChoices = [
         ...element.options.choices,
         {
-          id: `${element.id}-${newOrder}`,
+          // id: `${element.id}-${newOrder}`,
+          id: `option-${newOrder}`,
           text: `Option ${newOrder}`,
           isCorrect: false,
           order: newOrder,

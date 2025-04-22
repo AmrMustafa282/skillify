@@ -222,11 +222,13 @@ export default function FormPreview({ title, description, elements }: Assessment
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {elements.map((element) => (
-            <div key={element.id} className="border-b pb-6 last:border-0">
-              {renderFormElement(element)}
-            </div>
-          ))}
+          {elements
+            .filter((element) => !element.deleted)
+            .map((element) => (
+              <div key={element.id} className="border-b pb-6 last:border-0">
+                {renderFormElement(element)}
+              </div>
+            ))}
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button type="button" variant="outline" onClick={() => setFormData({})}>

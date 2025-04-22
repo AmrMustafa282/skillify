@@ -278,6 +278,7 @@ export interface AssessmentQuestion {
   difficulty: "EASY" | "MEDIUM" | "HARD";
   order: number;
   required: boolean;
+  deleted?: boolean;
 }
 
 export interface AssessmentQuestionOption {

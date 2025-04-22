@@ -15,3 +15,16 @@ export function formatDate(dateString: string): string {
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+import isEqual from "lodash/isEqual";
+
+export const getStatusForArrays = (original: any[], current: any[]): boolean => {
+  if (original.length !== current.length) return false;
+
+  const isSame = current.every((currentEl) => {
+    const originalEl = original.find((o) => o.id === currentEl.id);
+    return originalEl && isEqual(originalEl, currentEl);
+  });
+
+  return isSame ? true : false;
+};

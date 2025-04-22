@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   DndContext,
@@ -33,7 +33,7 @@ import {
   Save,
   GripVertical,
   CheckCircle2,
-  Clock,
+  FileSliders,
 } from "lucide-react";
 import FormElementEditor from "@/components/form-element-editor";
 import FormPreview from "@/components/assessment-preview";
@@ -48,20 +48,26 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { API_URL } from "@/config";
 import { Badge } from "@/components/ui/badge";
+import { getStatusForArrays } from "@/lib/utils";
 
-// Saving status component
-function SavingStatus({ status }: { status: "saved" | "saving" | "unsaved" }) {
+function SavingStatus({ status }: { status: "saved" | "draft" }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 flex items-center gap-2 text-sm transition-all duration-300">
+    <div
+      className={`rounded-md px-3 h-8 flex items-center gap-2 text-sm transition-all duration-300 ${
+        status === "saved"
+          ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+          : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+      }`}
+    >
       {status === "saved" ? (
         <>
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <CheckCircle2 className="h-4 w-4" />
           <span>All changes saved</span>
         </>
       ) : (
         <>
-          <Clock className="h-4 w-4 text-amber-500 animate-pulse" />
-          <span>Saving...</span>
+          <FileSliders className="h-4 w-4 animate-pulse" />
+          <span>Draft - Unsaved changes</span>
         </>
       )}
     </div>
@@ -195,91 +201,20 @@ export default function CreateFormPage() {
   const [formTitle, setFormTitle] = useState<string>("");
   const [formDescription, setFormDescription] = useState<string>("");
   const [formElements, setFormElements] = useState<AssessmentQuestion[]>([]);
+  const [originalElements, setOriginalElements] = useState<AssessmentQuestion[]>([]);
   const [activeElementId, setActiveElementId] = useState<string>("");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loadingTestInfo, setLoadingTestInfo] = useState(true);
   const [loadingTestQuestions, setLoadingTestQuestions] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [savingStatus, setSavingStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const [savingStatus, setSavingStatus] = useState<"saved" | "draft">("saved");
 
-  // Create a form data object for saving
-  const formData: AssessmentFormData = {
-    title: formTitle,
-    description: formDescription,
-    elements: formElements,
-  };
-
-  // Debounce the form data to avoid too frequent saves
-  // const debouncedFormData = useDebounce(formData, 1000);
-
-  // Set up sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  // Save to localStorage
-  const saveToLocalStorage = useCallback(() => {
-    if (!form_id) return;
-
-    try {
-      setSavingStatus("saving");
-      const formDataToSave = {
-        title: formTitle,
-        description: formDescription,
-        elements: formElements,
-        lastSaved: new Date().toISOString(),
-      };
-      localStorage.setItem(`form_${form_id}`, JSON.stringify(formDataToSave));
-
-      // Set saved status after a short delay to show the saving animation
-      setTimeout(() => {
-        setSavingStatus("saved");
-      }, 800);
-    } catch (error) {
-      console.error("Error saving to localStorage:", error);
-      setSavingStatus("unsaved");
-    }
-  }, [form_id, formTitle, formDescription, formElements]);
-
-  // Load from localStorage
-  const loadFromLocalStorage = useCallback(() => {
-    if (!form_id) return false;
-
-    try {
-      const savedData = localStorage.getItem(`form_${form_id}`);
-      if (!savedData) return false;
-
-      const parsedData = JSON.parse(savedData);
-
-      // Check if the data is recent (within the last 24 hours)
-      const lastSaved = new Date(parsedData.lastSaved);
-      const now = new Date();
-      const hoursDiff = (now.getTime() - lastSaved.getTime()) / (1000 * 60 * 60);
-
-      if (hoursDiff > 24) {
-        // Data is too old, remove it
-        localStorage.removeItem(`form_${form_id}`);
-        return false;
-      }
-
-      setFormTitle(parsedData.title || "");
-      setFormDescription(parsedData.description || "");
-
-      if (parsedData.elements && parsedData.elements.length > 0) {
-        setFormElements(parsedData.elements);
-        setActiveElementId(parsedData.elements[0].id);
-      }
-
-      toast.success("Loaded from autosave");
-      return true;
-    } catch (error) {
-      console.error("Error loading from localStorage:", error);
-      return false;
-    }
-  }, [form_id]);
 
   const addFormElement = (type: ElementType) => {
     let newElement: AssessmentQuestion;
@@ -291,14 +226,14 @@ export default function CreateFormPage() {
         difficulty: "EASY",
         order: formElements.length + 1,
         correctAnswer: {
-          value: `element-${formElements.length + 1}-1`,
+          value: `option-1`,
         },
         text: "New MCQ Question",
         required: false,
         options: {
           choices: [
             {
-              id: `element-${formElements.length + 1}-1`,
+              id: `option-1`,
               text: "Option 1",
               isCorrect: true,
               order: 1,
@@ -319,7 +254,7 @@ export default function CreateFormPage() {
 
     setFormElements([...formElements, newElement]);
     setActiveElementId(newElement.id);
-    setSavingStatus("unsaved");
+
   };
 
   const deleteFormElement = (id: string) => {
@@ -327,14 +262,17 @@ export default function CreateFormPage() {
       return; // Don't delete the last element
     }
 
-    const newElements = formElements.filter((element) => element.id !== id);
+    const newElements = formElements.filter((element) => {
+      if (!originalElements.includes(element)) return element.id !== id;
+      return element.id === id ? (element.deleted = true) : element;
+    });
     setFormElements(newElements);
 
     if (activeElementId === id) {
       setActiveElementId(newElements[0]?.id || "");
     }
 
-    setSavingStatus("unsaved");
+
   };
 
   const duplicateFormElement = (id: string) => {
@@ -350,14 +288,14 @@ export default function CreateFormPage() {
 
     setFormElements([...formElements, newElement]);
     setActiveElementId(newElement.id);
-    setSavingStatus("unsaved");
+
   };
 
   const updateFormElement = (id: string, updates: Partial<AssessmentQuestion>) => {
     setFormElements(
       formElements.map((element) => (element.id === id ? { ...element, ...updates } : element))
     );
-    setSavingStatus("unsaved");
+
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -381,22 +319,31 @@ export default function CreateFormPage() {
         }));
       });
 
-      setSavingStatus("unsaved");
+
     }
 
     setActiveId(null);
   };
 
   const saveForm = async () => {
-    // In a real app, you would save to a database here
+    if (!formElements.length) return toast.error("Please add at least one question before saving.");
     try {
-      setSavingStatus("saving");
+      let counter = 0;
+      const elements = formElements.map((element) => {
+        if (!element.deleted) counter++;
+        return {
+          ...element,
+          id: element.id.includes("element") ? null : element.id,
+          order: element.deleted ? 0 : counter,
+          deleted: element.deleted ? true : false,
+        };
+      });
 
-      const res = await axios.post(
+      const res = await axios.patch(
         `${API_URL}/questions/batch`,
         {
           testId: form_id,
-          questions: formElements,
+          questions: elements,
         },
         {
           withCredentials: true,
@@ -404,87 +351,79 @@ export default function CreateFormPage() {
       );
 
       if (res.data.success) {
-        console.log("Form saved:", formData);
+        console.log("Form saved:", elements);
         toast.success("Form saved successfully!");
-        setSavingStatus("saved");
         localStorage.removeItem(`form_${form_id}`);
+        setOriginalElements(res.data.data.resultingQuestions);
+        setFormElements(res.data.data.resultingQuestions);
       }
     } catch (error) {
       console.error("Error saving form:", error);
       toast.error("Failed to save form");
-      setSavingStatus("unsaved");
     }
   };
 
   const activeElement = formElements.find((element) => element.id === activeId);
 
-  // Effect for auto-saving to localStorage
+  // useEffect(() => {
+
+  // }, [formElements]);
+
   useEffect(() => {
-    if (formData.elements.length > 0 && !isLoading) {
-      saveToLocalStorage();
-    }
-  }, [saveToLocalStorage, isLoading, formData.elements.length]);
+    const trackChanges = () => {
+      if (getStatusForArrays(originalElements, formElements)) {
+        setSavingStatus("saved");
+      } else {
+        setSavingStatus("draft");
+      }
+    };
+
+    trackChanges();
+  }, [originalElements, formElements]);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-
-      // Try to load from localStorage first
-      const loadedFromLocal = loadFromLocalStorage();
-
-      if (!loadedFromLocal) {
-        try {
-          setLoadingTestInfo(true);
-          const infoRes = await axios.get(`${API_URL}/tests/${form_id}`, {
-            withCredentials: true,
-          });
-          const infoData = infoRes.data.data as Assessment;
-          if (infoData) {
-            setFormTitle(infoData.name);
-            setFormDescription(infoData.description);
-          }
-        } catch {
-          toast.error("Failed to fetch assessment data");
-        } finally {
-          setLoadingTestInfo(false);
+      try {
+        setLoadingTestInfo(true);
+        const infoRes = await axios.get(`${API_URL}/tests/${form_id}`, {
+          withCredentials: true,
+        });
+        const infoData = infoRes.data.data as Assessment;
+        if (infoData) {
+          setFormTitle(infoData.name);
+          setFormDescription(infoData.description);
         }
-
-        try {
-          setLoadingTestQuestions(true);
-          const questionsRes = await axios.get(`${API_URL}/tests/${form_id}/questions`, {
-            withCredentials: true,
-          });
-          const questionsData = questionsRes.data.data as AssessmentQuestion[];
-          if (questionsData && questionsData.length > 0) {
-            setFormElements(questionsData);
-            setActiveElementId(questionsData[0].id);
-          } else {
-            // If no questions, add a default one
-            addFormElement(ElementType.SHORT_TEXT);
-          }
-        } catch {
-          toast.error("Failed to fetch assessment questions");
-          // Add a default question if fetch fails
-          addFormElement(ElementType.SHORT_TEXT);
-        } finally {
-          setLoadingTestQuestions(false);
-        }
-      } else {
+      } catch {
+        toast.error("Failed to fetch assessment data");
+      } finally {
         setLoadingTestInfo(false);
-        setLoadingTestQuestions(false);
       }
 
+      try {
+        setLoadingTestQuestions(true);
+        const questionsRes = await axios.get(`${API_URL}/tests/${form_id}/questions`, {
+          withCredentials: true,
+        });
+        const questionsData = questionsRes.data.data as AssessmentQuestion[];
+        if (questionsData && questionsData.length > 0) {
+          const sortedQuestion = [...questionsData].sort((a, b) => a.order - b.order);
+          setFormElements(sortedQuestion);
+          setOriginalElements(sortedQuestion);
+          setActiveElementId(sortedQuestion[0].id);
+        }
+      } catch {
+        toast.error("Failed to fetch assessment questions");
+      } finally {
+        setLoadingTestQuestions(false);
+      }
       setIsLoading(false);
     };
 
     if (form_id) {
       fetchData();
-    } else {
-      setIsLoading(false);
-      // Add a default question for new forms
-      addFormElement(ElementType.SHORT_TEXT);
     }
-  }, [form_id, loadFromLocalStorage]);
+  }, [form_id]);
 
   return (
     <div className="h-full flex flex-col">
@@ -538,19 +477,21 @@ export default function CreateFormPage() {
                     strategy={verticalListSortingStrategy}
                   >
                     <div className="space-y-4">
-                      {formElements.map((element) => (
-                        <SortableFormElement
-                          key={element.id}
-                          element={element}
-                          elements={formElements}
-                          activeElementId={activeElementId}
-                          setActiveElementId={setActiveElementId}
-                          updateElement={updateFormElement}
-                          duplicateFormElement={duplicateFormElement}
-                          deleteFormElement={deleteFormElement}
-                          isDragging={activeId === element.id}
-                        />
-                      ))}
+                      {formElements
+                        .filter((element) => !element.deleted)
+                        .map((element) => (
+                          <SortableFormElement
+                            key={element.id}
+                            element={element}
+                            elements={formElements}
+                            activeElementId={activeElementId}
+                            setActiveElementId={setActiveElementId}
+                            updateElement={updateFormElement}
+                            duplicateFormElement={duplicateFormElement}
+                            deleteFormElement={deleteFormElement}
+                            isDragging={activeId === element.id}
+                          />
+                        ))}
                     </div>
                   </SortableContext>
 
