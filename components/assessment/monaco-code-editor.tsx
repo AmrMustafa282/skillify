@@ -1,11 +1,12 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Braces, Check, Copy, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Editor, { type Monaco } from "@monaco-editor/react";
 import { toast } from "react-hot-toast";
 import type * as monaco from "monaco-editor";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 import { Label } from "../ui/label";
 
 interface MonacoCodeEditorProps {
@@ -28,7 +29,10 @@ export function MonacoCodeEditor({
   const [copied, setCopied] = useState(false);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
-  const [theme, setTheme] = useState("vs-light-custom");
+  const { theme: currentTheme } = useTheme();
+  // const [theme, setTheme] = useState(currentTheme === "light" ? "vs-light-custom" : "vs-light-custom");
+
+  console.log(currentTheme)
 
   const getMonacoLanguage = () => {
     switch (language.toLowerCase()) {
@@ -104,19 +108,23 @@ export function MonacoCodeEditor({
       automaticLayout: true,
     });
 
-    const savedTheme = localStorage.getItem("code-editor-theme") || "vs-light-custom";
-    setTheme(savedTheme);
-    monaco.editor.setTheme(savedTheme);
+    monaco.editor.setTheme(currentTheme === "dark" ? "vs-dark-custom" : "vs-light-custom");
   };
 
-  const handleTheme = () => {
-    const newTheme = theme === "vs-dark-custom" ? "vs-light-custom" : "vs-dark-custom";
-    setTheme(newTheme);
-    localStorage.setItem("code-editor-theme", newTheme);
+  // const handleTheme = () => {
+  //   const newTheme = theme === "vs-dark-custom" ? "vs-light-custom" : "vs-dark-custom";
+  //   // setTheme(newTheme);
+  //   localStorage.setItem("code-editor-theme", newTheme);
+  //   if (monacoRef.current) {
+  //     monacoRef.current.editor.setTheme(newTheme);
+  //   }
+  // };
+
+  useEffect(() => {
     if (monacoRef.current) {
-      monacoRef.current.editor.setTheme(newTheme);
+      monacoRef.current.editor.setTheme(currentTheme === "dark" ? "vs-dark-custom" : "vs-light-custom");
     }
-  };
+  }, [currentTheme]);
 
   const formatCode = () => {
     if (editorRef.current) {
@@ -130,7 +138,7 @@ export function MonacoCodeEditor({
       <div
         className={cn(
           "flex justify-between items-center p-2",
-          theme === "vs-dark-custom"
+          currentTheme === "dark"
             ? "bg-[#1e1e2e]/80 backdrop-blur-sm"
             : "bg-[#ffffff] backdrop-blur-sm"
         )}
@@ -138,13 +146,13 @@ export function MonacoCodeEditor({
         <Label
           className={cn(
             "text-md font-medium",
-            theme === "vs-dark-custom" ? "text-white" : "text-black"
+            currentTheme === "dark" ? "text-white" : "text-black"
           )}
         >
           {title}
         </Label>
         <div className="space-x-2">
-          <Button
+          {/* <Button
             variant="secondary"
             size="icon"
             onClick={handleTheme}
@@ -156,7 +164,7 @@ export function MonacoCodeEditor({
             ) : (
               <Moon className="h-4 w-4" />
             )}
-          </Button>
+          </Button> */}
           <Button
             variant="secondary"
             size="icon"
