@@ -234,7 +234,7 @@ const ORG_NAV = [
       {
         title: "Add Coding",
         url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-coding`,
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/code`,
       },
       {
         title: "Preview",

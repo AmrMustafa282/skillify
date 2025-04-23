@@ -36,7 +36,7 @@ import {
   FileSliders,
 } from "lucide-react";
 import FormElementEditor from "@/components/form-element-editor";
-import FormPreview from "@/components/assessment-preview";
+import FormPreview from "@/components/assessment/assessment-preview";
 import FormSettings from "@/components/form-settings";
 import {
   ElementType,
@@ -254,7 +254,6 @@ export default function CreateFormPage() {
 
     setFormElements([...formElements, newElement]);
     setActiveElementId(newElement.id);
-
   };
 
   const deleteFormElement = (id: string) => {
@@ -271,8 +270,6 @@ export default function CreateFormPage() {
     if (activeElementId === id) {
       setActiveElementId(newElements[0]?.id || "");
     }
-
-
   };
 
   const duplicateFormElement = (id: string) => {
@@ -288,14 +285,12 @@ export default function CreateFormPage() {
 
     setFormElements([...formElements, newElement]);
     setActiveElementId(newElement.id);
-
   };
 
   const updateFormElement = (id: string, updates: Partial<AssessmentQuestion>) => {
     setFormElements(
       formElements.map((element) => (element.id === id ? { ...element, ...updates } : element))
     );
-
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -318,8 +313,6 @@ export default function CreateFormPage() {
           order: index + 1,
         }));
       });
-
-
     }
 
     setActiveId(null);
