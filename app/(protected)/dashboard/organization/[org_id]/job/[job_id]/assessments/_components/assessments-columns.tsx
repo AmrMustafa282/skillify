@@ -134,6 +134,15 @@ export const columns: ColumnDef<Assessment>[] = [
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/code`
+                )
+              }
+            >
+              Add Coding
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                window.location.assign(
                   `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/preview`
                 )
               }

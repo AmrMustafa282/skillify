@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Check, Code, FileText, FlaskConical, Lightbulb, Save, Sparkles } from "lucide-react";
+import { Check, Code, FlaskConical, Lightbulb, Save, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -18,6 +17,14 @@ import {
 import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
 import { TestCaseEditor } from "@/components/assessment/test-case-editor";
 import { AIEnhanceDialog } from "@/components/assessment/ai-enhance-dialog";
+import { SchemaEditor } from "@/components/assessment/schema-editor";
+import { MarkdownEditor } from "@/components/markdown-editor";
+import { VerificationEditor } from "@/components/assessment/verification-editor";
+import {
+  generateSolutionTemplate,
+  generateTestCases,
+  generateVerificationCode,
+} from "@/components/assessment/code-generator";
 
 export default function CreateCodingProblemPage() {
   const router = useRouter();
@@ -31,8 +38,16 @@ export default function CreateCodingProblemPage() {
   const [language, setLanguage] = useState(templateParam || "javascript");
   const [showAIDialog, setShowAIDialog] = useState(false);
 
+  // Schema state
+  const [schema, setSchema] = useState<any>(null);
+  const [schemaCode, setSchemaCode] = useState("");
+
   // Template code based on selected language
   const getTemplateCode = (language: string) => {
+    if (schema) {
+      return generateSolutionTemplate(schema, language);
+    }
+
     switch (language) {
       case "javascript":
         return "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction solution(nums) {\n  // Your code here\n  \n  return result;\n}";
@@ -47,6 +62,10 @@ export default function CreateCodingProblemPage() {
 
   // Template test code based on selected language
   const getTemplateTestCode = (language: string) => {
+    if (schema) {
+      return generateTestCases(schema, language);
+    }
+
     switch (language) {
       case "javascript":
         return "// Test cases\nfunction runTests() {\n  const testCases = [\n    { input: [1, 2, 3], expected: 6 },\n    { input: [4, 5, 6], expected: 15 }\n  ];\n  \n  for (const tc of testCases) {\n    const result = solution(tc.input);\n    if (result !== tc.expected) {\n      throw new Error(`Test failed: Expected ${tc.expected}, got ${result}`);\n    }\n  }\n  \n  return 'All tests passed!';\n}";
@@ -61,6 +80,10 @@ export default function CreateCodingProblemPage() {
 
   // Template verification code based on selected language
   const getTemplateVerificationCode = (language: string) => {
+    if (schema) {
+      return generateVerificationCode(schema, language);
+    }
+
     switch (language) {
       case "javascript":
         return "// Private verification code\nfunction verifyImplementation(solution) {\n  // Edge cases\n  if (solution([]) !== 0) return false;\n  if (solution([-1, -2, -3]) !== -6) return false;\n  \n  // Performance test\n  const largeArray = Array(10000).fill(1);\n  const start = performance.now();\n  solution(largeArray);\n  const end = performance.now();\n  \n  // Should complete in less than 100ms\n  return (end - start) < 100;\n}";
@@ -81,7 +104,7 @@ export default function CreateCodingProblemPage() {
     setSolutionCode(getTemplateCode(language));
     setTestCode(getTemplateTestCode(language));
     setVerificationCode(getTemplateVerificationCode(language));
-  }, [language]);
+  }, [language, schema]);
 
   const handleLanguageChange = (value: string) => {
     setLanguage(value);
@@ -90,15 +113,25 @@ export default function CreateCodingProblemPage() {
     router.replace(
       `/dashboard/organization/${org_id}/job/${job_id}/assessments/${form_id}/code/create?${params.toString()}`
     );
-
-    // setSolutionCode(getTemplateCode(value));
-    // setTestCode(getTemplateTestCode(value));
-    // setVerificationCode(getTemplateVerificationCode(value));
   };
 
-  const handleAIEnhance = (enhancedDescription: string) => {
+  const handleAIEnhance = () => {
+    setShowAIDialog(true);
+  };
+
+  const handleAIEnhanceComplete = (enhancedDescription: string) => {
     setDescription(enhancedDescription);
     setShowAIDialog(false);
+  };
+
+  const handleSchemaChange = (newSchema: any, newSchemaCode: string) => {
+    setSchema(newSchema);
+    setSchemaCode(newSchemaCode);
+
+    // Update solution, test, and verification code based on the new schema
+    setSolutionCode(generateSolutionTemplate(newSchema, language));
+    setTestCode(generateTestCases(newSchema, language));
+    setVerificationCode(generateVerificationCode(newSchema, language));
   };
 
   const handleSave = () => {
@@ -168,39 +201,29 @@ export default function CreateCodingProblemPage() {
 
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Label htmlFor="description" className="text-lg font-medium">
-                Problem Description
-              </Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAIDialog(true)}
-                className="gap-1"
-              >
-                <Sparkles className="h-4 w-4" />
-                AI Enhance
-              </Button>
-            </div>
-            <Textarea
-              id="description"
-              placeholder="Describe the problem, constraints, and examples..."
-              className="min-h-[200px] font-mono"
+            <MarkdownEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
+              onAIEnhance={handleAIEnhance}
+              label="Problem Description"
+              placeholder="Describe the problem, constraints, and examples..."
             />
 
             <AIEnhanceDialog
               open={showAIDialog}
               onOpenChange={setShowAIDialog}
               originalDescription={description}
-              onEnhance={handleAIEnhance}
+              onEnhance={handleAIEnhanceComplete}
             />
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="solution">
-          <TabsList className="grid grid-cols-3">
+        <Tabs defaultValue="schema">
+          <TabsList className="grid grid-cols-4">
+            <TabsTrigger value="schema" className="gap-2">
+              <Database className="h-4 w-4" />
+              Question Schema
+            </TabsTrigger>
             <TabsTrigger value="solution" className="gap-2">
               <Code className="h-4 w-4" />
               Solution Template
@@ -215,19 +238,22 @@ export default function CreateCodingProblemPage() {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="schema" className="mt-4">
+            <Card>
+              <CardContent className="p-6">
+                <SchemaEditor
+                  language={language}
+                  onChange={handleSchemaChange}
+                  key={language} // Add a key prop to force re-render when language changes
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="solution" className="mt-4">
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {/* <div className="flex items-center justify-between">
-                    <Label className="text-lg font-medium">Solution Template</Label>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Load Template
-                      </Button>
-                    </div>
-                  </div> */}
                   <MonacoCodeEditor
                     language={language}
                     value={solutionCode}
@@ -260,22 +286,12 @@ export default function CreateCodingProblemPage() {
           <TabsContent value="verification" className="mt-4">
             <Card>
               <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-lg font-medium">
-                      Private Verification Code
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        (Only visible to you)
-                      </span>
-                    </Label>
-                  </div>
-                  <MonacoCodeEditor
-                    language={language}
-                    value={verificationCode}
-                    onChange={setVerificationCode}
-                    height="400px"
-                  />
-                </div>
+                <VerificationEditor
+                  language={language}
+                  value={verificationCode}
+                  onChange={setVerificationCode}
+                  schema={schema}
+                />
               </CardContent>
             </Card>
           </TabsContent>

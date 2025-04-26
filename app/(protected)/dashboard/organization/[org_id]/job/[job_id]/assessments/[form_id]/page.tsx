@@ -38,7 +38,7 @@ export default function CreateAssessmentPage() {
       });
       if (res.data.success) {
         toast.success("Assessment deleted successfully");
-        router.push("/dashboard/organization/assessments");
+        router.back();
       }
     } catch (error: any) {
       console.log(error.message);

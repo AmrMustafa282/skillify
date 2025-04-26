@@ -30,7 +30,6 @@ export function MonacoCodeEditor({
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const { theme: currentTheme } = useTheme();
-  // const [theme, setTheme] = useState(currentTheme === "light" ? "vs-light-custom" : "vs-light-custom");
 
   console.log(currentTheme)
 
@@ -110,15 +109,6 @@ export function MonacoCodeEditor({
 
     monaco.editor.setTheme(currentTheme === "dark" ? "vs-dark-custom" : "vs-light-custom");
   };
-
-  // const handleTheme = () => {
-  //   const newTheme = theme === "vs-dark-custom" ? "vs-light-custom" : "vs-dark-custom";
-  //   // setTheme(newTheme);
-  //   localStorage.setItem("code-editor-theme", newTheme);
-  //   if (monacoRef.current) {
-  //     monacoRef.current.editor.setTheme(newTheme);
-  //   }
-  // };
 
   useEffect(() => {
     if (monacoRef.current) {
