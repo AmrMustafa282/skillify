@@ -31,7 +31,7 @@ export function MonacoCodeEditor({
   const monacoRef = useRef<Monaco | null>(null);
   const { theme: currentTheme } = useTheme();
 
-  console.log(currentTheme)
+  console.log(currentTheme);
 
   const getMonacoLanguage = () => {
     switch (language.toLowerCase()) {
@@ -112,7 +112,9 @@ export function MonacoCodeEditor({
 
   useEffect(() => {
     if (monacoRef.current) {
-      monacoRef.current.editor.setTheme(currentTheme === "dark" ? "vs-dark-custom" : "vs-light-custom");
+      monacoRef.current.editor.setTheme(
+        currentTheme === "dark" ? "vs-dark-custom" : "vs-light-custom"
+      );
     }
   }, [currentTheme]);
 

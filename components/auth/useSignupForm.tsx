@@ -32,7 +32,7 @@ export function useSignupForm() {
           "Content-Type": "application/json",
         },
       });
-      if (req.status === 200) {
+      if (req.data.data.success) {
         toast.success("Signup successful");
         setTimeout(() => {
           router.replace("/login");
@@ -44,7 +44,7 @@ export function useSignupForm() {
       if (err instanceof AxiosError) {
         message += `: ${err.response?.data.error}`;
       }
-      toast.error(message);
+      router.replace(`/signup?error=${message.split(" ").join("+")}`);
     }
   };
 

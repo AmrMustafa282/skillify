@@ -1,68 +1,69 @@
-"use client"
+"use client";
 
 interface SchemaProperty {
-  id: string
-  name: string
-  type: string
-  isRequired: boolean
-  description: string
-  arrayItemType?: string
-  properties?: SchemaProperty[]
+  id: string;
+  name: string;
+  type: string;
+  isRequired: boolean;
+  description: string;
+  arrayItemType?: string;
+  properties?: SchemaProperty[];
 }
 
 interface SchemaDefinition {
-  inputs: SchemaProperty[]
+  inputs: SchemaProperty[];
   output: {
-    type: string
-    description: string
-    arrayItemType?: string
-    properties?: SchemaProperty[]
-  }
+    type: string;
+    description: string;
+    arrayItemType?: string;
+    properties?: SchemaProperty[];
+  };
 }
 
 export function generateSolutionTemplate(schema: SchemaDefinition, language: string): string {
   switch (language) {
     case "javascript":
-      return generateJavaScriptSolution(schema)
+      return generateJavaScriptSolution(schema);
     case "python":
-      return generatePythonSolution(schema)
+      return generatePythonSolution(schema);
     case "java":
-      return generateJavaSolution(schema)
+      return generateJavaSolution(schema);
     default:
-      return `// Solution template for ${language} not implemented yet`
+      return `// Solution template for ${language} not implemented yet`;
   }
 }
 
 export function generateTestCases(schema: SchemaDefinition, language: string): string {
   switch (language) {
     case "javascript":
-      return generateJavaScriptTests(schema)
+      return generateJavaScriptTests(schema);
     case "python":
-      return generatePythonTests(schema)
+      return generatePythonTests(schema);
     case "java":
-      return generateJavaTests(schema)
+      return generateJavaTests(schema);
     default:
-      return `// Test cases for ${language} not implemented yet`
+      return `// Test cases for ${language} not implemented yet`;
   }
 }
 
 export function generateVerificationCode(schema: SchemaDefinition, language: string): string {
   switch (language) {
     case "javascript":
-      return generateJavaScriptVerification(schema)
+      return generateJavaScriptVerification(schema);
     case "python":
-      return generatePythonVerification(schema)
+      return generatePythonVerification(schema);
     case "java":
-      return generateJavaVerification(schema)
+      return generateJavaVerification(schema);
     default:
-      return `// Verification code for ${language} not implemented yet`
+      return `// Verification code for ${language} not implemented yet`;
   }
 }
 
 // JavaScript code generators
 function generateJavaScriptSolution(schema: SchemaDefinition): string {
-  const params = schema.inputs.map((input) => input.name).join(", ")
-  const returnType = schema.output.type === "array" ? `${schema.output.arrayItemType}[]` : schema.output.type
+  const params = schema.inputs.map((input) => input.name).join(", ");
+  const returnType =
+    schema.output.type === "array" ? `${schema.output.arrayItemType}[]` : schema.output.type;
 
   return `/**
 ${schema.inputs
@@ -70,7 +71,7 @@ ${schema.inputs
     (input) =>
       ` * @param {${
         input.type === "array" ? `${input.arrayItemType}[]` : input.type
-      }} ${input.name} - ${input.description}`,
+      }} ${input.name} - ${input.description}`
   )
   .join("\n")}
  * @return {${returnType}} ${schema.output.description}
@@ -79,28 +80,28 @@ function solution(${params}) {
   // Your code here
 
   return result;
-}`
+}`;
 }
 
 function generateJavaScriptTests(schema: SchemaDefinition): string {
   const params = schema.inputs.map((input) => {
     if (input.type === "array") {
       if (input.arrayItemType === "number") {
-        return "[1, 2, 3]"
+        return "[1, 2, 3]";
       } else if (input.arrayItemType === "string") {
-        return '["a", "b", "c"]'
+        return '["a", "b", "c"]';
       } else if (input.arrayItemType === "boolean") {
-        return "[true, false, true]"
+        return "[true, false, true]";
       }
     } else if (input.type === "number") {
-      return "42"
+      return "42";
     } else if (input.type === "string") {
-      return '"example"'
+      return '"example"';
     } else if (input.type === "boolean") {
-      return "true"
+      return "true";
     }
-    return "{}"
-  })
+    return "{}";
+  });
 
   const expectedOutput =
     schema.output.type === "array"
@@ -115,7 +116,7 @@ function generateJavaScriptTests(schema: SchemaDefinition): string {
           ? '"result"'
           : schema.output.type === "boolean"
             ? "true"
-            : "{}"
+            : "{}";
 
   return `// Test cases
 function runTests() {
@@ -141,18 +142,18 @@ function runTests() {
   }
 
   return 'All tests passed!';
-}`
+}`;
 }
 
 function generateJavaScriptVerification(schema: SchemaDefinition): string {
   const params = schema.inputs
     .map((input) => {
       if (input.type === "array") {
-        return `${input.name}`
+        return `${input.name}`;
       }
-      return input.name
+      return input.name;
     })
-    .join(", ")
+    .join(", ");
 
   return `// Private verification code
 function verifyImplementation(solution) {
@@ -163,11 +164,11 @@ function verifyImplementation(solution) {
         ? `// Empty inputs
     solution(${schema.inputs
       .map((input) => {
-        if (input.type === "array") return "[]"
-        if (input.type === "number") return "0"
-        if (input.type === "string") return '""'
-        if (input.type === "boolean") return "false"
-        return "{}"
+        if (input.type === "array") return "[]";
+        if (input.type === "number") return "0";
+        if (input.type === "string") return '""';
+        if (input.type === "boolean") return "false";
+        return "{}";
       })
       .join(", ")});`
         : ""
@@ -180,11 +181,11 @@ function verifyImplementation(solution) {
     const start = performance.now();
     solution(${schema.inputs
       .map((input) => {
-        if (input.type === "array") return "largeArray"
-        if (input.type === "number") return "1"
-        if (input.type === "string") return '"test"'
-        if (input.type === "boolean") return "true"
-        return "{}"
+        if (input.type === "array") return "largeArray";
+        if (input.type === "number") return "1";
+        if (input.type === "string") return '"test"';
+        if (input.type === "boolean") return "true";
+        return "{}";
       })
       .join(", ")});
     const end = performance.now();
@@ -201,19 +202,19 @@ function verifyImplementation(solution) {
     console.error("Verification failed:", error);
     return false;
   }
-}`
+}`;
 }
 
 // Python code generators
 function generatePythonSolution(schema: SchemaDefinition): string {
-  const params = schema.inputs.map((input) => input.name).join(", ")
+  const params = schema.inputs.map((input) => input.name).join(", ");
   const typingImports = ["List", "Dict", "Any", "Tuple", "Set", "Union", "Optional"].filter(
     (type) =>
       schema.inputs.some((input) => input.type === "array") ||
       schema.output.type === "array" ||
       schema.inputs.some((input) => input.type === "object") ||
-      schema.output.type === "object",
-  )
+      schema.output.type === "object"
+  );
 
   const typeHints = schema.inputs
     .map((input) => {
@@ -225,18 +226,18 @@ function generatePythonSolution(schema: SchemaDefinition): string {
               ? "str"
               : input.arrayItemType === "boolean"
                 ? "bool"
-                : "Any"
-        return `${input.name}: List[${itemType}]`
+                : "Any";
+        return `${input.name}: List[${itemType}]`;
       } else if (input.type === "number") {
-        return `${input.name}: int`
+        return `${input.name}: int`;
       } else if (input.type === "string") {
-        return `${input.name}: str`
+        return `${input.name}: str`;
       } else if (input.type === "boolean") {
-        return `${input.name}: bool`
+        return `${input.name}: bool`;
       }
-      return `${input.name}: Dict[str, Any]`
+      return `${input.name}: Dict[str, Any]`;
     })
-    .join(", ")
+    .join(", ");
 
   const returnType =
     schema.output.type === "array"
@@ -255,7 +256,7 @@ function generatePythonSolution(schema: SchemaDefinition): string {
           ? "str"
           : schema.output.type === "boolean"
             ? "bool"
-            : "Dict[str, Any]"
+            : "Dict[str, Any]";
 
   return `from typing import ${typingImports.join(", ")}
 
@@ -268,28 +269,28 @@ ${schema.inputs.map((input) => `    ${input.name}: ${input.description}`).join("
     """
     # Your code here
 
-    return result`
+    return result`;
 }
 
 function generatePythonTests(schema: SchemaDefinition): string {
   const params = schema.inputs.map((input) => {
     if (input.type === "array") {
       if (input.arrayItemType === "number") {
-        return "[1, 2, 3]"
+        return "[1, 2, 3]";
       } else if (input.arrayItemType === "string") {
-        return '["a", "b", "c"]'
+        return '["a", "b", "c"]';
       } else if (input.arrayItemType === "boolean") {
-        return "[True, False, True]"
+        return "[True, False, True]";
       }
     } else if (input.type === "number") {
-      return "42"
+      return "42";
     } else if (input.type === "string") {
-      return '"example"'
+      return '"example"';
     } else if (input.type === "boolean") {
-      return "True"
+      return "True";
     }
-    return "{}"
-  })
+    return "{}";
+  });
 
   const expectedOutput =
     schema.output.type === "array"
@@ -304,7 +305,7 @@ function generatePythonTests(schema: SchemaDefinition): string {
           ? '"result"'
           : schema.output.type === "boolean"
             ? "True"
-            : "{}"
+            : "{}";
 
   return `# Test cases
 def run_tests():
@@ -323,7 +324,7 @@ def run_tests():
         result = solution(${schema.inputs.map((input) => `tc['input']['${input.name}']`).join(", ")})
         assert result == tc['expected'], f"Test failed: Expected {tc['expected']}, got {result}"
 
-    return 'All tests passed!'`
+    return 'All tests passed!'`;
 }
 
 function generatePythonVerification(schema: SchemaDefinition): string {
@@ -336,11 +337,11 @@ def verify_implementation(solution_func):
             ? `# Empty inputs
         solution_func(${schema.inputs
           .map((input) => {
-            if (input.type === "array") return "[]"
-            if (input.type === "number") return "0"
-            if (input.type === "string") return '""'
-            if (input.type === "boolean") return "False"
-            return "{}"
+            if (input.type === "array") return "[]";
+            if (input.type === "number") return "0";
+            if (input.type === "string") return '""';
+            if (input.type === "boolean") return "False";
+            return "{}";
           })
           .join(", ")})`
             : ""
@@ -354,11 +355,11 @@ def verify_implementation(solution_func):
         start = time.time()
         solution_func(${schema.inputs
           .map((input) => {
-            if (input.type === "array") return "large_array"
-            if (input.type === "number") return "1"
-            if (input.type === "string") return '"test"'
-            if (input.type === "boolean") return "True"
-            return "{}"
+            if (input.type === "array") return "large_array";
+            if (input.type === "number") return "1";
+            if (input.type === "string") return '"test"';
+            if (input.type === "boolean") return "True";
+            return "{}";
           })
           .join(", ")})
         end = time.time()
@@ -372,7 +373,7 @@ def verify_implementation(solution_func):
         return True
     except Exception as e:
         print(f"Verification failed: {e}")
-        return False`
+        return False`;
 }
 
 // Java code generators
@@ -382,23 +383,23 @@ function generateJavaSolution(schema: SchemaDefinition): string {
     string: "String",
     boolean: "boolean",
     object: "Object",
-  }
+  };
 
   const params = schema.inputs
     .map((input) => {
       if (input.type === "array") {
-        const itemType = javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object"
-        return `${itemType}[] ${input.name}`
+        const itemType = javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object";
+        return `${itemType}[] ${input.name}`;
       }
-      const type = javaTypes[input.type as keyof typeof javaTypes] || "Object"
-      return `${type} ${input.name}`
+      const type = javaTypes[input.type as keyof typeof javaTypes] || "Object";
+      return `${type} ${input.name}`;
     })
-    .join(", ")
+    .join(", ");
 
   const returnType =
     schema.output.type === "array"
       ? `${javaTypes[schema.output.arrayItemType as keyof typeof javaTypes] || "Object"}[]`
-      : javaTypes[schema.output.type as keyof typeof javaTypes] || "Object"
+      : javaTypes[schema.output.type as keyof typeof javaTypes] || "Object";
 
   return `/**
  * ${schema.output.description}
@@ -412,7 +413,7 @@ public class Solution {
 
         return result;
     }
-}`
+}`;
 }
 
 function generateJavaTests(schema: SchemaDefinition): string {
@@ -421,28 +422,28 @@ function generateJavaTests(schema: SchemaDefinition): string {
     string: "String",
     boolean: "boolean",
     object: "Object",
-  }
+  };
 
   const testInputs = schema.inputs.map((input, index) => {
     if (input.type === "array") {
-      const itemType = javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object"
+      const itemType = javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object";
       if (itemType === "int") {
-        return `${itemType}[] test${index + 1} = new ${itemType}[] {1, 2, 3};`
+        return `${itemType}[] test${index + 1} = new ${itemType}[] {1, 2, 3};`;
       } else if (itemType === "String") {
-        return `${itemType}[] test${index + 1} = new ${itemType}[] {"a", "b", "c"};`
+        return `${itemType}[] test${index + 1} = new ${itemType}[] {"a", "b", "c"};`;
       } else if (itemType === "boolean") {
-        return `${itemType}[] test${index + 1} = new ${itemType}[] {true, false, true};`
+        return `${itemType}[] test${index + 1} = new ${itemType}[] {true, false, true};`;
       }
-      return `${itemType}[] test${index + 1} = new ${itemType}[0];`
+      return `${itemType}[] test${index + 1} = new ${itemType}[0];`;
     } else if (input.type === "number") {
-      return `int test${index + 1} = 42;`
+      return `int test${index + 1} = 42;`;
     } else if (input.type === "string") {
-      return `String test${index + 1} = "example";`
+      return `String test${index + 1} = "example";`;
     } else if (input.type === "boolean") {
-      return `boolean test${index + 1} = true;`
+      return `boolean test${index + 1} = true;`;
     }
-    return `Object test${index + 1} = new Object();`
-  })
+    return `Object test${index + 1} = new Object();`;
+  });
 
   const expectedOutput =
     schema.output.type === "array"
@@ -457,7 +458,7 @@ function generateJavaTests(schema: SchemaDefinition): string {
           ? '"result"'
           : schema.output.type === "boolean"
             ? "true"
-            : "new Object()"
+            : "new Object()";
 
   return `// Test cases
 public class TestRunner {
@@ -490,7 +491,7 @@ public class TestRunner {
 
         System.out.println("All tests passed!");
     }
-}`
+}`;
 }
 
 function generateJavaVerification(schema: SchemaDefinition): string {
@@ -499,7 +500,7 @@ function generateJavaVerification(schema: SchemaDefinition): string {
     string: "String",
     boolean: "boolean",
     object: "Object",
-  }
+  };
 
   return `// Private verification code
 public class Verifier {
@@ -511,13 +512,14 @@ public class Verifier {
             solution.solution(${schema.inputs
               .map((input) => {
                 if (input.type === "array") {
-                  const itemType = javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object"
-                  return `new ${itemType}[0]`
+                  const itemType =
+                    javaTypes[input.arrayItemType as keyof typeof javaTypes] || "Object";
+                  return `new ${itemType}[0]`;
                 }
-                if (input.type === "number") return "0"
-                if (input.type === "string") return '""'
-                if (input.type === "boolean") return "false"
-                return "new Object()"
+                if (input.type === "number") return "0";
+                if (input.type === "string") return '""';
+                if (input.type === "boolean") return "false";
+                return "new Object()";
               })
               .join(", ")});`
                 : ""
@@ -532,11 +534,11 @@ public class Verifier {
             long start = System.nanoTime();
             solution.solution(${schema.inputs
               .map((input) => {
-                if (input.type === "array") return "largeArray"
-                if (input.type === "number") return "1"
-                if (input.type === "string") return '"test"'
-                if (input.type === "boolean") return "true"
-                return "new Object()"
+                if (input.type === "array") return "largeArray";
+                if (input.type === "number") return "1";
+                if (input.type === "string") return '"test"';
+                if (input.type === "boolean") return "true";
+                return "new Object()";
               })
               .join(", ")});
             long end = System.nanoTime();
@@ -554,5 +556,5 @@ public class Verifier {
             return false;
         }
     }
-}`
+}`;
 }

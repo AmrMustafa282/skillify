@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { PlusCircle, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState, useEffect } from "react";
+import { PlusCircle, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface EdgeCase {
-  id: string
-  description: string
-  input: string
-  expected: string
+  id: string;
+  description: string;
+  input: string;
+  expected: string;
 }
 
 interface PerformanceTest {
-  id: string
-  description: string
-  inputSize: number
-  timeLimit: number
+  id: string;
+  description: string;
+  inputSize: number;
+  timeLimit: number;
 }
 
 interface VerificationEditorProps {
-  language: string
-  value: string
-  onChange: (value: string) => void
-  schema?: any
+  language: string;
+  value: string;
+  onChange: (value: string) => void;
+  schema?: any;
 }
 
 export function VerificationEditor({ language, value, onChange, schema }: VerificationEditorProps) {
-  const [activeTab, setActiveTab] = useState("visual")
+  const [activeTab, setActiveTab] = useState("visual");
   const [edgeCases, setEdgeCases] = useState<EdgeCase[]>([
     {
       id: "edge1",
@@ -46,7 +46,7 @@ export function VerificationEditor({ language, value, onChange, schema }: Verifi
       input: "[-1, -2, -3]",
       expected: "-6",
     },
-  ])
+  ]);
 
   const [performanceTests, setPerformanceTests] = useState<PerformanceTest[]>([
     {
@@ -55,18 +55,18 @@ export function VerificationEditor({ language, value, onChange, schema }: Verifi
       inputSize: 10000,
       timeLimit: 100,
     },
-  ])
+  ]);
 
-  const [includeErrorHandling, setIncludeErrorHandling] = useState(true)
+  const [includeErrorHandling, setIncludeErrorHandling] = useState(true);
 
   useEffect(() => {
     if (activeTab === "visual") {
-      generateVerificationCode()
+      generateVerificationCode();
     }
-  }, [edgeCases, performanceTests, includeErrorHandling, language])
+  }, [edgeCases, performanceTests, includeErrorHandling, language]);
 
   const addEdgeCase = () => {
-    const newId = `edge${edgeCases.length + 1}`
+    const newId = `edge${edgeCases.length + 1}`;
     setEdgeCases([
       ...edgeCases,
       {
@@ -75,19 +75,19 @@ export function VerificationEditor({ language, value, onChange, schema }: Verifi
         input: "[]",
         expected: "0",
       },
-    ])
-  }
+    ]);
+  };
 
   const updateEdgeCase = (id: string, field: keyof EdgeCase, value: string) => {
-    setEdgeCases(edgeCases.map((ec) => (ec.id === id ? { ...ec, [field]: value } : ec)))
-  }
+    setEdgeCases(edgeCases.map((ec) => (ec.id === id ? { ...ec, [field]: value } : ec)));
+  };
 
   const removeEdgeCase = (id: string) => {
-    setEdgeCases(edgeCases.filter((ec) => ec.id !== id))
-  }
+    setEdgeCases(edgeCases.filter((ec) => ec.id !== id));
+  };
 
   const addPerformanceTest = () => {
-    const newId = `perf${performanceTests.length + 1}`
+    const newId = `perf${performanceTests.length + 1}`;
     setPerformanceTests([
       ...performanceTests,
       {
@@ -96,19 +96,21 @@ export function VerificationEditor({ language, value, onChange, schema }: Verifi
         inputSize: 5000,
         timeLimit: 100,
       },
-    ])
-  }
+    ]);
+  };
 
   const updatePerformanceTest = (id: string, field: keyof PerformanceTest, value: any) => {
-    setPerformanceTests(performanceTests.map((pt) => (pt.id === id ? { ...pt, [field]: value } : pt)))
-  }
+    setPerformanceTests(
+      performanceTests.map((pt) => (pt.id === id ? { ...pt, [field]: value } : pt))
+    );
+  };
 
   const removePerformanceTest = (id: string) => {
-    setPerformanceTests(performanceTests.filter((pt) => pt.id !== id))
-  }
+    setPerformanceTests(performanceTests.filter((pt) => pt.id !== id));
+  };
 
   const generateVerificationCode = () => {
-    let code = ""
+    let code = "";
     switch (language) {
       case "javascript":
         code = `// Private verification code
@@ -121,7 +123,7 @@ ${edgeCases
     if (JSON.stringify(solution(${ec.input})) !== JSON.stringify(${ec.expected})) {
       console.error("Edge case failed: ${ec.description}");
       return false;
-    }`,
+    }`
   )
   .join("\n\n")}
 
@@ -138,7 +140,7 @@ ${performanceTests
     if ((end - start) > ${pt.timeLimit}) {
       console.error("Performance test failed: ${pt.description}");
       return false;
-    }`,
+    }`
   )
   .join("\n\n")}
 
@@ -151,8 +153,8 @@ ${performanceTests
   }`
       : ""
   }
-}`
-        break
+}`;
+        break;
 
       case "python":
         code = `# Private verification code
@@ -164,7 +166,7 @@ ${edgeCases
     (ec) => `        # ${ec.description}
         if solution_func(${ec.input}) != ${ec.expected}:
             print("Edge case failed: ${ec.description}")
-            return False`,
+            return False`
   )
   .join("\n\n")}
 
@@ -181,7 +183,7 @@ ${performanceTests
         # Should complete in less than ${pt.timeLimit / 1000} seconds
         if (end - start) > ${pt.timeLimit / 1000}:
             print("Performance test failed: ${pt.description}")
-            return False`,
+            return False`
   )
   .join("\n\n")}
 
@@ -192,8 +194,8 @@ ${performanceTests
         print(f"Verification failed: {e}")
         return False`
         : ""
-    }`
-        break
+    }`;
+        break;
 
       case "java":
         code = `// Private verification code
@@ -207,7 +209,7 @@ ${edgeCases
             if (solution.solution(${ec.input.replace(/\[/g, "new int[]{").replace(/\]/g, "")}) != ${ec.expected}) {
                 System.err.println("Edge case failed: ${ec.description}");
                 return false;
-            }`,
+            }`
   )
   .join("\n\n")}
 
@@ -226,7 +228,7 @@ ${performanceTests
             if ((end - start) / 1_000_000 > ${pt.timeLimit}) {
                 System.err.println("Performance test failed: ${pt.description}");
                 return false;
-            }`,
+            }`
   )
   .join("\n\n")}
 
@@ -240,21 +242,21 @@ ${performanceTests
             : ""
         }
     }
-}`
-        break
+}`;
+        break;
 
       default:
-        code = `// Verification code for ${language} not implemented yet`
+        code = `// Verification code for ${language} not implemented yet`;
     }
 
-    onChange(code)
-  }
+    onChange(code);
+  };
 
   const handleCodeChange = (newCode: string) => {
-    onChange(newCode)
+    onChange(newCode);
     // Note: We're not parsing the code back to UI state
     // That would require complex parsing logic
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -329,7 +331,12 @@ ${performanceTests
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Performance Tests</h3>
-                  <Button variant="outline" size="sm" onClick={addPerformanceTest} className="gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={addPerformanceTest}
+                    className="gap-1"
+                  >
                     <PlusCircle className="h-4 w-4" />
                     Add Performance Test
                   </Button>
@@ -342,7 +349,9 @@ ${performanceTests
                       <Input
                         id={`perf-desc-${perfTest.id}`}
                         value={perfTest.description}
-                        onChange={(e) => updatePerformanceTest(perfTest.id, "description", e.target.value)}
+                        onChange={(e) =>
+                          updatePerformanceTest(perfTest.id, "description", e.target.value)
+                        }
                       />
                     </div>
 
@@ -354,7 +363,11 @@ ${performanceTests
                           type="number"
                           value={perfTest.inputSize}
                           onChange={(e) =>
-                            updatePerformanceTest(perfTest.id, "inputSize", Number.parseInt(e.target.value) || 1000)
+                            updatePerformanceTest(
+                              perfTest.id,
+                              "inputSize",
+                              Number.parseInt(e.target.value) || 1000
+                            )
                           }
                         />
                       </div>
@@ -365,7 +378,11 @@ ${performanceTests
                           type="number"
                           value={perfTest.timeLimit}
                           onChange={(e) =>
-                            updatePerformanceTest(perfTest.id, "timeLimit", Number.parseInt(e.target.value) || 100)
+                            updatePerformanceTest(
+                              perfTest.id,
+                              "timeLimit",
+                              Number.parseInt(e.target.value) || 100
+                            )
                           }
                         />
                       </div>
@@ -416,5 +433,5 @@ ${performanceTests
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -120,26 +120,26 @@
 //   );
 // }
 
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PlusCircle, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
+import { useState } from "react";
+import { PlusCircle, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface TestCase {
-  id: string
-  input: string
-  expected: string
+  id: string;
+  input: string;
+  expected: string;
 }
 
 interface TestCaseEditorProps {
-  language: string
-  value: string
-  onChange: (value: string) => void
+  language: string;
+  value: string;
+  onChange: (value: string) => void;
 }
 
 export function TestCaseEditor({ language, value, onChange }: TestCaseEditorProps) {
@@ -147,26 +147,26 @@ export function TestCaseEditor({ language, value, onChange }: TestCaseEditorProp
   const [testCases, setTestCases] = useState<TestCase[]>([
     { id: "1", input: "[1, 2, 3]", expected: "6" },
     { id: "2", input: "[4, 5, 6]", expected: "15" },
-  ])
+  ]);
 
   const addTestCase = () => {
-    const newId = (testCases.length + 1).toString()
-    setTestCases([...testCases, { id: newId, input: "[]", expected: "0" }])
-    generateTestCode()
-  }
+    const newId = (testCases.length + 1).toString();
+    setTestCases([...testCases, { id: newId, input: "[]", expected: "0" }]);
+    generateTestCode();
+  };
 
   const updateTestCase = (id: string, field: keyof TestCase, value: string) => {
-    setTestCases(testCases.map((tc) => (tc.id === id ? { ...tc, [field]: value } : tc)))
-    generateTestCode()
-  }
+    setTestCases(testCases.map((tc) => (tc.id === id ? { ...tc, [field]: value } : tc)));
+    generateTestCode();
+  };
 
   const removeTestCase = (id: string) => {
-    setTestCases(testCases.filter((tc) => tc.id !== id))
-    generateTestCode()
-  }
+    setTestCases(testCases.filter((tc) => tc.id !== id));
+    generateTestCode();
+  };
 
   const generateTestCode = () => {
-    let code = ""
+    let code = "";
     switch (language) {
       case "javascript":
         code = `// Test cases
@@ -183,8 +183,8 @@ ${testCases.map((tc) => `    { input: ${tc.input}, expected: ${tc.expected} }`).
   }
 
   return 'All tests passed!';
-}`
-        break
+}`;
+        break;
       case "python":
         code = `# Test cases
 def run_tests():
@@ -196,8 +196,8 @@ ${testCases.map((tc) => `        {'input': ${tc.input}, 'expected': ${tc.expecte
         result = solution(tc['input'])
         assert result == tc['expected'], f"Test failed: Expected {tc['expected']}, got {result}"
 
-    return 'All tests passed!'`
-        break
+    return 'All tests passed!'`;
+        break;
       case "java":
         code = `// Test cases
 public class TestRunner {
@@ -210,19 +210,19 @@ ${testCases
         int[] test${i + 1} = ${tc.input};
         int expected${i + 1} = ${tc.expected};
         int result${i + 1} = solution.solution(test${i + 1});
-        assert result${i + 1} == expected${i + 1} : "Test failed: Expected " + expected${i + 1} + ", got " + result${i + 1};`,
+        assert result${i + 1} == expected${i + 1} : "Test failed: Expected " + expected${i + 1} + ", got " + result${i + 1};`
   )
   .join("\n\n")}
 
         System.out.println("All tests passed!");
     }
-}`
-        break
+}`;
+        break;
       default:
-        code = `// Test cases for ${language} not implemented yet`
+        code = `// Test cases for ${language} not implemented yet`;
     }
-    onChange(code)
-  }
+    onChange(code);
+  };
 
   return (
     <div className="space-y-4">
