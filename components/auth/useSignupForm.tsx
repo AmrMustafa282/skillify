@@ -32,11 +32,11 @@ export function useSignupForm() {
           "Content-Type": "application/json",
         },
       });
-      if (req.data.data.success) {
+      if (req.data.success) {
         toast.success("Signup successful");
         setTimeout(() => {
           router.replace("/login");
-        }, 2000);
+        }, 1000);
       }
     } catch (err) {
       let message = "Signup failed";

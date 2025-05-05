@@ -39,7 +39,6 @@ export function useLoginForm() {
       });
 
       if (result?.error) {
-        console.error("Login failed:", result.error);
         router.replace("/login?error=Invalid+email+or+password.");
       } else {
         const session: any = await getSession();

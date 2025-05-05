@@ -1,11 +1,11 @@
 import NextAuth from "next-auth";
-import axios, { Axios } from "axios";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { cookies } from "next/headers";
 import { API_URL } from "@/config";
+import axios from "axios";
 
 const setCookies = async (res: any) => {
   const cookiesStore = await cookies();
@@ -91,6 +91,7 @@ export const authConfig = {
         token.email = user.email;
         token.username = user.username;
         token.user = user;
+        token.name = user.username;
         token.is_subscribed = user.is_subscribed;
       }
       return token;
@@ -100,6 +101,7 @@ export const authConfig = {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.name = token.username;
+      session.user.username = token.username;
       session.user = token.user;
       session.user.is_subscribed = token.is_subscribed;
       return session;
@@ -120,7 +122,8 @@ export const authConfig = {
 
           user.id = res.data.data.user.id;
           user.email = res.data.data.user.email;
-
+          // @ts-ignore
+          user.username = user.name;
           await setCookies(res);
           return true;
         }
@@ -138,6 +141,8 @@ export const authConfig = {
 
           user.id = res.data.data.user.id;
           user.email = res.data.data.user.email;
+          // @ts-ignore
+          user.username = user.name;
 
           await setCookies(res);
           return true;

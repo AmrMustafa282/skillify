@@ -1,6 +1,4 @@
-"use client";
-
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,42 +8,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import UserAvatar from "@/components/user-avatar";
+import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
 import { signOut } from "next-auth/react";
-import UserAvatar from "./user-avatar";
 
-export function NavUser({
+const UserButton = ({
   user,
 }: {
-  user: {
-    username: string;
-    email: string;
-    image: string;
-  };
-}) {
-  const { isMobile } = useSidebar();
-
+  user:
+    | ({
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+      } & {
+        username?: string | null;
+      })
+    | undefined;
+}) => {
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <UserAvatar user={user} withHeader />
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
+    <DropdownMenu>
+      {user && (
+        <>
+          <DropdownMenuTrigger asChild className="focus:outline-none focus-within:outline-none">
+            <UserAvatar user={user} />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={"bottom"}
             align="end"
             sideOffset={4}
           >
@@ -82,8 +71,10 @@ export function NavUser({
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+        </>
+      )}
+    </DropdownMenu>
   );
-}
+};
+
+export default UserButton;

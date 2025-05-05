@@ -55,7 +55,7 @@ export function CodeEditor({ language, value, onChange, height = "300px" }: Code
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-md font-mono text-sm p-4 focus:outline-none focus:ring-2 focus:ring-ring ${getLanguageClass()}`}
+        className={`w-full rounded-md font-mono text-sm p-4 focus:outline-none focus:ring-2  ${getLanguageClass()}`}
         style={{ height, resize: "vertical" }}
         spellCheck="false"
       />

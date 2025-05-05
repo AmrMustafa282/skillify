@@ -275,15 +275,10 @@ const PERSONAL_ORG = {
 
 export async function AppSidebar() {
   const session = await getServerSession(authConfig);
-  // console.log(session?.user)
-  let USER = { username: "", email: "", avatar: "" };
+  let USER;
   let ORGS;
   if (session) {
-    USER = {
-      username: session.user?.username || "",
-      email: session.user?.email || "",
-      avatar: "",
-    };
+    USER = session.user
     try {
       const res = await server.get(`${API_URL}/orgs/user/current`);
       ORGS = res.data.data.map((org: any) => ({

@@ -6,9 +6,11 @@ import { ModeToggle } from "./ui/toggle-theme";
 import Cookies from "js-cookie";
 
 import { signOut, useSession } from "next-auth/react";
+import { NavUser } from "./nav-user";
+import UserButton from "./auth/_components/user-button";
 
 export default function Navbar() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
   const handleSignout = () => {
     signOut();
@@ -39,7 +41,7 @@ export default function Navbar() {
           </nav>
           <div className="flex items-center space-x-2">
             <ModeToggle />
-            <Link href="https://github.com/amanesoft" target="_blank" rel="noreferrer">
+            <Link href="https://github.com/amrmustafa282" target="_blank" rel="noreferrer">
               <Button variant="ghost" size="icon">
                 <Github className="h-4 w-4" />
                 <span className="sr-only">GitHub</span>
@@ -57,13 +59,7 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-            {status === "authenticated" && (
-              <>
-                <Button onClick={() => handleSignout()} size="sm">
-                  Logout
-                </Button>
-              </>
-            )}
+            {status === "authenticated" && <UserButton user={session.user} />}
           </div>
         </div>
       </div>
