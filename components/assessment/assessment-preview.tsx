@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { type AssessmentPreviewProps, AssessmentQuestion, type FormElement } from "@/types";
+import toast from "react-hot-toast";
 
 export default function FormPreview({ title, description, elements }: AssessmentPreviewProps) {
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -49,7 +50,7 @@ export default function FormPreview({ title, description, elements }: Assessment
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    alert("Form submitted successfully!");
+    toast.success("Form submitted successfully!");
     setFormData({});
   };
 

@@ -58,7 +58,7 @@ const JobsPage = () => {
     if (!editedOrg) return;
     setIsLoading(true);
     try {
-      const res = await axios.put(
+      const res = await axios.patch(
         `${API_URL}/orgs/${params.org_id}`,
         {
           name,

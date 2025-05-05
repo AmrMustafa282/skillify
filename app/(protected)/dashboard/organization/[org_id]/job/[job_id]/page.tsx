@@ -21,12 +21,13 @@ import { Job } from "@/types";
 import Loader from "@/components/ui/Loader";
 import { API_URL } from "@/config";
 import ConfirmAction from "@/components/ui/confirm-action";
+import { Switch } from "@/components/ui/switch";
 
 const JobPage = () => {
   const params = useParams();
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
-  const [editedJob, setEditedJob] = useState<Job | null>(null);
+  const [editedJob, setEditedJob] = useState<(Job & { isActive?: boolean }) | null>(null);
   const [onEdit, setOnEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,9 +46,13 @@ const JobPage = () => {
 
     setIsLoading(true);
     try {
-      const res = await axios.put(`${API_URL}/jobs/${params.job_id}`, editedJob, {
-        withCredentials: true,
-      });
+      const res = await axios.patch(
+        `${API_URL}/jobs/${params.job_id}`,
+        { ...editedJob, isActive: editedJob.active },
+        {
+          withCredentials: true,
+        }
+      );
       if (res.data.success) {
         setJob(res.data.data);
         toast.success("Job updated successfully");
@@ -176,20 +181,25 @@ const JobPage = () => {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-1">Status</h3>
-                <Badge variant={job.active ? "default" : "secondary"}>
-                  {job.active ? "Active" : "Inactive"}
-                </Badge>
-                {onEdit && (
-                  <div className="mt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditedJob({ ...editedJob!, active: !editedJob?.active })}
-                    >
-                      Set as {editedJob?.active ? "Inactive" : "Active"}
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-4 items-center">
+                  <Badge variant={job.active ? "default" : "secondary"}>
+                    {job.active ? "Active" : "Inactive"}
+                  </Badge>
+                  {onEdit && (
+                    <div className="mt-2">
+                      <Switch
+                        checked={editedJob?.active || false}
+                        onCheckedChange={(checked) =>
+                          setEditedJob({
+                            ...editedJob!,
+                            active: checked,
+                          })
+                        }
+                      />
+                      <span className="ml-2">{editedJob?.active ? "Active" : "Inactive"}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <Separator />
