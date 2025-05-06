@@ -3,7 +3,7 @@ import { DataTable } from "@/components/ui/data-table";
 // import { server } from "@/lib/api";
 import { TestAssignment } from "@/types";
 import { API_URL } from "@/config";
-import { columns } from "@/app/(protected)/dashboard/(personal)/_components/assessment-columns";
+import { columns } from "@/app/(protected)/dashboard/(personal)/_components/assignment-columns";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";

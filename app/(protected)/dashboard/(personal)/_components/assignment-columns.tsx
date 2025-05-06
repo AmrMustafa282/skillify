@@ -23,7 +23,6 @@ const formatDate = (dateString: string) => {
   });
 };
 
-
 const formatTimeLimit = (minutes: number) => {
   if (minutes < 60) {
     return `${minutes} min`;
@@ -46,17 +45,21 @@ export const columns: ColumnDef<Assessment>[] = [
   {
     accessorKey: "name",
     header: "Assessment Name",
-    cell:  ({ row }) => {
-      // const test=await getTest(row.original.testId);
+    cell: ({ row }) => {
+      const test = row.original.test.name;
       // console.log(test);
-      return <div className="font-medium">{"TODO: fetch test first"}</div>;
+      return <div className="font-medium">{test}</div>;
     },
   },
   {
     accessorKey: "jobTitle",
     header: "Job Title",
+    cell: ({ row }) => {
+      const jobTitle = row.original.job.title;
+      return <div>{jobTitle}</div>;
+    },
   },
-  
+
   {
     accessorKey: "status",
     header: "Status",
@@ -78,8 +81,8 @@ export const columns: ColumnDef<Assessment>[] = [
     accessorKey: "startTime",
     header: "Start Date",
     cell: ({ row }) => {
-      // const startTime = row.getValue("startTime") as string;
-      return <div>{"todo: fetch test"}</div>;
+      const startTime = row.original.test.startTime;
+      return <div>{startTime}</div>;
     },
   },
   {
@@ -101,24 +104,22 @@ export const columns: ColumnDef<Assessment>[] = [
           <DropdownMenuContent>
             <DropdownMenuItem
               onClick={async () => {
-                window.location.assign(
-                  `/dashboard/assessment/${id}`
-                );
+                window.location.assign(`/dashboard/assessment/${row.original.test.id}`);
               }}
             >
               View assessment details
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
+            <DropdownMenuItem
               onClick={async () => {
                 // const job = await getJob(jobId)
                 // console.log(job);
                 window.location.assign(
-                  `/dashboard/organization/${job.organizationId}/job/${jobId}`
+                  `/dashboard/organization/${row.original.job.organizationId}/job/${row.original.job.id}`
                 );
               }}
             >
               View job details
-            </DropdownMenuItem> */}
+            </DropdownMenuItem> 
           </DropdownMenuContent>
         </DropdownMenu>
       );
