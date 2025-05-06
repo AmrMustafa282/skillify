@@ -118,6 +118,7 @@ export interface Org {
   }[];
 }
 
+
 export interface Job {
   id: string;
   title: string;
@@ -279,6 +280,20 @@ export interface AssessmentQuestion {
   order: number;
   required: boolean;
   deleted?: boolean;
+}
+export interface TestAssignment {
+  assignment_id: string;
+  test_id: string;
+  candidate_id: string;
+  status: 'assigned' | 'in_progress' | 'completed' | 'expired' | 'cancelled' | string;
+  start_time: Date | null;
+  end_time: Date | null;
+  score: number | null;
+  created_at: Date;
+  updated_at: Date;
+  created_by: string;
+  updated_by: string;
+  version: number;
 }
 
 export interface AssessmentQuestionOption {

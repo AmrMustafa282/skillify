@@ -47,6 +47,22 @@ const PERSONAL_NAV = [
       },
     ],
   },
+  {
+    title: "Assessments",
+    icon: BookOpen,
+    isActive: true,
+    params: "",
+    items: [
+      {
+        title: "Ovreview",
+        url: "/dashboard/assessment",
+      },
+      {
+        title: "Settings",
+        url: "#",
+      },
+    ],
+  },
   // {
   //   title: "Models",
   //   url: "#",
