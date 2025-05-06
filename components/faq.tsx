@@ -81,7 +81,6 @@ function FAQItem({
       <MotionButton
         className="flex w-full items-center justify-between p-6 text-left font-medium transition-all group"
         onClick={onClick}
-        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3">

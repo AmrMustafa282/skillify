@@ -59,7 +59,9 @@ export default function CTA() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                Join hundreds of forward-thinking companies leveraging our cutting-edge platform to identify top talent, analyze skills, and make data-driven decisions that propel their success.
+                Join hundreds of forward-thinking companies leveraging our cutting-edge platform to
+                identify top talent, analyze skills, and make data-driven decisions that propel
+                their success.
               </MotionP>
 
               <MotionUl
@@ -140,7 +142,9 @@ export default function CTA() {
                 />
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Assessment Analytics</h3>
+                    <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                      Assessment Analytics
+                    </h3>
                     <p className="text-sm text-muted-foreground mt-2">
                       Real-time insights at your fingertips
                     </p>

@@ -6,6 +6,7 @@ import { ModeToggle } from "./ui/toggle-theme";
 
 import { useSession } from "next-auth/react";
 import UserButton from "./auth/_components/user-button";
+import Logo from "./logo";
 
 export default function Navbar() {
   const { status, data: session } = useSession();
@@ -13,9 +14,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
       <div className=" w-full">
         <div className="container flex h-14 max-w-screen-2xl items-cente ">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold">SkIllIfy.io</span>
-          </Link>
+          <Logo />
           <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
             {status === "authenticated" && (
               <Link href="/dashboard" className="transition-colors hover:text-primary">

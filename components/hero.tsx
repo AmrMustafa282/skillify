@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { HeroChart } from "./home-page/hero-chart";
+import { FlipWords } from "./ui/flip-words";
 
 // Create motion components
 const MotionDiv = motion.div;
@@ -12,6 +13,13 @@ const MotionSpan = motion.span;
 const MotionP = motion.p;
 
 export default function Hero() {
+  const words = [
+    "Smarter Hiring",
+    "Better Teams",
+    "Data-Driven Decisions",
+    "Talent Insights",
+    "Skill Evaluation",
+  ];
   return (
     <section className="container flex min-h-screen max-w-screen-2xl flex-col items-center justify-center space-y-6 py-8 text-center">
       <MotionDiv
@@ -30,15 +38,11 @@ export default function Hero() {
             delay: 0.2,
           }}
         >
-          Smarter Assessment
+          Revolutionize Your
           <br />
-          <MotionSpan
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Better Insights
-          </MotionSpan>
+          Employment Process With
+          <br />
+          <FlipWords words={words} />
         </MotionH1>
         <MotionP
           className="mx-auto max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8"

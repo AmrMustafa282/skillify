@@ -1,19 +1,11 @@
 "use client";
-import Navbar from "@/components/navbar";
-import Hero from "@/components/hero";
-import Features from "@/components/features";
-import HowItWorks from "@/components/how-it-works";
-import Testimonials from "@/components/testimonials";
-import Integrations from "@/components/integrations";
-import FAQ from "@/components/faq";
-import CTA from "@/components/cta";
 import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
 import { motion } from "framer-motion";
-import PricingSection from "./(pages)/pricing/_components/pricing-section";
 
 const MotionDiv = motion.div;
 
-export default function Home() {
+const PagesLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="relative min-h-screen">
       <div className="pointer-events-none fixed inset-0">
@@ -44,32 +36,15 @@ export default function Home() {
             ease: "easeInOut",
           }}
         />
-        <MotionDiv
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] bg-primary/5 blur-[120px] rounded-full"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 10,
-            ease: "easeInOut",
-          }}
-        />
       </div>
 
       <div className="relative z-10">
         <Navbar />
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <Testimonials />
-        <Integrations />
-        <PricingSection />
-        <FAQ />
-        <CTA />
+        {children}
         <Footer />
       </div>
     </div>
   );
-}
+};
+
+export default PagesLayout;

@@ -89,86 +89,86 @@ export default function HowItWorks() {
         </MotionP>
       </MotionDiv>
 
-        <div className="space-y-20 relative">
-          {steps.map((step, index) => (
+      <div className="space-y-20 relative">
+        {steps.map((step, index) => (
+          <MotionDiv
+            key={index}
+            className={`flex flex-col ${
+              index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+            } gap-8 md:gap-16 items-center`}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{
+              duration: 0.8,
+              delay: 0.2 + index * 0.1,
+              type: "spring",
+              stiffness: 50,
+            }}
+          >
+            <div className="flex-1 text-center md:text-left">
+              <MotionSpan
+                className="inline-block text-sm font-medium text-muted-foreground mb-2"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
+              >
+                Step {index + 1}
+              </MotionSpan>
+              <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+              <p className="text-muted-foreground">{step.description}</p>
+            </div>
+
             <MotionDiv
-              key={index}
-              className={`flex flex-col ${
-                index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-              } gap-8 md:gap-16 items-center`}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              className="relative"
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{
-                duration: 0.8,
-                delay: 0.2 + index * 0.1,
+                delay: 0.4 + index * 0.1,
+                duration: 0.6,
                 type: "spring",
-                stiffness: 50,
+                stiffness: 100,
               }}
             >
-              <div className="flex-1 text-center md:text-left">
-                <MotionSpan
-                  className="inline-block text-sm font-medium text-muted-foreground mb-2"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                >
-                  Step {index + 1}
-                </MotionSpan>
-                <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
-                <p className="text-muted-foreground">{step.description}</p>
+              <div
+                className={`h-32 w-32 rounded-full ${step.color} flex items-center justify-center relative`}
+              >
+                <MotionDiv
+                  className="absolute inset-0 rounded-full"
+                  animate={{
+                    boxShadow: [
+                      "0 0 0 0px rgba(255, 255, 255, 0)",
+                      "0 0 0 10px rgba(255, 255, 255, 0)",
+                    ],
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeatType: "reverse",
+                  }}
+                />
+                <step.icon className={`h-12 w-12 ${step.iconColor}`} />
               </div>
 
+              {/* Circle marker for timeline */}
               <MotionDiv
-                className="relative"
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{
-                  delay: 0.4 + index * 0.1,
-                  duration: 0.6,
-                  type: "spring",
-                  stiffness: 100,
+                className="absolute top-1/2 left-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-primary hidden md:block"
+                style={{
+                  left: index % 2 === 0 ? "auto" : "0",
+                  right: index % 2 === 0 ? "0" : "auto",
                 }}
-              >
-                <div
-                  className={`h-32 w-32 rounded-full ${step.color} flex items-center justify-center relative`}
-                >
-                  <MotionDiv
-                    className="absolute inset-0 rounded-full"
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0px rgba(255, 255, 255, 0)",
-                        "0 0 0 10px rgba(255, 255, 255, 0)",
-                      ],
-                    }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2,
-                      ease: "easeInOut",
-                      repeatType: "reverse",
-                    }}
-                  />
-                  <step.icon className={`h-12 w-12 ${step.iconColor}`} />
-                </div>
-
-                {/* Circle marker for timeline */}
-                <MotionDiv
-                  className="absolute top-1/2 left-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-primary hidden md:block"
-                  style={{
-                    left: index % 2 === 0 ? "auto" : "0",
-                    right: index % 2 === 0 ? "0" : "auto",
-                  }}
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
-                />
-              </MotionDiv>
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
+              />
             </MotionDiv>
-          ))}
-        </div>
+          </MotionDiv>
+        ))}
+      </div>
     </section>
   );
 }
