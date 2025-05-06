@@ -104,7 +104,8 @@ export const columns: ColumnDef<Assessment>[] = [
           <DropdownMenuContent>
             <DropdownMenuItem
               onClick={async () => {
-                window.location.assign(`/dashboard/assessment/${row.original.test.id}`);
+                localStorage.setItem("selectedAssessment", JSON.stringify(row.original));
+                window.location.assign(`/dashboard/assessment/${row.original.assignment.id}`);
               }}
             >
               View assessment details
