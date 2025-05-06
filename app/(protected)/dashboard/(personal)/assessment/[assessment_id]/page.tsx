@@ -66,7 +66,13 @@ const AssessmentPage = () => {
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{test.description}</p>
-                <Button className="mt-4 ml-auto block" onClick={() => toast.success("Test started!")}>
+                <Button 
+                  className="mt-4 ml-auto block" 
+                  onClick={() => {
+                    toast.success("Test started!");
+                    window.location.href = `/dashboard/assessment/${test.id}/questions`;
+                  }}
+                >
                 Take the test
                 </Button>
             </CardContent>
