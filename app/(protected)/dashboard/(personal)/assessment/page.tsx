@@ -50,10 +50,10 @@ function useAssessments() {
             const assignments = res.data.data;
             const enrichedAssessments = await Promise.all(
               assignments.map(async (assignment: TestAssignment) => {
-                // const test = await getTest(assignment.testId);
-                // const job = test ? await getJob(test.jobId) : null;
+                const test = await getTest(assignment.testId);
+                const job = test ? await getJob(test.jobId) : null;
                 
-                return { assignment, test:null, job:null };
+                return { assignment, test, job };
               })
             );
             setAssessments(enrichedAssessments);
