@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 // Create motion components
 const MotionDiv = motion.div;
@@ -91,7 +92,10 @@ export default function Integrations() {
             stiffness: 100,
           }}
         >
-          Seamless Integrations
+          Seamless Integrations -{" "}
+          <span className="rounded-md border px-2.5 py-0.5 font-normal transition-colors text-foreground">
+            Comming Soon
+          </span>
         </MotionH2>
         <MotionP
           className="mt-4 text-muted-foreground sm:text-lg max-w-[42rem] mx-auto"

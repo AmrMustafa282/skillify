@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 // Create motion components
 const MotionDiv = motion.div;
@@ -108,44 +109,45 @@ export default function Pricing() {
             key={index}
             className={`rounded-xl border ${
               plan.popular ? "border-primary shadow-lg" : ""
-            } bg-background p-8 relative`}
+            } p-8 relative flex flex-col h-full`}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ 
-              duration: 0.6, 
+            transition={{
+              duration: 0.6,
               delay: 0.2 + index * 0.1,
               type: "spring",
-              stiffness: 50 
+              stiffness: 50,
             }}
-            whileHover={{ 
+            whileHover={{
               y: -5,
-              transition: { duration: 0.2 }
+              transition: { duration: 0.2 },
             }}
           >
-            {plan.popular && (
-              <MotionSpan
-                className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                Most Popular
-              </MotionSpan>
-            )}
-            
             <div className="mb-6">
-              <h3 className="text-2xl font-bold">{plan.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-2xl font-bold">{plan.name}</h3>
+                {plan.popular && (
+                  <MotionSpan
+                    className="text-xs font-medium "
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  >
+                    <Badge variant={"popular"}>Most Popular</Badge>
+                  </MotionSpan>
+                )}
+              </div>
               <p className="text-muted-foreground mt-1">{plan.description}</p>
             </div>
-            
+
             <div className="mb-6">
               <span className="text-4xl font-bold">{plan.price}</span>
               <span className="text-muted-foreground ml-2">{plan.billing}</span>
             </div>
-            
-            <div className="space-y-4 mb-8">
+
+            <div className="space-y-4 flex-grow">
               <p className="font-medium">What's included:</p>
               <ul className="space-y-2">
                 {plan.features.map((feature, i) => (
@@ -161,7 +163,7 @@ export default function Pricing() {
                     <span>{feature}</span>
                   </MotionDiv>
                 ))}
-                
+
                 {plan.limitations.map((limitation, i) => (
                   <MotionDiv
                     key={i}
@@ -177,13 +179,15 @@ export default function Pricing() {
                 ))}
               </ul>
             </div>
-            
-            <Button 
-              className={`w-full ${plan.popular ? "" : "variant-outline"}`}
-              variant={plan.popular ? "default" : "outline"}
-            >
-              {plan.cta}
-            </Button>
+
+            <div className="mt-8 pt-4">
+              <Button
+                className={`w-full ${plan.popular ? "" : "variant-outline"}`}
+                variant={plan.popular ? "default" : "outline"}
+              >
+                {plan.cta}
+              </Button>
+            </div>
           </MotionDiv>
         ))}
       </div>

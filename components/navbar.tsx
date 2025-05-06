@@ -3,21 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import { ModeToggle } from "./ui/toggle-theme";
-import Cookies from "js-cookie";
 
-import { signOut, useSession } from "next-auth/react";
-import { NavUser } from "./nav-user";
+import { useSession } from "next-auth/react";
 import UserButton from "./auth/_components/user-button";
 
 export default function Navbar() {
   const { status, data: session } = useSession();
-
-  const handleSignout = () => {
-    signOut();
-    Cookies.remove("JWT");
-    Cookies.remove("JWT_REFRESH");
-  };
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
       <div className=" w-full">
@@ -26,11 +17,16 @@ export default function Navbar() {
             <span className="font-bold">SkIllIfy.io</span>
           </Link>
           <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
-            <Link href="/dashboard" className="transition-colors hover:text-primary">
-              Dashboard
-            </Link>
+            {status === "authenticated" && (
+              <Link href="/dashboard" className="transition-colors hover:text-primary">
+                Dashboard
+              </Link>
+            )}
             <Link href="/solutions" className="transition-colors hover:text-primary">
               Solutions
+            </Link>
+            <Link href="/pricing" className="transition-colors hover:text-primary">
+              Pricing
             </Link>
             <Link href="/industries" className="transition-colors hover:text-primary">
               Industries

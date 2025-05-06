@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 
-// Create motion components
 const MotionDiv = motion.div;
 const MotionH2 = motion.h2;
 const MotionP = motion.p;
@@ -20,7 +19,7 @@ const benefits = [
 
 export default function CTA() {
   return (
-    <section className="border-t bg-gradient-to-b from-background to-primary/5">
+    <section className="border-t">
       <div className="container py-24 md:py-32">
         <MotionDiv
           className="mx-auto max-w-6xl rounded-3xl bg-primary/5 p-8 md:p-12 relative overflow-hidden shadow-xl"

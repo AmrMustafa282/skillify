@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
 
@@ -30,25 +30,22 @@ const testimonials = [
     avatar: "/avatars/avatar-3.png",
   },
   {
-    quote:
-      "This platform transformed our hiring process. We've reduced time-to-hire by 45% and the quality of candidates has improved dramatically.",
-    author: "Sarah Johnson",
-    title: "Head of Talent Acquisition, TechGrowth Inc.",
-    avatar: "/avatars/avatar-1.png",
+    quote: "StreamLine has revolutionized our team's workflow. It's a game-changer!",
+    author: "David Brown",
+    title: "Project Manager, Creative Minds",
+    avatar: "/avatars/avatar-4.png",
   },
   {
-    quote:
-      "The analytics dashboard gives us insights we never had before. We can now make data-driven decisions about our team's skills and training needs.",
-    author: "Michael Chen",
-    title: "HR Director, Innovate Solutions",
-    avatar: "/avatars/avatar-2.png",
+    quote: "The best project management tool we've ever used. Highly recommended!",
+    author: "Laura Davis",
+    title: "Team Lead, Digital Innovators",
+    avatar: "/avatars/avatar-5.png",
   },
   {
-    quote:
-      "Creating custom assessments is incredibly easy. We've been able to tailor our screening process to each role, resulting in better matches and higher retention.",
-    author: "Jessica Williams",
-    title: "Recruitment Manager, Global Enterprises",
-    avatar: "/avatars/avatar-3.png",
+    quote: "StreamLine helped us increase productivity by 40%. It's incredible!",
+    author: "Emily Johnson",
+    title: "Operations Manager, FutureTech",
+    avatar: "/avatars/avatar-6.png",
   },
 ];
 
@@ -91,7 +88,7 @@ export default function Testimonials() {
         {testimonials.map((testimonial, index) => (
           <MotionDiv
             key={index}
-            className="bg-background border rounded-xl p-8 shadow-sm relative"
+            className="border rounded-xl p-8 shadow-sm relative border-b border-border/40"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -99,11 +96,11 @@ export default function Testimonials() {
               duration: 0.6,
               delay: 0.2 + index * 0.1,
               type: "spring",
-              stiffness: 50
+              stiffness: 50,
             }}
             whileHover={{
               y: -5,
-              transition: { duration: 0.2 }
+              transition: { duration: 0.2 },
             }}
           >
             <MotionDiv
@@ -114,14 +111,18 @@ export default function Testimonials() {
               transition={{
                 delay: 0.5 + index * 0.1,
                 type: "spring",
-                stiffness: 200
+                stiffness: 200,
               }}
             >
               <Quote className="h-5 w-5" />
             </MotionDiv>
 
+            <div>
+              <h4 className="font-semibold">{testimonial.author}</h4>
+              <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+            </div>
             <MotionP
-              className="text-lg mb-6 relative"
+              className="text-lg mt-6 relative"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -129,26 +130,6 @@ export default function Testimonials() {
             >
               "{testimonial.quote}"
             </MotionP>
-
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {testimonial.avatar ? (
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.author}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-xl font-bold">
-                    {testimonial.author.charAt(0)}
-                  </span>
-                )}
-              </div>
-              <div>
-                <h4 className="font-semibold">{testimonial.author}</h4>
-                <p className="text-sm text-muted-foreground">{testimonial.title}</p>
-              </div>
-            </div>
           </MotionDiv>
         ))}
       </div>

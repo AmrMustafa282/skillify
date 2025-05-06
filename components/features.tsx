@@ -92,7 +92,7 @@ export default function Features() {
         transition={{ duration: 0.8 }}
       >
         <MotionH2
-          className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
+          className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-5xl bg-clip-text text-transparent "
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -125,7 +125,7 @@ export default function Features() {
         {features.map((feature, index) => (
           <MotionDiv
             key={feature.name}
-            className="relative overflow-hidden rounded-lg border bg-background p-8 hover:shadow-lg transition-all duration-300 hover:scale-105"
+            className="relative overflow-hidden rounded-lg border p-8 hover:shadow-lg transition-all duration-300 hover:scale-105"
             variants={item}
             whileHover={{
               y: -5,

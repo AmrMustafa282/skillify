@@ -21,7 +21,7 @@ export default function Hero() {
         className="space-y-4"
       >
         <MotionH1
-          className="bg-gradient-to-br from-foreground from-30% via-foreground/90 to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl"
+          className="bg-gradient-to-br from-foreground from-30% via-foreground/90 to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl pb-4"
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           transition={{
