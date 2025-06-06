@@ -29,7 +29,7 @@ const UserButton = ({
     <DropdownMenu>
       {user && (
         <>
-          <DropdownMenuTrigger asChild className="focus:outline-none focus-within:outline-none">
+          <DropdownMenuTrigger className="focus:outline-none focus-within:outline-none">
             <UserAvatar user={user} />
           </DropdownMenuTrigger>
           <DropdownMenuContent

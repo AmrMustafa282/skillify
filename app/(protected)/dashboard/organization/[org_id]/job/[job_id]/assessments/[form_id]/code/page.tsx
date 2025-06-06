@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 export default function AddCodingPage({
   params,
@@ -11,28 +12,32 @@ export default function AddCodingPage({
   const languages = [
     {
       name: "JavaScript",
-      icon: "🟨",
+      icon: "/langs/javascript.svg",
       description: "Create JavaScript coding challenges with Node.js runtime",
     },
     {
       name: "Python",
-      icon: "🐍",
+      icon: "/langs/python.svg",
       description: "Create Python coding challenges with test-driven development",
     },
     {
       name: "Java",
-      icon: "☕",
+      icon: "/langs/java.svg",
       description: "Create Java coding challenges with JUnit testing framework",
     },
     {
       name: "C++",
-      icon: "🔷",
+      icon: "/langs/cpp.svg",
       description: "Create C++ coding challenges with modern C++ features",
     },
-    { name: "Ruby", icon: "💎", description: "Create Ruby coding challenges with RSpec testing" },
+    {
+      name: "Ruby",
+      icon: "/langs/ruby.svg",
+      description: "Create Ruby coding challenges with RSpec testing",
+    },
     {
       name: "Go",
-      icon: "🔵",
+      icon: "/langs/go.svg",
       description: "Create Go coding challenges with built-in testing package",
     },
   ];
@@ -50,14 +55,15 @@ export default function AddCodingPage({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {languages.map((language) => (
-          <Card key={language.name} className="transition-all hover:shadow-md">
+          <Card key={language.name} className="transition-all hover:shadow-md flex flex-col h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span className="text-2xl">{language.icon}</span> {language.name}
+                <Image src={language.icon} alt={language.name} width={40} height={40} />{" "}
+                {language.name}
               </CardTitle>
               <CardDescription>{language.description}</CardDescription>
             </CardHeader>
-            <CardFooter>
+            <CardFooter className="mt-auto">
               <Link
                 href={`${basePath}/create?template=${language.name.toLowerCase()}`}
                 className="w-full"

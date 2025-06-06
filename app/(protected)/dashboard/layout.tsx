@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -16,7 +16,7 @@ import Loader from "@/components/ui/Loader";
 export default function MePage({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebarWrapper />
       <SidebarInset>
         <div className="flex flex-col h-screen">
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

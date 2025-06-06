@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { VariantProps, cva } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useScreenSize } from "@/hooks/use-screen-size";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +27,14 @@ type SidebarContext = {
   setOpen: (open: boolean) => void;
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
+  screenSize: "mobile" | "small-tablet" | "tablet" | "desktop" | undefined;
   isMobile: boolean;
+  isSmallTablet: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+  isMobileOrSmallTablet: boolean;
   toggleSidebar: () => void;
+  shouldShowTrigger: boolean;
 };
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
@@ -62,7 +68,8 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    const isMobile = useIsMobile();
+    const { screenSize, isMobile, isSmallTablet, isTablet, isDesktop, isMobileOrSmallTablet } =
+      useScreenSize();
     const [openMobile, setOpenMobile] = React.useState(false);
 
     // This is the internal state of the sidebar.
@@ -84,10 +91,30 @@ const SidebarProvider = React.forwardRef<
       [setOpenProp, open]
     );
 
+    // Set initial state based on screen size, but only once on mount
+    React.useEffect(() => {
+      if (isTablet) {
+        _setOpen(false); // Collapsed for tablets (icon mode)
+      } else if (isDesktop) {
+        _setOpen(true); // Expanded for desktop
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array means this only runs once on mount
+
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-    }, [isMobile, setOpen, setOpenMobile]);
+      if (isMobileOrSmallTablet) {
+        // On mobile and small tablet, toggle the sheet visibility
+        setOpenMobile((open) => !open);
+      } else if (isDesktop) {
+        // On desktop, toggle between expanded and icon mode (not offcanvas)
+        setOpen((open) => !open);
+      }
+      // On tablet, we don't need to do anything as the toggle button is hidden
+    }, [isMobileOrSmallTablet, isDesktop, setOpen, setOpenMobile]);
+
+    // Determine if we should show the trigger button
+    const shouldShowTrigger = !isTablet; // Hide on tablet, show on mobile, small tablet, and desktop
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -111,12 +138,32 @@ const SidebarProvider = React.forwardRef<
         state,
         open,
         setOpen,
-        isMobile,
         openMobile,
         setOpenMobile,
+        screenSize,
+        isMobile,
+        isSmallTablet,
+        isTablet,
+        isDesktop,
+        isMobileOrSmallTablet,
         toggleSidebar,
+        shouldShowTrigger,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        openMobile,
+        setOpenMobile,
+        screenSize,
+        isMobile,
+        isSmallTablet,
+        isTablet,
+        isDesktop,
+        isMobileOrSmallTablet,
+        toggleSidebar,
+        shouldShowTrigger,
+      ]
     );
 
     return (
@@ -165,9 +212,29 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const {
+      screenSize,
+      isMobile,
+      isSmallTablet,
+      isTablet,
+      isDesktop,
+      isMobileOrSmallTablet,
+      state,
+      openMobile,
+      setOpenMobile,
+    } = useSidebar();
 
-    if (collapsible === "none") {
+    // Determine collapsible mode based on screen size
+    const responsiveCollapsible = React.useMemo(() => {
+      if (isTablet) {
+        return "icon"; // Icon mode for tablets
+      } else if (isDesktop) {
+        return "icon"; // Icon mode for desktop when collapsed (not offcanvas)
+      }
+      return collapsible; // Use the provided collapsible prop for other screen sizes
+    }, [isTablet, isDesktop, collapsible]);
+
+    if (responsiveCollapsible === "none") {
       return (
         <div
           className={cn(
@@ -182,7 +249,7 @@ const Sidebar = React.forwardRef<
       );
     }
 
-    if (isMobile) {
+    if (isMobileOrSmallTablet) {
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
@@ -196,6 +263,9 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
+            <div aria-hidden="false" className="sr-only" id="sidebar-title">
+              Sidebar Navigation
+            </div>
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
@@ -207,9 +277,10 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className="group peer hidden text-sidebar-foreground md:block"
         data-state={state}
-        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-collapsible={state === "collapsed" ? responsiveCollapsible : ""}
         data-variant={variant}
         data-side={side}
+        data-screen-size={screenSize}
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -253,7 +324,11 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, shouldShowTrigger } = useSidebar();
+
+  if (!shouldShowTrigger) {
+    return null;
+  }
 
   return (
     <Button
@@ -319,6 +394,16 @@ const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main
   }
 );
 SidebarInset.displayName = "SidebarInset";
+
+// Add SheetTitle component to fix accessibility issue
+// Remove the direct import of SheetPrimitive
+// const SheetPrimitive = require("@radix-ui/react-sheet")
+
+// Replace the SheetTitle implementation with a simpler approach
+// Instead of trying to use SheetPrimitive.Title, we'll create a simple div with the appropriate ARIA attributes
+
+// Remove this entire block:
+// And replace the SheetContent usage in the isMobileOrSmallTablet condition with:
 
 const SidebarInput = React.forwardRef<
   React.ElementRef<typeof Input>,
