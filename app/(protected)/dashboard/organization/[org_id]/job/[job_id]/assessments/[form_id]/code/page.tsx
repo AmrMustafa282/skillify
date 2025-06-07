@@ -25,21 +25,21 @@ export default function AddCodingPage({
       icon: "/langs/java.svg",
       description: "Create Java coding challenges with JUnit testing framework",
     },
-    {
-      name: "C++",
-      icon: "/langs/cpp.svg",
-      description: "Create C++ coding challenges with modern C++ features",
-    },
-    {
-      name: "Ruby",
-      icon: "/langs/ruby.svg",
-      description: "Create Ruby coding challenges with RSpec testing",
-    },
-    {
-      name: "Go",
-      icon: "/langs/go.svg",
-      description: "Create Go coding challenges with built-in testing package",
-    },
+    // {
+    //   name: "C++",
+    //   icon: "/langs/cpp.svg",
+    //   description: "Create C++ coding challenges with modern C++ features",
+    // },
+    // {
+    //   name: "Ruby",
+    //   icon: "/langs/ruby.svg",
+    //   description: "Create Ruby coding challenges with RSpec testing",
+    // },
+    // {
+    //   name: "Go",
+    //   icon: "/langs/go.svg",
+    //   description: "Create Go coding challenges with built-in testing package",
+    // },
   ];
 
   const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.form_id}/code`;

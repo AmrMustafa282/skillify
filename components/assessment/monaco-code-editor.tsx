@@ -137,7 +137,7 @@ export function MonacoCodeEditor({
       >
         <Label
           className={cn(
-            "text-md font-medium",
+            "text-sm font-semibold ml-2",
             currentTheme === "dark" ? "text-white" : "text-black"
           )}
         >
