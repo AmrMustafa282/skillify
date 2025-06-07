@@ -16,6 +16,10 @@ import {
   Terminal,
 } from "lucide-react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // Types
 interface TestCase {
@@ -120,6 +124,7 @@ if __name__ == "__main__":
 const CodingDashboard = () => {
   const params = useParams();
   const router = useRouter();
+  const {data:session} = useSession()
   const assessmentId = params.assessment_id as string;
   const questionId = params.question_id as string;
 
@@ -220,7 +225,7 @@ const CodingDashboard = () => {
     try {
       // API call to submit coding answer using your exact endpoint
       const submissionData = {
-        candidate_id: "candidate-current",
+        candidate_id: session?.user?.email,
         question_id: questionId,
         code,
         language: question.language,
@@ -350,21 +355,29 @@ const CodingDashboard = () => {
             {/* Problem Content */}
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
               <div className="prose prose-sm max-w-none">
-                <div
-                  className="text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: question.description
-                      .replace(/\n/g, "<br>")
-                      .replace(
-                        /`([^`]+)`/g,
-                        '<code class="bg-gray-200 px-2 py-1 rounded text-sm font-mono">$1</code>'
-                      )
-                      .replace(
-                        /\*\*(.*?)\*\*/g,
-                        '<strong class="font-semibold text-gray-900">$1</strong>'
-                      ),
+                <ReactMarkdown
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={vscDarkPlus}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
                   }}
-                />
+                >
+                  {question.description}
+                </ReactMarkdown>
               </div>
 
               {/* Test Cases Section */}
@@ -433,6 +446,30 @@ const CodingDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* <ReactMarkdown
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      style={vscDarkPlus}
+                      language={match[1]}
+                      PreTag="div"
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {value}
+            </ReactMarkdown> */}
           </div>
         </div>
 

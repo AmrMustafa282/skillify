@@ -19,12 +19,14 @@ import {
   ArrowLeft,
   FileText,
   Timer,
+  Loader2,
 } from "lucide-react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 // Types
 interface Question {
-  id: string;
+  order: string;
   type: "MCQ" | "OPEN_ENDED";
   question: string;
   options?: string[];
@@ -32,7 +34,7 @@ interface Question {
 }
 
 interface CodingQuestion {
-  id: string;
+  order: string;
   title: string;
   description: string;
   difficulty: "Easy" | "Medium" | "Hard";
@@ -53,88 +55,433 @@ interface Assessment {
   codingQuestions: CodingQuestion[];
 }
 
-// Mock assessment data
-const mockAssessment: Assessment = {
-  id: "python-basics",
-  title: "Python Basics Assessment",
-  description: "Comprehensive assessment covering Python fundamentals and problem-solving skills",
-  timeLimit: 90, // minutes
-  questions: [
-    {
-      id: "1",
-      type: "MCQ",
-      question: "What is the output of print(type([]))?",
-      options: ["<class 'list'>", "<class 'dict'>", "<class 'tuple'>", "<class 'set'>"],
-    },
-    {
-      id: "2",
-      type: "MCQ",
-      question: "Which of the following is used to define a function in Python?",
-      options: ["function", "def", "define", "func"],
-    },
-    {
-      id: "3",
-      type: "OPEN_ENDED",
-      question: "Explain the difference between a list and a tuple in Python. Provide examples.",
-    },
-  ],
-  codingQuestions: [
-    {
-      id: "52",
-      title: "Reverse String",
-      description: "Write a function that reverses a string",
-      difficulty: "Easy",
-      language: "python",
-      timeLimit: 15,
-      testCases: [
-        { input: "hello", expectedOutput: "olleh" },
-        { input: "world", expectedOutput: "dlrow" },
-      ],
-    },
-    {
-      id: "53",
-      title: "Find Duplicates",
-      description: "Write a function that finds duplicate numbers in an array",
-      difficulty: "Medium",
-      language: "python",
-      timeLimit: 20,
-      testCases: [
-        { input: "[1,2,3,2,4,5,1]", expectedOutput: "[1,2]" },
-        { input: "[1,2,3,4,5]", expectedOutput: "[]" },
-      ],
-    },
-  ],
+// API response types based on your actual response
+interface ApiAssessment {
+  _id: string;
+  testId: string;
+  title: string;
+  description: string;
+  duration: number;
+  questions: Array<{
+    order: number;
+    text: string;
+    type: "MCQ" | "OPEN_ENDED";
+    options?: {
+      choices: Array<{
+        id: string;
+        text: string;
+      }>;
+    };
+    correctAnswer?: {
+      value: string;
+    };
+    difficulty?: string;
+  }>;
+  codingQuestions: Array<{
+    order: number;
+    title: string;
+    text: string;
+    language: string;
+    starterCode: string;
+    solutionCode: string;
+    testCases: Array<{
+      input: string;
+      expected_output: string;
+      weight: number;
+    }>;
+    evaluationCriteria: {
+      timeComplexity: string;
+      spaceComplexity: string;
+      constraints: string[];
+    };
+    gradingRules: {
+      testCaseWeight: number;
+      codeQualityWeight: number;
+      efficiencyWeight: number;
+      partialCredit: boolean;
+    };
+    metadata: {
+      difficulty: string;
+      estimatedDuration: number;
+      tags: string[];
+    };
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Transform API response to match our component types
+const transformAssessment = (apiAssessment: ApiAssessment): Assessment => {
+  return {
+    id: apiAssessment.testId || apiAssessment._id,
+    title: apiAssessment.title,
+    description: apiAssessment.description,
+    timeLimit: apiAssessment.duration,
+    questions: apiAssessment.questions.map((q) => ({
+      id: q.order.toString(),
+      order: q.order.toString(),
+      type: q.type,
+      question: q.text,
+      options: q.options?.choices.map((choice) => choice.text),
+      timeLimit: undefined, // Not provided in API response
+    })),
+    codingQuestions: apiAssessment.codingQuestions.map((cq) => ({
+      id: cq.order.toString(),
+      order: cq.order.toString(),
+      title: cq.title,
+      description: cq.text,
+      difficulty: cq.metadata.difficulty as "Easy" | "Medium" | "Hard",
+      language: cq.language,
+      timeLimit: cq.metadata.estimatedDuration,
+      testCases: cq.testCases.map((tc) => ({
+        input: tc.input,
+        expectedOutput: tc.expected_output,
+      })),
+    })),
+  };
 };
+
+// Assessment status types
+type AssessmentStatus = "not_started" | "in_progress" | "completed" | "expired";
+
+interface AssessmentStatusResponse {
+  status: AssessmentStatus;
+  solution_id?: string;
+  started_at?: string;
+  time_remaining?: number;
+  answers?: Array<{ question_id: string; value: string }>;
+  coding_answers?: Array<{ question_id: string; code: string; status: string }>;
+  current_question_index?: number;
+}
 
 const AssessmentPage = () => {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const assessmentId = params.assessment_id as string;
 
-  const [assessment] = useState<Assessment>(mockAssessment);
+  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [assessmentStatus, setAssessmentStatus] = useState<AssessmentStatus>("not_started");
+  const [solutionId, setSolutionId] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [codingAnswers, setCodingAnswers] = useState<Record<string, any>>({});
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Restore state when returning from coding dashboard
+  // Fetch assessment data and status from API
   useEffect(() => {
-    const savedState = localStorage.getItem(`assessment_${assessmentId}_state`);
-    if (savedState) {
+    const initializeAssessment = async () => {
       try {
-        const state = JSON.parse(savedState);
-        setAnswers(state.answers || {});
-        setCodingAnswers(state.codingAnswers || {});
-        setTimeRemaining(state.timeRemaining || assessment.timeLimit * 60);
-        setCurrentQuestionIndex(state.currentQuestionIndex || 0);
-        setHasStarted(true);
-      } catch (error) {
-        console.error("Failed to restore assessment state:", error);
+        if (!session) return;
+        setLoading(true);
+
+        // First, get assessment data
+        const assessmentResponse = await axios.get(
+          `http://localhost:5000/api/assessments/${assessmentId}`
+        );
+        console.log("Assessment data:", assessmentResponse.data);
+        const transformedAssessment = transformAssessment(assessmentResponse.data);
+        setAssessment(transformedAssessment);
+        // setCodingAnswers(assessmentResponse.data.coding_answers);
+
+        // Then, check assessment status
+        const statusResponse = await axios.get(
+          `http://localhost:5000/api/assessments/${assessmentId}/status?candidate_id=${session?.user?.email}`
+        );
+        console.log("Assessment status:", statusResponse.data);
+        const statusData: AssessmentStatusResponse = statusResponse.data;
+
+        setAssessmentStatus(statusData.status);
+
+        // Handle different status scenarios
+        switch (statusData.status) {
+          case "in_progress":
+            // Assessment already started - restore state
+            setHasStarted(true);
+            setSolutionId(statusData.solution_id || null);
+            setTimeRemaining(statusData.time_remaining || transformedAssessment.timeLimit * 60);
+
+            // Get full solution data to restore draft answers and current question
+            try {
+              const solutionResponse = await axios.get(
+                `http://localhost:5000/api/assessments/${assessmentId}/candidate/${session?.user?.email || "candidate-current"}/solution`
+              );
+              const solutionData = solutionResponse.data;
+
+              // Restore draft answers if available
+              if (solutionData.draft_answers) {
+                const answersMap: Record<string, string> = {};
+                solutionData.draft_answers.forEach((answer: any) => {
+                  answersMap[answer.question_id] = answer.value;
+                });
+                setAnswers(answersMap);
+              }
+
+              // Restore coding answers if available
+              if (solutionData.coding_answers && Array.isArray(solutionData.coding_answers)) {
+                const codingAnswersMap: Record<string, any> = {};
+                solutionData.coding_answers.forEach((answer: any) => {
+                  codingAnswersMap[answer.question_id] = {
+                    code: answer.code,
+                    language: answer.language,
+                    execution_time: answer.execution_time,
+                    memory_usage: answer.memory_usage,
+                    submitted_at: answer.submitted_at,
+                    status: "submitted", // Mark as submitted to prevent re-opening
+                  };
+                });
+                setCodingAnswers(codingAnswersMap);
+              }
+
+              // Restore current question index if available
+              if (solutionData.current_question !== undefined) {
+                setCurrentQuestionIndex(solutionData.current_question);
+              }
+
+              console.log("Assessment state restored from solution data");
+            } catch (solutionError) {
+              console.error("Failed to restore solution data:", solutionError);
+              // Continue without restored state - user can still take the assessment
+            }
+            break;
+
+          case "completed":
+            // Assessment already completed - redirect to results or dashboard
+            router.push(`/assessments/${assessmentId}/results`);
+            return;
+
+          case "expired":
+            // Assessment expired - show expired message
+            setError("This assessment has expired. Please contact your administrator.");
+            break;
+
+          case "not_started":
+          default:
+            // Assessment not started yet - normal flow
+            break;
+        }
+
+        setError(null);
+      } catch (err: any) {
+        console.error("Failed to initialize assessment:", err);
+        if (err.response?.status === 404) {
+          setError("Assessment not found. Please check the URL and try again.");
+        } else {
+          setError("Failed to load assessment. Please try again.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAssessment();
+  }, [assessmentId, router, session]);
+
+  // Auto-save progress every 30 seconds and heartbeat every 60 seconds
+  useEffect(() => {
+    if (!hasStarted || !assessment) return;
+
+    const autoSaveInterval = setInterval(async () => {
+      await saveProgress();
+    }, 30000); // Save every 30 seconds
+
+    const heartbeatInterval = setInterval(async () => {
+      await sendHeartbeat();
+    }, 60000); // Heartbeat every 60 seconds
+
+    return () => {
+      clearInterval(autoSaveInterval);
+      clearInterval(heartbeatInterval);
+    };
+  }, [hasStarted, solutionId, assessment, answers, currentQuestionIndex, timeRemaining]);
+
+  // Send heartbeat to keep session alive using your dedicated heartbeat endpoint
+  const sendHeartbeat = async () => {
+    if (!hasStarted) return;
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/assessments/${assessmentId}/heartbeat`,
+        {
+          candidate_id: session?.user?.email || "candidate-current",
+          timestamp: new Date().toISOString(),
+        }
+      );
+
+      console.log("Heartbeat sent successfully:", response.data);
+
+      // Handle heartbeat response
+      if (response.data.status === "expired" || response.data.should_submit) {
+        setError("Assessment time has expired.");
+        handleAutoSubmit("time_expired");
+      }
+    } catch (error: any) {
+      console.error("Failed to send heartbeat:", error);
+      // Handle heartbeat errors based on your API responses
+      if (error.response?.status === 404) {
+        setError("Assessment session not found. Please restart the assessment.");
+        setHasStarted(false);
+      } else if (error.response?.status === 410) {
+        setError("Assessment time has expired.");
+        handleAutoSubmit("time_expired");
       }
     }
-  }, [assessmentId, assessment?.timeLimit]);
+  };
+
+  // Auto-submit assessment using your dedicated endpoint
+  const handleAutoSubmit = async (reason: string = "time_expired") => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/assessments/${assessmentId}/auto-submit`,
+        {
+          candidate_id: session?.user?.email || "candidate-current",
+          reason: reason,
+        }
+      );
+
+      console.log("Assessment auto-submitted:", response.data);
+
+      // Clear saved state
+      localStorage.removeItem(`assessment_${assessmentId}_state`);
+      localStorage.removeItem(`assessment_${assessmentId}_solution_id`);
+
+      // Redirect to dashboard or results
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Failed to auto-submit assessment:", error);
+      // Fallback to regular submit if auto-submit fails
+      handleSubmitAssessment();
+    }
+  };
+
+  type Submission = {
+    code: string;
+    language: string;
+    execution_time: number;
+    memory_usage: number;
+    submitted_at: string;
+    status: string;
+  };
+
+  type TransformedSubmission = {
+    question_id: string;
+    code: string;
+    language: string;
+    execution_time: number;
+    memory_usage: number;
+    submitted_at: string;
+  };
+
+  function transformSubmissions(obj: Record<string, Submission>): TransformedSubmission[] {
+    return Object.entries(obj).map(([question_id, data]) => ({
+      question_id,
+      code: data.code,
+      language: data.language,
+      execution_time: data.execution_time,
+      memory_usage: data.memory_usage,
+      submitted_at: data.submitted_at,
+    }));
+  }
+
+  // Retry mechanism for API calls
+  const retryApiCall = async (apiCall: () => Promise<any>, maxRetries = 3, delay = 1000) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await apiCall();
+      } catch (error) {
+        console.error(`API call attempt ${attempt} failed:`, error);
+        if (attempt === maxRetries) {
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay * attempt));
+      }
+    }
+  };
+
+  // Save progress function with retry mechanism
+  const saveProgress = async () => {
+    if (!hasStarted || !assessment) return;
+
+    try {
+      setAutoSaving(true);
+      // Prepare draft answers in the format your API expects
+      const draftAnswers = Object.entries(answers).map(([question_id, value]) => ({
+        question_id,
+        answer_type: assessment?.questions.find((q) => q.order === question_id)?.type || "MCQ",
+        value,
+      }));
+
+
+      console.log('coding answers', codingAnswers)
+      await retryApiCall(() =>
+        axios.post(`http://localhost:5000/api/assessments/${assessmentId}/save-progress`, {
+          candidate_id: session?.user?.email || "candidate-current", // Your API expects candidate_id
+          draft_answers: draftAnswers,
+          current_question: currentQuestionIndex,
+          progress_data: {
+            time_remaining: timeRemaining,
+            coding_answers: transformSubmissions(codingAnswers),
+            total_questions: assessment.questions.length,
+            answered_questions: Object.keys(answers).length,
+            last_activity: new Date().toISOString(),
+          },
+        })
+      );
+      setLastSaved(new Date());
+      console.log("Progress saved successfully");
+    } catch (error: any) {
+      console.error("Failed to save progress after retries:", error);
+
+      // Handle specific error cases from your API
+      if (error.response?.status === 404) {
+        setError("Assessment session not found. Please restart the assessment.");
+        setHasStarted(false);
+      } else if (error.response?.status === 409) {
+        setError("Assessment already completed.");
+        router.push(`/assessments/${assessmentId}/results`);
+      } else if (error.response?.status === 410) {
+        setError("Assessment time has expired.");
+        handleSubmitAssessment(); // Auto-submit expired assessment
+      }
+      // For other errors, just log but don't block the UI
+    } finally {
+      setAutoSaving(false);
+    }
+  };
+
+  // Save progress when user navigates away or closes tab
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasStarted && !isSubmitting) {
+        e.preventDefault();
+        const message =
+          "Are you sure you want to leave? Your progress will be saved automatically.";
+        e.returnValue = message;
+        saveProgress(); // Save before leaving
+        return message;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && hasStarted) {
+        saveProgress(); // Save when tab becomes hidden
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasStarted, isSubmitting, saveProgress]);
 
   // Timer effect
   useEffect(() => {
@@ -143,7 +490,7 @@ const AssessmentPage = () => {
     const timer = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          handleSubmitAssessment();
+          handleAutoSubmit("time_expired");
           return 0;
         }
         return prev - 1;
@@ -152,6 +499,57 @@ const AssessmentPage = () => {
 
     return () => clearInterval(timer);
   }, [hasStarted]);
+
+  // Handle coding submission results when returning from coding dashboard
+  useEffect(() => {
+    const checkCodingSubmission = () => {
+      const submissionResult = localStorage.getItem(`coding_submission_${assessmentId}`);
+      if (submissionResult) {
+        try {
+          const result = JSON.parse(submissionResult);
+          if (result.success && result.questionId) {
+            // Mark the coding question as submitted
+            setCodingAnswers((prev) => ({
+              ...prev,
+              [result.questionId]: {
+                ...prev[result.questionId],
+                status: "submitted",
+                submitted_at: new Date().toISOString(),
+                code: result.code,
+                language: result.language,
+                execution_time: result.execution_time || 0,
+                memory_usage: result.memory_usage || 0,
+              },
+            }));
+
+            // Clear the submission result
+            localStorage.removeItem(`coding_submission_${assessmentId}`);
+
+            // Show success message
+            console.log(`Coding question ${result.questionId} submitted successfully`);
+          }
+        } catch (error) {
+          console.error("Failed to process coding submission result:", error);
+        }
+      }
+    };
+
+    // Check immediately
+    checkCodingSubmission();
+
+    // Also check when the component becomes visible (user returns from coding dashboard)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkCodingSubmission();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [assessmentId]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -166,33 +564,37 @@ const AssessmentPage = () => {
       const response = await axios.post(
         `http://localhost:5000/api/assessments/${assessmentId}/start`,
         {
-          candidate_id: "candidate-current",
+          candidate_id: session?.user?.email,
         }
       );
 
       console.log("Assessment started:", response.data);
       setHasStarted(true);
-      setTimeRemaining(mockAssessment.timeLimit * 60);
+      setAssessmentStatus("in_progress");
+      setTimeRemaining(assessment?.timeLimit ? assessment.timeLimit * 60 : 90 * 60);
 
-      // Store solution_id for later use
-      localStorage.setItem(`assessment_${assessmentId}_solution_id`, response.data.solution_id);
+      // Store solution_id for state management
+      const newSolutionId = response.data.solution_id;
+      setSolutionId(newSolutionId);
+      localStorage.setItem(`assessment_${assessmentId}_solution_id`, newSolutionId);
     } catch (error: any) {
       console.error("Failed to start assessment:", error);
       if (error.response?.status === 409) {
         // Assessment already started
         console.log("Assessment already started, continuing...");
         setHasStarted(true);
-        setTimeRemaining(mockAssessment.timeLimit * 60);
+        setAssessmentStatus("in_progress");
+        setTimeRemaining(assessment?.timeLimit ? assessment.timeLimit * 60 : 90 * 60);
+
         if (error.response.data.solution_id) {
-          localStorage.setItem(
-            `assessment_${assessmentId}_solution_id`,
-            error.response.data.solution_id
-          );
+          const existingSolutionId = error.response.data.solution_id;
+          setSolutionId(existingSolutionId);
+          localStorage.setItem(`assessment_${assessmentId}_solution_id`, existingSolutionId);
         }
       } else {
         // For demo purposes, still allow starting even if API fails
         setHasStarted(true);
-        setTimeRemaining(mockAssessment.timeLimit * 60);
+        setTimeRemaining(assessment?.timeLimit ? assessment.timeLimit * 60 : 90 * 60);
       }
     }
   };
@@ -202,9 +604,22 @@ const AssessmentPage = () => {
       ...prev,
       [questionId]: value,
     }));
+
+    // Trigger auto-save after a short delay
+    setTimeout(() => {
+      saveProgress();
+    }, 2000);
   };
 
   const handleCodingQuestion = (questionId: string) => {
+    // Check if this coding question has already been submitted
+    const existingAnswer = codingAnswers[questionId];
+    if (existingAnswer && existingAnswer.status === "submitted") {
+      // Show message that question is already submitted and cannot be reopened
+      setError("This coding question has already been submitted and cannot be reopened.");
+      return;
+    }
+
     // Store current assessment state before navigating
     localStorage.setItem(
       `assessment_${assessmentId}_state`,
@@ -226,7 +641,7 @@ const AssessmentPage = () => {
       // Prepare answers in the format your API expects
       const formattedAnswers = Object.entries(answers).map(([questionId, value]) => ({
         question_id: questionId,
-        answer_type: assessment.questions.find((q) => q.id === questionId)?.type || "MCQ",
+        answer_type: assessment?.questions.find((q) => q.order === questionId)?.type || "MCQ",
         value,
       }));
 
@@ -234,7 +649,7 @@ const AssessmentPage = () => {
       const response = await axios.post(
         `http://localhost:5000/api/assessments/${assessmentId}/submit/complete`,
         {
-          candidate_id: "candidate-current",
+          candidate_id: session?.user?.email,
           answers: formattedAnswers,
         }
       );
@@ -265,6 +680,43 @@ const AssessmentPage = () => {
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
   const answeredQuestions = Object.keys(answers).length;
   const completedCodingQuestions = Object.keys(codingAnswers).length;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex flex-col items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Assessment</h3>
+            <p className="text-sm text-gray-600 text-center">
+              Please wait while we load your assessment...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !assessment) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex flex-col items-center justify-center py-8">
+            <AlertCircle className="h-8 w-8 text-red-600 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Assessment</h3>
+            <p className="text-sm text-gray-600 text-center mb-4">
+              {error || "Assessment not found. Please check the URL and try again."}
+            </p>
+            <Button onClick={() => router.back()} variant="outline">
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!hasStarted) {
     return (
@@ -312,6 +764,10 @@ const AssessmentPage = () => {
                         • You have {assessment.timeLimit} minutes to complete the entire assessment
                       </li>
                       <li>• Coding questions will open in a separate coding environment</li>
+                      <li>
+                        • <strong>Coding questions can only be submitted once</strong> - make sure
+                        your solution passes all tests
+                      </li>
                       <li>• You can navigate between questions freely</li>
                       <li>• Make sure to submit before time runs out</li>
                     </ul>
@@ -319,10 +775,31 @@ const AssessmentPage = () => {
                 </div>
               </div>
 
-              <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
-                <Play className="mr-2 h-5 w-5" />
-                Start Assessment
-              </Button>
+              {assessmentStatus === "in_progress" ? (
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-blue-600 mr-3" />
+                      <div>
+                        <h4 className="font-semibold text-blue-800">Assessment In Progress</h4>
+                        <p className="text-sm text-blue-700 mt-1">
+                          You have already started this assessment. Click below to continue where
+                          you left off.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
+                    <Play className="mr-2 h-5 w-5" />
+                    Resume Assessment
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
+                  <Play className="mr-2 h-5 w-5" />
+                  Start Assessment
+                </Button>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -343,6 +820,23 @@ const AssessmentPage = () => {
               </Badge>
             </div>
             <div className="flex items-center space-x-6">
+              {/* Auto-save status */}
+              <div className="flex items-center space-x-2">
+                {autoSaving ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
+                    <span className="text-xs text-blue-600">Saving...</span>
+                  </>
+                ) : lastSaved ? (
+                  <>
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-green-600">
+                      Saved {lastSaved.toLocaleTimeString()}
+                    </span>
+                  </>
+                ) : null}
+              </div>
+
               <div className="flex items-center space-x-2">
                 <Timer className="h-4 w-4 text-gray-500" />
                 <span
@@ -370,19 +864,35 @@ const AssessmentPage = () => {
                 <div>
                   <h4 className="font-semibold text-sm text-gray-700 mb-2">Coding Questions</h4>
                   <div className="space-y-2">
-                    {assessment.codingQuestions.map((cq) => (
-                      <Button
-                        key={cq.id}
-                        variant={codingAnswers[cq.id] ? "default" : "outline"}
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => handleCodingQuestion(cq.id)}
-                      >
-                        <Code className="mr-2 h-4 w-4" />
-                        {cq.title}
-                        {codingAnswers[cq.id] && <CheckCircle className="ml-auto h-4 w-4" />}
-                      </Button>
-                    ))}
+                    {assessment.codingQuestions.map((cq) => {
+                      const isSubmitted = codingAnswers[cq.order]?.status === "submitted";
+                      const hasAnswer = codingAnswers[cq.order];
+
+                      return (
+                        <Button
+                          key={cq.order}
+                          variant={isSubmitted ? "default" : hasAnswer ? "secondary" : "outline"}
+                          size="sm"
+                          className={`w-full justify-start ${isSubmitted ? "bg-green-600 hover:bg-green-700 cursor-not-allowed" : ""}`}
+                          onClick={() => handleCodingQuestion(cq.order)}
+                          disabled={isSubmitted}
+                          title={isSubmitted ? "This coding question has been submitted and cannot be reopened" : "Click to open coding environment"}
+                        >
+                          <Code className="mr-2 h-4 w-4" />
+                          {cq.title}
+                          {isSubmitted ? (
+                            <div className="ml-auto flex items-center">
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                            </div>
+                          ) : hasAnswer ? (
+                            <div className="ml-auto flex items-center">
+                              <AlertCircle className="h-4 w-4 mr-1" />
+                              <span className="text-xs">Draft</span>
+                            </div>
+                          ) : null}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -392,9 +902,9 @@ const AssessmentPage = () => {
                   <div className="grid grid-cols-5 gap-1">
                     {assessment.questions.map((q, index) => (
                       <Button
-                        key={q.id}
+                        key={q.order}
                         variant={
-                          answers[q.id]
+                          answers[q.order]
                             ? "default"
                             : index === currentQuestionIndex
                               ? "secondary"
@@ -435,78 +945,95 @@ const AssessmentPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl">Question {currentQuestionIndex + 1}</CardTitle>
-                      <Badge variant={currentQuestion.type === "MCQ" ? "default" : "secondary"}>
-                        {currentQuestion.type === "MCQ" ? "Multiple Choice" : "Open Ended"}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-lg">
-                      {currentQuestion.question}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {currentQuestion.type === "MCQ" ? (
-                      <RadioGroup
-                        value={answers[currentQuestion.id] || ""}
-                        onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
-                      >
-                        {currentQuestion.options?.map((option, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value={`q${currentQuestion.id}_${String.fromCharCode(97 + index)}`}
-                              id={`option-${index}`}
-                            />
-                            <Label htmlFor={`option-${index}`} className="text-base cursor-pointer">
-                              {option}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    ) : (
-                      <Textarea
-                        placeholder="Type your answer here..."
-                        value={answers[currentQuestion.id] || ""}
-                        onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                        className="min-h-[200px]"
-                      />
-                    )}
+                  {currentQuestion ? (
+                    <>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-xl">
+                            Question {currentQuestionIndex + 1}
+                          </CardTitle>
+                          <Badge variant={currentQuestion.type === "MCQ" ? "default" : "secondary"}>
+                            {currentQuestion.type === "MCQ" ? "Multiple Choice" : "Open Ended"}
+                          </Badge>
+                        </div>
+                        <CardDescription className="text-lg">
+                          {currentQuestion.question}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {currentQuestion.type === "MCQ" ? (
+                          <RadioGroup
+                            value={answers[currentQuestion.order] || ""}
+                            onValueChange={(value) =>
+                              handleAnswerChange(currentQuestion.order, value)
+                            }
+                          >
+                            {currentQuestion.options?.map((option, index) => (
+                              <div key={index} className="flex items-center space-x-2">
+                                <RadioGroupItem
+                                  value={`q${currentQuestion.order}_${String.fromCharCode(97 + index)}`}
+                                  id={`option-${index}`}
+                                />
+                                <Label
+                                  htmlFor={`option-${index}`}
+                                  className="text-base cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        ) : (
+                          <Textarea
+                            placeholder="Type your answer here..."
+                            value={answers[currentQuestion.order] || ""}
+                            onChange={(e) =>
+                              handleAnswerChange(currentQuestion.order, e.target.value)
+                            }
+                            className="min-h-[200px]"
+                          />
+                        )}
 
-                    <div className="flex justify-between pt-6">
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))
-                        }
-                        disabled={currentQuestionIndex === 0}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Previous
-                      </Button>
+                        <div className="flex justify-between pt-6">
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))
+                            }
+                            disabled={currentQuestionIndex === 0}
+                          >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Previous
+                          </Button>
 
-                      {currentQuestionIndex === totalQuestions - 1 ? (
-                        <Button
-                          onClick={handleSubmitAssessment}
-                          disabled={isSubmitting}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {isSubmitting ? "Submitting..." : "Submit Assessment"}
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() =>
-                            setCurrentQuestionIndex(
-                              Math.min(totalQuestions - 1, currentQuestionIndex + 1)
-                            )
-                          }
-                        >
-                          Next
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
+                          {currentQuestionIndex === totalQuestions - 1 ? (
+                            <Button
+                              onClick={handleSubmitAssessment}
+                              disabled={isSubmitting}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              {isSubmitting ? "Submitting..." : "Submit Assessment"}
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={() =>
+                                setCurrentQuestionIndex(
+                                  Math.min(totalQuestions - 1, currentQuestionIndex + 1)
+                                )
+                              }
+                            >
+                              Next
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </>
+                  ) : (
+                    <CardContent className="flex items-center justify-center py-8">
+                      <p className="text-gray-500">No question available</p>
+                    </CardContent>
+                  )}
                 </Card>
               </motion.div>
             </AnimatePresence>
