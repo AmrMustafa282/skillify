@@ -141,14 +141,14 @@ const ORG_NAV = [
         title: "Ovreview",
         url: "/dashboard/organization",
       },
-      {
-        title: "Starred",
-        url: "#",
-      },
-      {
-        title: "Settings",
-        url: "#",
-      },
+      // {
+      //   title: "Starred",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Settings",
+      //   url: "#",
+      // },
     ],
   },
   {
@@ -162,14 +162,14 @@ const ORG_NAV = [
         title: "Overview",
         url: (orgId?: string) => `/dashboard/organization/${orgId}/job`,
       },
-      {
-        title: "Explorer",
-        url: "#",
-      },
-      {
-        title: "Quantum",
-        url: "#",
-      },
+      // {
+      //   title: "Explorer",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Quantum",
+      //   url: "#",
+      // },
     ],
   },
   {
@@ -188,14 +188,14 @@ const ORG_NAV = [
         title: "Create Invitation",
         url: "create-invitation/form/create",
       },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
-      },
+      // {
+      //   title: "Tutorials",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Changelog",
+      //   url: "#",
+      // },
     ],
   },
   {
@@ -215,14 +215,14 @@ const ORG_NAV = [
         url: (orgId?: string, jobId?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/create`,
       },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
-      },
+      // {
+      //   title: "Tutorials",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Changelog",
+      //   url: "#",
+      // },
     ],
   },
   {
@@ -261,6 +261,11 @@ const ORG_NAV = [
         title: "Responses",
         url: (orgId?: string, jobId?: string, form_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
+      },
+      {
+        title: "Analytics",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/analytics`,
       },
     ],
   },

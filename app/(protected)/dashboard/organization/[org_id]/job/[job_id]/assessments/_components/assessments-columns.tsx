@@ -158,6 +158,15 @@ export const columns: ColumnDef<Assessment>[] = [
             >
               Responses
             </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                window.location.assign(
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/analytics`
+                )
+              }
+            >
+              Analytics
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
