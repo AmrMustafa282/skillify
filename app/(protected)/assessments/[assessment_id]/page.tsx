@@ -148,10 +148,12 @@ interface AssessmentStatusResponse {
   status: AssessmentStatus;
   solution_id?: string;
   started_at?: string;
+  expired_at?: string;
   time_remaining?: number;
   answers?: Array<{ question_id: string; value: string }>;
   coding_answers?: Array<{ question_id: string; code: string; status: string }>;
   current_question_index?: number;
+  message?: string;
 }
 
 const AssessmentPage = () => {
@@ -162,8 +164,10 @@ const AssessmentPage = () => {
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [assessmentStatus, setAssessmentStatus] = useState<AssessmentStatus>("not_started");
+  const [statusData, setStatusData] = useState<AssessmentStatusResponse | null>(null);
   const [solutionId, setSolutionId] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -180,29 +184,42 @@ const AssessmentPage = () => {
       try {
         if (!session) return;
         setLoading(true);
+        setStatusLoading(true);
 
-        // First, get assessment data
-        const assessmentResponse = await axios.get(
-          `http://localhost:5000/api/assessments/${assessmentId}`
-        );
-        console.log("Assessment data:", assessmentResponse.data);
-        const transformedAssessment = transformAssessment(assessmentResponse.data);
-        setAssessment(transformedAssessment);
-        // setCodingAnswers(assessmentResponse.data.coding_answers);
-
-        // Then, check assessment status
+        // First, check assessment status to determine if we should even load the assessment
         const statusResponse = await axios.get(
           `http://localhost:5000/api/assessments/${assessmentId}/status?candidate_id=${session?.user?.email}`
         );
         console.log("Assessment status:", statusResponse.data);
         const statusData: AssessmentStatusResponse = statusResponse.data;
 
+        setStatusData(statusData);
         setAssessmentStatus(statusData.status);
+        setStatusLoading(false);
 
-        // Handle different status scenarios
+        // Handle completed and expired status - show thank you message
+        if (statusData.status === "completed" || statusData.status === "expired") {
+          // Store status data for thank you message
+          if (statusData.solution_id) {
+            setSolutionId(statusData.solution_id);
+          }
+
+          setLoading(false);
+          return; // Don't proceed with loading assessment data
+        }
+
+        // Now load assessment data for non-expired, non-completed assessments
+        const assessmentResponse = await axios.get(
+          `http://localhost:5000/api/assessments/${assessmentId}`
+        );
+        console.log("Assessment data:", assessmentResponse.data);
+        const transformedAssessment = transformAssessment(assessmentResponse.data);
+        setAssessment(transformedAssessment);
+
+        // Handle remaining status scenarios (completed and expired already handled above)
         switch (statusData.status) {
           case "in_progress":
-            // Assessment already started - restore state
+            // Assessment already started - automatically push into assessment
             setHasStarted(true);
             setSolutionId(statusData.solution_id || null);
             setTimeRemaining(statusData.time_remaining || transformedAssessment.timeLimit * 60);
@@ -244,36 +261,47 @@ const AssessmentPage = () => {
                 setCurrentQuestionIndex(solutionData.current_question);
               }
 
-              console.log("Assessment state restored from solution data");
+              console.log(
+                "Assessment state restored from solution data - automatically continuing"
+              );
             } catch (solutionError) {
               console.error("Failed to restore solution data:", solutionError);
               // Continue without restored state - user can still take the assessment
             }
             break;
 
-          case "completed":
-            // Assessment already completed - redirect to results or dashboard
-            router.push(`/assessments/${assessmentId}/results`);
-            return;
-
-          case "expired":
-            // Assessment expired - show expired message
-            setError("This assessment has expired. Please contact your administrator.");
-            break;
-
           case "not_started":
           default:
-            // Assessment not started yet - normal flow
+            // Assessment not started yet - will show start screen
             break;
         }
 
         setError(null);
       } catch (err: any) {
         console.error("Failed to initialize assessment:", err);
+
+        // Handle specific API errors with detailed messages
         if (err.response?.status === 404) {
           setError("Assessment not found. Please check the URL and try again.");
+        } else if (err.response?.status === 403) {
+          setError(
+            "You don't have permission to access this assessment. Please contact your administrator."
+          );
+        } else if (err.response?.status === 410) {
+          setError("This assessment has expired and is no longer available.");
+          setAssessmentStatus("expired");
+        } else if (err.response?.data?.message) {
+          // Use the specific error message from the API
+          setError(err.response.data.message);
+
+          // Set status if provided
+          if (err.response.data.status) {
+            setAssessmentStatus(err.response.data.status);
+          }
+        } else if (err.code === "NETWORK_ERROR" || !err.response) {
+          setError("Network error. Please check your internet connection and try again.");
         } else {
-          setError("Failed to load assessment. Please try again.");
+          setError("Failed to load assessment. Please try again later.");
         }
       } finally {
         setLoading(false);
@@ -318,18 +346,35 @@ const AssessmentPage = () => {
 
       // Handle heartbeat response
       if (response.data.status === "expired" || response.data.should_submit) {
-        setError("Assessment time has expired.");
+        const expiredMessage = response.data.message || "Assessment time has expired.";
+        setError(expiredMessage);
+        setAssessmentStatus("expired");
         handleAutoSubmit("time_expired");
       }
     } catch (error: any) {
       console.error("Failed to send heartbeat:", error);
+
       // Handle heartbeat errors based on your API responses
       if (error.response?.status === 404) {
-        setError("Assessment session not found. Please restart the assessment.");
+        setError(
+          "Assessment session not found. Your session may have expired. Please restart the assessment."
+        );
         setHasStarted(false);
+        setAssessmentStatus("not_started");
       } else if (error.response?.status === 410) {
-        setError("Assessment time has expired.");
+        const expiredMessage = error.response?.data?.message || "Assessment time has expired.";
+        setError(expiredMessage);
+        setAssessmentStatus("expired");
         handleAutoSubmit("time_expired");
+      } else if (error.response?.status === 409) {
+        setError("Assessment has already been completed.");
+        setAssessmentStatus("completed");
+        router.push(`/assessments/${assessmentId}/results`);
+      } else if (error.code === "NETWORK_ERROR" || !error.response) {
+        // Don't show error for network issues during heartbeat - just log it
+        console.warn("Heartbeat failed due to network issues - will retry on next interval");
+      } else {
+        console.warn("Heartbeat failed with unexpected error:", error.response?.status);
       }
     }
   };
@@ -417,8 +462,7 @@ const AssessmentPage = () => {
         value,
       }));
 
-
-      console.log('coding answers', codingAnswers)
+      console.log("coding answers", codingAnswers);
       await retryApiCall(() =>
         axios.post(`http://localhost:5000/api/assessments/${assessmentId}/save-progress`, {
           candidate_id: session?.user?.email || "candidate-current", // Your API expects candidate_id
@@ -681,16 +725,20 @@ const AssessmentPage = () => {
   const answeredQuestions = Object.keys(answers).length;
   const completedCodingQuestions = Object.keys(codingAnswers).length;
 
-  // Loading state
-  if (loading) {
+  // Loading state - show loading while checking status or loading assessment
+  if (loading || statusLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Assessment</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {statusLoading ? "Checking Assessment Status" : "Loading Assessment"}
+            </h3>
             <p className="text-sm text-gray-600 text-center">
-              Please wait while we load your assessment...
+              {statusLoading
+                ? "Please wait while we check your assessment status..."
+                : "Please wait while we load your assessment..."}
             </p>
           </CardContent>
         </Card>
@@ -698,27 +746,125 @@ const AssessmentPage = () => {
     );
   }
 
-  // Error state
-  if (error || !assessment) {
+  // Show thank you message for completed and expired assessments
+  if (assessmentStatus === "completed" || assessmentStatus === "expired") {
+    const isExpired = assessmentStatus === "expired";
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Card className="w-full max-w-2xl">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
+                  <CheckCircle className="h-10 w-10 text-green-600" />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                  {isExpired ? "Assessment Completed" : "Thank You!"}
+                </h3>
+                <div className="space-y-4 mb-8">
+                  <p className="text-lg text-gray-600">
+                    {isExpired
+                      ? "We have received your response. Your assessment has been submitted successfully."
+                      : "We have received your response. Thank you for completing the assessment!"}
+                  </p>
+                  {statusData && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="text-sm text-blue-800">
+                        <div className="font-medium mb-2">Assessment Details:</div>
+                        {statusData.started_at && (
+                          <div>Started: {new Date(statusData.started_at).toLocaleString()}</div>
+                        )}
+                        {statusData.expired_at && isExpired && (
+                          <div>Completed: {new Date(statusData.expired_at).toLocaleString()}</div>
+                        )}
+                        {statusData.solution_id && (
+                          <div className="mt-2 text-xs text-blue-600">
+                            Reference ID: {statusData.solution_id}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={() => router.push("/dashboard")}
+                    className="bg-blue-600 hover:bg-blue-700"
+                    size="lg"
+                  >
+                    Return to Dashboard
+                  </Button>
+                  <Button onClick={() => router.back()} variant="outline" size="lg">
+                    Go Back
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Error state for other errors
+  if (error || !assessment) {
+    const isNetworkError = error?.includes("Network error") || error?.includes("connection");
+
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
           <CardContent className="flex flex-col items-center justify-center py-8">
-            <AlertCircle className="h-8 w-8 text-red-600 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Assessment</h3>
-            <p className="text-sm text-gray-600 text-center mb-4">
-              {error || "Assessment not found. Please check the URL and try again."}
-            </p>
-            <Button onClick={() => router.back()} variant="outline">
-              Go Back
-            </Button>
+            {isNetworkError ? (
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-6">
+                  <AlertCircle className="h-8 w-8 text-yellow-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Connection Problem</h3>
+                <p className="text-gray-600 mb-6">{error}</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={() => window.location.reload()}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Try Again
+                  </Button>
+                  <Button onClick={() => router.back()} variant="outline">
+                    Go Back
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                  <AlertCircle className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Unable to Load Assessment</h3>
+                <p className="text-gray-600 mb-6">
+                  {error || "Assessment not found. Please check the URL and try again."}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={() => window.location.reload()} variant="outline">
+                    Retry
+                  </Button>
+                  <Button onClick={() => router.back()} variant="outline">
+                    Go Back
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (!hasStarted) {
+  // Only show start screen for not_started assessments
+  if (!hasStarted && assessmentStatus === "not_started" && assessment) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <motion.div
@@ -775,31 +921,10 @@ const AssessmentPage = () => {
                 </div>
               </div>
 
-              {assessmentStatus === "in_progress" ? (
-                <div className="space-y-3">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <AlertCircle className="h-5 w-5 text-blue-600 mr-3" />
-                      <div>
-                        <h4 className="font-semibold text-blue-800">Assessment In Progress</h4>
-                        <p className="text-sm text-blue-700 mt-1">
-                          You have already started this assessment. Click below to continue where
-                          you left off.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
-                    <Play className="mr-2 h-5 w-5" />
-                    Resume Assessment
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
-                  <Play className="mr-2 h-5 w-5" />
-                  Start Assessment
-                </Button>
-              )}
+              <Button onClick={handleStartAssessment} className="w-full py-3 text-lg" size="lg">
+                <Play className="mr-2 h-5 w-5" />
+                Start Assessment
+              </Button>
             </CardContent>
           </Card>
         </motion.div>
@@ -876,7 +1001,11 @@ const AssessmentPage = () => {
                           className={`w-full justify-start ${isSubmitted ? "bg-green-600 hover:bg-green-700 cursor-not-allowed" : ""}`}
                           onClick={() => handleCodingQuestion(cq.order)}
                           disabled={isSubmitted}
-                          title={isSubmitted ? "This coding question has been submitted and cannot be reopened" : "Click to open coding environment"}
+                          title={
+                            isSubmitted
+                              ? "This coding question has been submitted and cannot be reopened"
+                              : "Click to open coding environment"
+                          }
                         >
                           <Code className="mr-2 h-4 w-4" />
                           {cq.title}
