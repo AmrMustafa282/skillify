@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +50,7 @@ import {
   Code,
   Brain,
   MessageSquare,
+  ArrowDown,
 } from "lucide-react";
 import axios from "axios";
 
@@ -171,6 +172,49 @@ const AnalyticsPage = () => {
       if (interval) clearInterval(interval);
     };
   }, [autoRefresh, currentJob]);
+
+  // Auto-scroll to bottom when new logs are added
+  const logsContainerRef = useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const previousLogsLength = useRef(logs.length);
+
+  useEffect(() => {
+    if (shouldAutoScroll && logsContainerRef.current && logs.length > 0) {
+      const container = logsContainerRef.current;
+
+      // Only scroll if new logs were added
+      if (logs.length > previousLogsLength.current) {
+        setIsScrolling(true);
+
+        const scrollToBottom = () => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+
+          // Reset scrolling state after animation
+          setTimeout(() => setIsScrolling(false), 500);
+        };
+
+        // Small delay to ensure DOM is updated with new content
+        setTimeout(scrollToBottom, 150);
+      }
+
+      previousLogsLength.current = logs.length;
+    }
+  }, [logs, shouldAutoScroll]);
+
+  // Handle manual scroll to detect if user scrolled up
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+
+    // Only update auto-scroll if user manually scrolled (not during programmatic scroll)
+    if (!isScrolling) {
+      setShouldAutoScroll(isAtBottom);
+    }
+  };
 
   const checkExistingReport = async (testId: string) => {
     try {
@@ -590,7 +634,14 @@ const AnalyticsPage = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Analysis Logs</CardTitle>
+                  <CardTitle className="flex items-center space-x-2">
+                    <span>Analysis Logs</span>
+                    {logs.length > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {logs.length} entries
+                      </Badge>
+                    )}
+                  </CardTitle>
                   <CardDescription>Real-time logs from the analysis job</CardDescription>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -598,6 +649,17 @@ const AnalyticsPage = () => {
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-blue-600">Auto-refreshing</span>
+                      {isScrolling && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="flex items-center space-x-1 text-xs text-green-600"
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                          <span>New logs</span>
+                        </motion.div>
+                      )}
                     </div>
                   )}
                   {currentJob && (
@@ -605,6 +667,7 @@ const AnalyticsPage = () => {
                       onClick={() => fetchJobLogs(currentJob.job_id)}
                       variant="outline"
                       size="sm"
+                      className="transition-all hover:scale-105"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
@@ -625,35 +688,101 @@ const AnalyticsPage = () => {
                     <p className="text-gray-600">Fetching analysis logs...</p>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {logs.map((log, index) => (
+                  <div className="relative">
+                    <div
+                      ref={logsContainerRef}
+                      onScroll={handleScroll}
+                      className={`space-y-3 h-96 overflow-hidden scroll-smooth pr-2 transition-all duration-300 ${
+                        isScrolling ? "" : ""
+                      }`}
+                      style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "rgba(156, 163, 175, 0.5) transparent",
+                      }}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {logs.map((log, index) => {
+                          const isNewLog = index >= previousLogsLength.current;
+                          return (
+                            <motion.div
+                              key={log._id}
+                              initial={{
+                                opacity: 0,
+                                // x: isNewLog ? -30 : -20,
+                                // scale: isNewLog ? 0.9 : 0.95,
+                                // y: isNewLog ? 10 : 0,
+                              }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 20 }}
+                              transition={{
+                                duration: isNewLog ? 0.5 : 0.3,
+                                delay: isNewLog ? 0.1 : index < 5 ? index * 0.05 : 0,
+                                ease: isNewLog ? "easeOut" : "easeInOut",
+                                type: isNewLog ? "spring" : "tween",
+                                stiffness: isNewLog ? 100 : undefined,
+                                damping: isNewLog ? 15 : undefined,
+                              }}
+                              layout
+                              className={`flex items-start space-x-3 p-3 rounded-lg border transition-all duration-300 hover:shadow-sm ${
+                                isNewLog
+                                  ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                                  : "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700"
+                              }`}
+                            >
+                              <div className="flex-shrink-0 mt-1">
+                                {log.message.includes("completed") ? (
+                                  <CheckCircle className="h-4 w-4 text-green-600" />
+                                ) : log.message.includes("failed") ||
+                                  log.message.includes("error") ? (
+                                  <XCircle className="h-4 w-4 text-red-600" />
+                                ) : log.message.includes("starting") ||
+                                  log.message.includes("analyzing") ? (
+                                  <Play className="h-4 w-4 text-blue-600" />
+                                ) : (
+                                  <Clock className="h-4 w-4 text-gray-600" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {log.message}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {new Date(log.timestamp).toLocaleString()}
+                                </p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Auto-scroll indicator */}
+                    {!shouldAutoScroll && logs.length > 0 && (
                       <motion.div
-                        key={log._id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute bottom-2 right-2 z-10"
                       >
-                        <div className="flex-shrink-0 mt-1">
-                          {log.message.includes("completed") ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : log.message.includes("failed") || log.message.includes("error") ? (
-                            <XCircle className="h-4 w-4 text-red-600" />
-                          ) : log.message.includes("starting") ||
-                            log.message.includes("analyzing") ? (
-                            <Play className="h-4 w-4 text-blue-600" />
-                          ) : (
-                            <Clock className="h-4 w-4 text-gray-600" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm ">{log.message}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {new Date(log.timestamp).toLocaleString()}
-                          </p>
-                        </div>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => {
+                            setShouldAutoScroll(true);
+                            if (logsContainerRef.current) {
+                              logsContainerRef.current.scrollTo({
+                                top: logsContainerRef.current.scrollHeight,
+                                behavior: "smooth",
+                              });
+                            }
+                          }}
+                          className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white border-0 animate-pulse"
+                        >
+                          <ArrowDown className="h-4 w-4 mr-1" />
+                          <span>Scroll to bottom</span>
+                        </Button>
                       </motion.div>
-                    ))}
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -844,18 +973,27 @@ const AnalyticsPage = () => {
                                 value: currentReport.score_distribution.good,
                                 fill: "#3b82f6",
                               },
-                              // { name: "Average", value: currentReport.score_distribution.average, fill: "#f59e0b" },
+                              {
+                                name: "Average",
+                                value: currentReport.score_distribution.average,
+                                fill: "#f59e0b",
+                              },
                               {
                                 name: "Poor",
                                 value: currentReport.score_distribution.poor,
                                 fill: "#ef4444",
                               },
-                            ]}
+                            ].filter((item) => item.value > 0)}
                             cx="50%"
                             cy="50%"
-                            labelLine={false}
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={80}
+                            labelLine={{
+                              stroke: "#6b7280",
+                              strokeWidth: 1,
+                            }}
+                            label={({ name, percent }) =>
+                              percent > 0.03 ? `${name} ${(percent * 100).toFixed(0)}%` : ""
+                            }
+                            outerRadius={70}
                             fill="#8884d8"
                             dataKey="value"
                           >
@@ -870,15 +1008,21 @@ const AnalyticsPage = () => {
                                 value: currentReport.score_distribution.good,
                                 fill: "#3b82f6",
                               },
-                              // { name: "Average", value: currentReport.score_distribution.average, fill: "#f59e0b" },
+                              {
+                                name: "Average",
+                                value: currentReport.score_distribution.average,
+                                fill: "#f59e0b",
+                              },
                               {
                                 name: "Poor",
                                 value: currentReport.score_distribution.poor,
                                 fill: "#ef4444",
                               },
-                            ].map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
+                            ]
+                              .filter((item) => item.value > 0)
+                              .map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                              ))}
                           </Pie>
                           <Tooltip />
                         </PieChart>
