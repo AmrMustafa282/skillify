@@ -2,7 +2,7 @@
 
 import { Edit, Settings, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import CreateAssessmentForm from "../_components/create-invitation-form";
+import CreateAssessmentForm from "../_components/create-assessment-form";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -18,7 +18,7 @@ import { AssessmentProps } from "@/types";
 import ConfirmAction from "@/components/ui/confirm-action";
 
 export default function CreateAssessmentPage() {
-  const { form_id } = useParams();
+  const { assessment_id } = useParams();
   const router = useRouter();
   const [assessment, setAssessment] = useState<null | AssessmentProps>(null);
   const [onEdit, setOnEdit] = useState(false);
@@ -33,7 +33,7 @@ export default function CreateAssessmentPage() {
 
   const deleteTest = async () => {
     try {
-      const res = await axios.delete(`${API_URL}/tests/${form_id}`, {
+      const res = await axios.delete(`${API_URL}/tests/${assessment_id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -49,7 +49,7 @@ export default function CreateAssessmentPage() {
   useEffect(() => {
     const getTest = async () => {
       try {
-        const res = await axios.get(`${API_URL}/tests/${form_id}`, {
+        const res = await axios.get(`${API_URL}/tests/${assessment_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -60,7 +60,7 @@ export default function CreateAssessmentPage() {
       }
     };
     getTest();
-  }, [router, form_id]);
+  }, [router, assessment_id]);
 
   if (!assessment) {
     return <Loader />;

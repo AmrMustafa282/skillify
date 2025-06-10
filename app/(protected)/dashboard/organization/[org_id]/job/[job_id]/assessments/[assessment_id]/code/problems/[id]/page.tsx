@@ -11,10 +11,10 @@ import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
 export default function ProblemDetailPage({
   params,
 }: {
-  params: { org_id: string; job_id: string; form_id: string; id: string };
+  params: { org_id: string; job_id: string; assessment_id: string; id: string };
 }) {
   const [showSolution, setShowSolution] = useState(false);
-  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.form_id}/add-coding`;
+  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.assessment_id}/add-coding`;
 
   // Mock data for the problem
   const problem = {

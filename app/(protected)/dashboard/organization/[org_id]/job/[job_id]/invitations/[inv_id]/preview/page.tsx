@@ -13,7 +13,7 @@ import Loader from "@/components/ui/Loader";
 
 export default function PreviewFormPage() {
   const router = useRouter();
-  const { form_id } = useParams();
+  const { invitation_id } = useParams();
 
   const [loadingTestInfo, setLoadingTestInfo] = useState(true);
   const [loadingTestQuestions, setLoadingTestQuestions] = useState(true);
@@ -25,7 +25,7 @@ export default function PreviewFormPage() {
       setIsLoading(true);
       try {
         setLoadingTestInfo(true);
-        const infoRes = await axios.get(`${API_URL}/tests/${form_id}`, {
+        const infoRes = await axios.get(`${API_URL}/tests/${invitation_id}`, {
           withCredentials: true,
         });
         const infoData = infoRes.data.data as Assessment;
@@ -44,7 +44,7 @@ export default function PreviewFormPage() {
 
       try {
         setLoadingTestQuestions(true);
-        const questionsRes = await axios.get(`${API_URL}/tests/${form_id}/questions`, {
+        const questionsRes = await axios.get(`${API_URL}/tests/${invitation_id}/questions`, {
           withCredentials: true,
         });
         const questionsData = questionsRes.data.data as AssessmentQuestion[];
@@ -63,10 +63,10 @@ export default function PreviewFormPage() {
       setIsLoading(false);
     };
 
-    if (form_id) {
+    if (invitation_id) {
       fetchData();
     }
-  }, [form_id]);
+  }, [invitation_id]);
 
   if (!formData) {
     return (

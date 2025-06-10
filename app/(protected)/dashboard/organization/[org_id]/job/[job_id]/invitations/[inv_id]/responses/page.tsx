@@ -53,7 +53,7 @@ export default function FormResponsesPage() {
 
   const orgId = params.org_id as string;
   const jobId = params.job_id as string;
-  const formId = params.form_id as string;
+  const formId = params.invitation_id as string;
 
   useEffect(() => {
     fetchFormAndSubmissions();

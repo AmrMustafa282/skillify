@@ -135,7 +135,7 @@ interface Report {
 const AnalyticsPage = () => {
   const params = useParams();
   const router = useRouter();
-  const formId = params.form_id as string;
+  const formId = params.assessment_id as string;
 
   // State management
   const [activeTab, setActiveTab] = useState("overview");

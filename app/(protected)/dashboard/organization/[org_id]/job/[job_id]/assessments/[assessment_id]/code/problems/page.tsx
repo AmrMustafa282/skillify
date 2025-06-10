@@ -13,9 +13,9 @@ import {
 export default function CodingProblemsPage({
   params,
 }: {
-  params: { org_id: string; job_id: string; form_id: string };
+  params: { org_id: string; job_id: string; assessment_id: string };
 }) {
-  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.form_id}/code`;
+  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.assessment_id}/code`;
 
   const problems = [
     {

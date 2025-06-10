@@ -19,7 +19,7 @@ import type { FormResponse } from "@/types";
 
 export default function FormResponsesPage() {
   const router = useRouter();
-  const { form_id } = useParams();
+  const { assessment_id } = useParams();
   const [responses, setResponses] = useState<FormResponse[]>([]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function FormResponsesPage() {
     }));
 
     setResponses(mockResponses);
-  }, [form_id]);
+  }, [assessment_id]);
 
   return (
     <div>
@@ -47,7 +47,7 @@ export default function FormResponsesPage() {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Form {form_id} Responses</h1>
+          <h1 className="text-2xl font-bold">Form {assessment_id} Responses</h1>
           <p className="text-muted-foreground">View and analyze form submissions</p>
         </div>
         <div className="flex gap-2">

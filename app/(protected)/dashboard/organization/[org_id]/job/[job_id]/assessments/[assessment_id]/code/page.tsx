@@ -7,7 +7,7 @@ import Image from "next/image";
 export default function AddCodingPage({
   params,
 }: {
-  params: { org_id: string; job_id: string; form_id: string };
+  params: { org_id: string; job_id: string; assessment_id: string };
 }) {
   const languages = [
     {
@@ -42,7 +42,7 @@ export default function AddCodingPage({
     // },
   ];
 
-  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.form_id}/code`;
+  const basePath = `/dashboard/organization/${params.org_id}/job/${params.job_id}/assessments/${params.assessment_id}/code`;
 
   return (
     <div className="space-y-8">

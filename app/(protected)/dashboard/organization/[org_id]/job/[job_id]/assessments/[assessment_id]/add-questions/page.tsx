@@ -196,7 +196,7 @@ function FormHeaderSkeleton() {
 }
 
 export default function CreateFormPage() {
-  const { form_id } = useParams();
+  const { assessment_id } = useParams();
   const [activeTab, setActiveTab] = useState<string>("edit");
   const [formTitle, setFormTitle] = useState<string>("");
   const [formDescription, setFormDescription] = useState<string>("");
@@ -335,7 +335,7 @@ export default function CreateFormPage() {
       const res = await axios.patch(
         `${API_URL}/questions/batch`,
         {
-          testId: form_id,
+          testId: assessment_id,
           questions: elements,
         },
         {
@@ -346,7 +346,7 @@ export default function CreateFormPage() {
       if (res.data.success) {
         console.log("Form saved:", elements);
         toast.success("Form saved successfully!");
-        localStorage.removeItem(`form_${form_id}`);
+        localStorage.removeItem(`form_${assessment_id}`);
         setOriginalElements(res.data.data.resultingQuestions);
         setFormElements(res.data.data.resultingQuestions);
       }
@@ -379,7 +379,7 @@ export default function CreateFormPage() {
       setIsLoading(true);
       try {
         setLoadingTestInfo(true);
-        const infoRes = await axios.get(`${API_URL}/tests/${form_id}`, {
+        const infoRes = await axios.get(`${API_URL}/tests/${assessment_id}`, {
           withCredentials: true,
         });
         const infoData = infoRes.data.data as Assessment;
@@ -395,7 +395,7 @@ export default function CreateFormPage() {
 
       try {
         setLoadingTestQuestions(true);
-        const questionsRes = await axios.get(`${API_URL}/tests/${form_id}/questions`, {
+        const questionsRes = await axios.get(`${API_URL}/tests/${assessment_id}/questions`, {
           withCredentials: true,
         });
         const questionsData = questionsRes.data.data as AssessmentQuestion[];
@@ -413,10 +413,10 @@ export default function CreateFormPage() {
       setIsLoading(false);
     };
 
-    if (form_id) {
+    if (assessment_id) {
       fetchData();
     }
-  }, [form_id]);
+  }, [assessment_id]);
 
   return (
     <div className="h-full flex flex-col">

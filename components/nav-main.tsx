@@ -209,33 +209,33 @@ const ORG_NAV = [
     items: [
       {
         title: "Edit",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}`,
       },
       {
         title: "Add Questions",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-questions`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/add-questions`,
       },
       {
         title: "Add Coding",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/code`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/code`,
       },
       {
         title: "Preview",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/preview`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/preview`,
       },
       {
         title: "Responses",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/responses`,
       },
       {
         title: "Analytics",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/analytics`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/analytics`,
       },
     ],
   },
@@ -271,42 +271,42 @@ const ORG_NAV = [
     url: "#",
     icon: BookOpen,
     isActive: true,
-    params: "form_id",
+    params: "assessment_id",
     items: [
       // {
       //   title: "Overview-dummy",
-      //   url: (orgId?: string, jobId?: string, form_id?: string) =>
+      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
       //     `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
       // },
       {
         title: "Edit",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}`,
       },
       {
         title: "Add Questions",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-questions`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/add-questions`,
       },
       {
         title: "Add Coding",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/code`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/code`,
       },
       {
         title: "Preview",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/preview`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/preview`,
       },
       // {
       //   title: "Responses",
-      //   url: (orgId?: string, jobId?: string, form_id?: string) =>
-      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
+      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/responses`,
       // },
       {
         title: "Analytics",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/analytics`,
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/analytics`,
       },
     ],
   },
@@ -375,7 +375,8 @@ export function NavMain() {
                                   subItem.url(
                                     params.org_id as string,
                                     params.job_id as string,
-                                    params.form_id as string
+                                    params.assessment_id as string,
+                                    params.invitation_id as string
                                   )
                                 );
                               } else {

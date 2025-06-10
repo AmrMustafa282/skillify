@@ -72,13 +72,15 @@ interface QuestionOutput {
 
 export default function CreateCodingProblemPage() {
   const router = useRouter();
-  const searchParams = useSearchParams()
-  const { org_id, job_id, form_id } = useParams();
+  const searchParams = useSearchParams();
+  const { org_id, job_id, assessment_id } = useParams();
 
   // Main state
   const [mode, setMode] = useState<"predefined" | "custom">("predefined");
   const [selectedQuestion, setSelectedQuestion] = useState<PredefinedQuestion | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(searchParams.get("template") || "python");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    searchParams.get("template") || "python"
+  );
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -190,7 +192,7 @@ export default function CreateCodingProblemPage() {
     console.log("Final Question Output:", JSON.stringify(finalQuestion, null, 2));
 
     // Navigate back to the assessments page
-    const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${form_id}/code`;
+    const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${assessment_id}/code`;
     router.push(basePath);
   };
 
