@@ -55,12 +55,12 @@ const PERSONAL_NAV = [
     items: [
       {
         title: "Ovreview",
-        url: "/dashboard/assessment",
+        url: "/dashboard/assessments",
       },
-      {
-        title: "Settings",
-        url: "#",
-      },
+      // {
+      //   title: "Settings",
+      //   url: "#",
+      // },
     ],
   },
   // {
@@ -182,11 +182,13 @@ const ORG_NAV = [
       {
         title: "Overview",
         url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
+          `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
       },
       {
         title: "Create Invitation",
-        url: "create-invitation/form/create",
+        url: (orgId?: string, jobId?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/invitations/create`,
+        // url: "invitations/create",
       },
       // {
       //   title: "Tutorials",
@@ -196,6 +198,45 @@ const ORG_NAV = [
       //   title: "Changelog",
       //   url: "#",
       // },
+    ],
+  },
+  {
+    title: "Job-Invitation",
+    url: "#",
+    icon: BookOpen,
+    isActive: true,
+    params: "invitation_id",
+    items: [
+      {
+        title: "Edit",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}`,
+      },
+      {
+        title: "Add Questions",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/add-questions`,
+      },
+      {
+        title: "Add Coding",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/code`,
+      },
+      {
+        title: "Preview",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/preview`,
+      },
+      {
+        title: "Responses",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
+      },
+      {
+        title: "Analytics",
+        url: (orgId?: string, jobId?: string, form_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/analytics`,
+      },
     ],
   },
   {
@@ -235,7 +276,7 @@ const ORG_NAV = [
       // {
       //   title: "Overview-dummy",
       //   url: (orgId?: string, jobId?: string, form_id?: string) =>
-      //     `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
+      //     `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
       // },
       {
         title: "Edit",
@@ -257,11 +298,11 @@ const ORG_NAV = [
         url: (orgId?: string, jobId?: string, form_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/preview`,
       },
-      {
-        title: "Responses",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
-      },
+      // {
+      //   title: "Responses",
+      //   url: (orgId?: string, jobId?: string, form_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${form_id}/responses`,
+      // },
       {
         title: "Analytics",
         url: (orgId?: string, jobId?: string, form_id?: string) =>

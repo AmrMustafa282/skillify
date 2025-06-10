@@ -116,7 +116,7 @@ export const columns: ColumnDef<Assessment>[] = [
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}`
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/invitations/${assessment.id}`
                 )
               }
             >
@@ -125,7 +125,7 @@ export const columns: ColumnDef<Assessment>[] = [
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/add-questions`
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/invitations/${assessment.id}/add-questions`
                 )
               }
             >
@@ -134,34 +134,25 @@ export const columns: ColumnDef<Assessment>[] = [
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/code`
-                )
-              }
-            >
-              Add Coding
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/preview`
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/invitations/${assessment.id}/preview`
                 )
               }
             >
               Preview
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
+            <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/responses`
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/invitations/${assessment.id}/responses`
                 )
               }
             >
               Responses
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
-                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/analytics`
+                  `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/invitations/${assessment.id}/analytics`
                 )
               }
             >

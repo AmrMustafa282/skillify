@@ -118,7 +118,6 @@ export interface Org {
   }[];
 }
 
-
 export interface Job {
   id: string;
   title: string;
@@ -148,32 +147,44 @@ export interface BaseFormElement {
   type: ElementType;
   question: string;
   required: boolean;
+  order?: number;
+  deleted?: boolean;
+  options?: {
+    choices: InvitationQuestionOption[];
+  };
+}
+
+export interface InvitationQuestionOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  order?: number;
 }
 
 // Specific form element interfaces
 export interface TextFormElement extends BaseFormElement {
   type: ElementType.SHORT_TEXT | ElementType.LONG_TEXT;
-  options: never[];
+  // options: never[];
 }
 
 export interface ChoiceFormElement extends BaseFormElement {
   type: ElementType.MULTIPLE_CHOICE | ElementType.CHECKBOX | ElementType.DROPDOWN;
-  options: string[];
+  // options: string[];
 }
 
 export interface DateFormElement extends BaseFormElement {
   type: ElementType.DATE;
-  options: never[];
+  // options: never[];
 }
 
 export interface TimeFormElement extends BaseFormElement {
   type: ElementType.TIME;
-  options: never[];
+  // options: never[];
 }
 
 export interface FileFormElement extends BaseFormElement {
   type: ElementType.FILE_UPLOAD;
-  options: never[];
+  // options: never[];
 }
 
 // Union type for all form elements
