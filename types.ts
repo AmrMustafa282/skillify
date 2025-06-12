@@ -296,7 +296,7 @@ export interface TestAssignment {
   assignment_id: string;
   test_id: string;
   candidate_id: string;
-  status: 'assigned' | 'in_progress' | 'completed' | 'expired' | 'cancelled' | string;
+  status: "assigned" | "in_progress" | "completed" | "expired" | "cancelled" | string;
   start_time: Date | null;
   end_time: Date | null;
   score: number | null;

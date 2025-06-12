@@ -120,7 +120,7 @@ export const columns: ColumnDef<Assessment>[] = [
               }}
             >
               View job details
-            </DropdownMenuItem> 
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

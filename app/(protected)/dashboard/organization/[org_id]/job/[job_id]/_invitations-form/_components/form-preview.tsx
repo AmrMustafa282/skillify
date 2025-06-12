@@ -31,7 +31,7 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
   const renderFormElement = (element: InvitationFormElement) => {
     const baseProps = {
       key: element.id,
-      className: "space-y-2"
+      className: "space-y-2",
     };
 
     const labelElement = (
@@ -56,9 +56,15 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
             {descriptionElement}
             <Input
               id={element.id}
-              type={element.type === InvitationElementType.EMAIL ? "email" : 
-                    element.type === InvitationElementType.PHONE ? "tel" :
-                    element.type === InvitationElementType.URL ? "url" : "text"}
+              type={
+                element.type === InvitationElementType.EMAIL
+                  ? "email"
+                  : element.type === InvitationElementType.PHONE
+                    ? "tel"
+                    : element.type === InvitationElementType.URL
+                      ? "url"
+                      : "text"
+              }
               placeholder={element.placeholder || `Enter your ${element.question.toLowerCase()}`}
               disabled
             />
@@ -183,11 +189,7 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
           <div {...baseProps}>
             {labelElement}
             {descriptionElement}
-            <Input
-              id={element.id}
-              type="time"
-              disabled
-            />
+            <Input id={element.id} type="time" disabled />
           </div>
         );
 
@@ -199,12 +201,11 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
             {descriptionElement}
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
               <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-1">
-                Click to upload or drag and drop
-              </p>
+              <p className="text-sm text-muted-foreground mb-1">Click to upload or drag and drop</p>
               <p className="text-xs text-muted-foreground">
-                {fileElement.fileSettings?.allowedTypes?.join(", ") || "PDF, DOC, DOCX"} 
-                {fileElement.fileSettings?.maxSize && ` (max ${fileElement.fileSettings.maxSize}MB)`}
+                {fileElement.fileSettings?.allowedTypes?.join(", ") || "PDF, DOC, DOCX"}
+                {fileElement.fileSettings?.maxSize &&
+                  ` (max ${fileElement.fileSettings.maxSize}MB)`}
               </p>
             </div>
           </div>
@@ -220,12 +221,7 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
             <div className="space-y-2">
               <div className="flex items-center space-x-1">
                 {Array.from({ length: ratingScale.max - ratingScale.min + 1 }, (_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="p-1 hover:bg-muted rounded"
-                    disabled
-                  >
+                  <button key={i} type="button" className="p-1 hover:bg-muted rounded" disabled>
                     <Star className="h-5 w-5 text-muted-foreground" />
                   </button>
                 ))}
@@ -290,9 +286,7 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{title}</CardTitle>
-          {description && (
-            <p className="text-muted-foreground">{description}</p>
-          )}
+          {description && <p className="text-muted-foreground">{description}</p>}
         </CardHeader>
         <CardContent className="space-y-6">
           {elements.length === 0 ? (
@@ -303,7 +297,7 @@ export function FormPreview({ title, description, elements }: FormPreviewProps) 
           ) : (
             <>
               {elements.map((element) => renderFormElement(element))}
-              
+
               {/* Submit Button Preview */}
               <div className="pt-6 border-t">
                 <Button className="w-full" disabled>

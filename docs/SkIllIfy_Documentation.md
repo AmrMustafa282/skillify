@@ -108,6 +108,7 @@ g-client/
 ### Main Pages
 
 1. **Home Page**: Landing page showcasing the platform's features and benefits
+
    - Hero section with animated elements
    - Features section highlighting key capabilities
    - How It Works section explaining the assessment process
@@ -118,6 +119,7 @@ g-client/
    - Call-to-action
 
 2. **Solutions Page**: Detailed information about the platform's solutions
+
    - Candidate Assessment
    - Team Analytics
    - AI-Powered Insights
@@ -126,12 +128,14 @@ g-client/
    - Workflow Automation
 
 3. **Pricing Page**: Transparent pricing information
+
    - Starter, Professional, and Enterprise plans
    - Monthly/Annual billing toggle
    - Feature comparison
    - FAQ section
 
 4. **Industries Page**: Industry-specific solutions
+
    - Technology
    - Finance
    - Healthcare
@@ -174,12 +178,14 @@ Each page is organized into modular components for better maintainability:
 ### Installation Steps
 
 1. Clone the repository:
+
    ```bash
    git clone [repository-url]
    cd g-project
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -191,6 +197,7 @@ Each page is organized into modular components for better maintainability:
    ```
 
 3. Create a `.env` file in the root directory with the following variables:
+
    ```
    NEXT_PUBLIC_API_URL=http://localhost:8080/api
    GOOGLE_CLIENT_ID=your_google_client_id
@@ -198,6 +205,7 @@ Each page is organized into modular components for better maintainability:
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    # or

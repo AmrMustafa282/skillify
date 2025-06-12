@@ -237,8 +237,6 @@ export const getImplementationByLanguage = (
   return question.implementations.find((impl) => impl.language === language);
 };
 
-
-
 // 1. Arrays & Strings (15)
 // Two Sum
 

@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   Save,
@@ -23,14 +19,14 @@ import {
   Star,
   BarChart3,
   Calendar,
-  Clock
+  Clock,
 } from "lucide-react";
 import { InvitationElementType, InvitationFormElement, InvitationFormData } from "@/types/index";
 import { InvitationsAPI } from "@/lib/api/invitations";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { FormElementEditor } from "../_components/form-element-editor";
-import { FormPreview } from "../_components/form-preview";
+import { FormElementEditor } from "../../_components/form-element-editor";
+import { FormPreview } from "../../_components/form-preview";
 
 export default function CreateInvitationFormPage() {
   const params = useParams();
@@ -38,7 +34,7 @@ export default function CreateInvitationFormPage() {
   const [formData, setFormData] = useState<InvitationFormData>({
     title: "",
     description: "",
-    elements: []
+    elements: [],
   });
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
@@ -54,85 +50,104 @@ export default function CreateInvitationFormPage() {
       required: false,
       order: formData.elements.length + 1,
       ...(type === InvitationElementType.MULTIPLE_CHOICE ||
-         type === InvitationElementType.CHECKBOX ||
-         type === InvitationElementType.DROPDOWN ? {
-        options: [
-          { id: `option_${Date.now()}_1`, text: "Option 1", order: 1 },
-          { id: `option_${Date.now()}_2`, text: "Option 2", order: 2 }
-        ]
-      } : {}),
-      ...(type === InvitationElementType.RATING ||
-         type === InvitationElementType.LINEAR_SCALE ? {
-        scale: { min: 1, max: 5, minLabel: "Poor", maxLabel: "Excellent" }
-      } : {}),
-      ...(type === InvitationElementType.FILE_UPLOAD ? {
-        fileSettings: {
-          allowedTypes: [".pdf", ".doc", ".docx"],
-          maxSize: 10,
-          maxFiles: 1
-        }
-      } : {})
+      type === InvitationElementType.CHECKBOX ||
+      type === InvitationElementType.DROPDOWN
+        ? {
+            options: [
+              { id: `option_${Date.now()}_1`, text: "Option 1", order: 1 },
+              { id: `option_${Date.now()}_2`, text: "Option 2", order: 2 },
+            ],
+          }
+        : {}),
+      ...(type === InvitationElementType.RATING || type === InvitationElementType.LINEAR_SCALE
+        ? {
+            scale: { min: 1, max: 5, minLabel: "Poor", maxLabel: "Excellent" },
+          }
+        : {}),
+      ...(type === InvitationElementType.FILE_UPLOAD
+        ? {
+            fileSettings: {
+              allowedTypes: [".pdf", ".doc", ".docx"],
+              maxSize: 10,
+              maxFiles: 1,
+            },
+          }
+        : {}),
     } as InvitationFormElement;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      elements: [...prev.elements, newElement]
+      elements: [...prev.elements, newElement],
     }));
   };
 
   const getDefaultQuestion = (type: InvitationElementType): string => {
     switch (type) {
-      case InvitationElementType.SHORT_TEXT: return "What is your name?";
-      case InvitationElementType.LONG_TEXT: return "Tell us about yourself";
-      case InvitationElementType.EMAIL: return "What is your email address?";
-      case InvitationElementType.PHONE: return "What is your phone number?";
-      case InvitationElementType.MULTIPLE_CHOICE: return "What is your preferred work arrangement?";
-      case InvitationElementType.CHECKBOX: return "Which skills do you have? (Select all that apply)";
-      case InvitationElementType.DROPDOWN: return "What is your experience level?";
-      case InvitationElementType.FILE_UPLOAD: return "Please upload your resume";
-      case InvitationElementType.DATE: return "What is your available start date?";
-      case InvitationElementType.TIME: return "What is your preferred interview time?";
-      case InvitationElementType.NUMBER: return "How many years of experience do you have?";
-      case InvitationElementType.RATING: return "How would you rate your proficiency in this skill?";
-      case InvitationElementType.LINEAR_SCALE: return "How interested are you in this position?";
-      case InvitationElementType.URL: return "What is your LinkedIn profile URL?";
-      default: return "New Question";
+      case InvitationElementType.SHORT_TEXT:
+        return "What is your name?";
+      case InvitationElementType.LONG_TEXT:
+        return "Tell us about yourself";
+      case InvitationElementType.EMAIL:
+        return "What is your email address?";
+      case InvitationElementType.PHONE:
+        return "What is your phone number?";
+      case InvitationElementType.MULTIPLE_CHOICE:
+        return "What is your preferred work arrangement?";
+      case InvitationElementType.CHECKBOX:
+        return "Which skills do you have? (Select all that apply)";
+      case InvitationElementType.DROPDOWN:
+        return "What is your experience level?";
+      case InvitationElementType.FILE_UPLOAD:
+        return "Please upload your resume";
+      case InvitationElementType.DATE:
+        return "What is your available start date?";
+      case InvitationElementType.TIME:
+        return "What is your preferred interview time?";
+      case InvitationElementType.NUMBER:
+        return "How many years of experience do you have?";
+      case InvitationElementType.RATING:
+        return "How would you rate your proficiency in this skill?";
+      case InvitationElementType.LINEAR_SCALE:
+        return "How interested are you in this position?";
+      case InvitationElementType.URL:
+        return "What is your LinkedIn profile URL?";
+      default:
+        return "New Question";
     }
   };
 
   const updateElement = (id: string, updates: Partial<InvitationFormElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      elements: prev.elements.map(el =>
-        el.id === id ? { ...el, ...updates } : el
-      )
+      elements: prev.elements.map((el) => (el.id === id ? { ...el, ...updates } : el)),
     }));
   };
 
   const deleteElement = (id: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      elements: prev.elements.filter(el => el.id !== id)
+      elements: prev.elements.filter((el) => el.id !== id),
     }));
   };
 
   const duplicateElement = (id: string) => {
-    const element = formData.elements.find(el => el.id === id);
+    const element = formData.elements.find((el) => el.id === id);
     if (element) {
       const newElement = {
         ...element,
         id: `element_${Date.now()}`,
         question: `${element.question} (Copy)`,
-        order: formData.elements.length + 1
+        order: formData.elements.length + 1,
       };
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        elements: [...prev.elements, newElement]
+        elements: [...prev.elements, newElement],
       }));
     }
   };
 
   const handleSave = async () => {
+    console.log(formData);
     if (!formData.title.trim()) {
       toast.error("Please enter a form title");
       return;
@@ -164,10 +179,10 @@ export default function CreateInvitationFormPage() {
           fontFamily: "Inter",
           allowAnonymous: false,
           requireLogin: false,
-          notifyOnSubmission: true
+          notifyOnSubmission: true,
         },
-        status: 'draft',
-        isActive: true
+        status: "draft",
+        isActive: true,
       });
 
       if (response.success) {
@@ -185,41 +200,71 @@ export default function CreateInvitationFormPage() {
 
   const getElementIcon = (type: InvitationElementType) => {
     switch (type) {
-      case InvitationElementType.SHORT_TEXT: return <AlignLeft className="h-4 w-4" />;
-      case InvitationElementType.LONG_TEXT: return <FileText className="h-4 w-4" />;
-      case InvitationElementType.EMAIL: return <Mail className="h-4 w-4" />;
-      case InvitationElementType.PHONE: return <Phone className="h-4 w-4" />;
-      case InvitationElementType.MULTIPLE_CHOICE: return <CircleDot className="h-4 w-4" />;
-      case InvitationElementType.CHECKBOX: return <CircleDot className="h-4 w-4" />;
-      case InvitationElementType.DROPDOWN: return <CircleDot className="h-4 w-4" />;
-      case InvitationElementType.FILE_UPLOAD: return <Upload className="h-4 w-4" />;
-      case InvitationElementType.DATE: return <Calendar className="h-4 w-4" />;
-      case InvitationElementType.TIME: return <Clock className="h-4 w-4" />;
-      case InvitationElementType.NUMBER: return <Hash className="h-4 w-4" />;
-      case InvitationElementType.RATING: return <Star className="h-4 w-4" />;
-      case InvitationElementType.LINEAR_SCALE: return <BarChart3 className="h-4 w-4" />;
-      case InvitationElementType.URL: return <LinkIcon className="h-4 w-4" />;
-      default: return <AlignLeft className="h-4 w-4" />;
+      case InvitationElementType.SHORT_TEXT:
+        return <AlignLeft className="h-4 w-4" />;
+      case InvitationElementType.LONG_TEXT:
+        return <FileText className="h-4 w-4" />;
+      case InvitationElementType.EMAIL:
+        return <Mail className="h-4 w-4" />;
+      case InvitationElementType.PHONE:
+        return <Phone className="h-4 w-4" />;
+      case InvitationElementType.MULTIPLE_CHOICE:
+        return <CircleDot className="h-4 w-4" />;
+      case InvitationElementType.CHECKBOX:
+        return <CircleDot className="h-4 w-4" />;
+      case InvitationElementType.DROPDOWN:
+        return <CircleDot className="h-4 w-4" />;
+      case InvitationElementType.FILE_UPLOAD:
+        return <Upload className="h-4 w-4" />;
+      case InvitationElementType.DATE:
+        return <Calendar className="h-4 w-4" />;
+      case InvitationElementType.TIME:
+        return <Clock className="h-4 w-4" />;
+      case InvitationElementType.NUMBER:
+        return <Hash className="h-4 w-4" />;
+      case InvitationElementType.RATING:
+        return <Star className="h-4 w-4" />;
+      case InvitationElementType.LINEAR_SCALE:
+        return <BarChart3 className="h-4 w-4" />;
+      case InvitationElementType.URL:
+        return <LinkIcon className="h-4 w-4" />;
+      default:
+        return <AlignLeft className="h-4 w-4" />;
     }
   };
 
   const getElementLabel = (type: InvitationElementType) => {
     switch (type) {
-      case InvitationElementType.SHORT_TEXT: return "Short Answer";
-      case InvitationElementType.LONG_TEXT: return "Long Answer";
-      case InvitationElementType.EMAIL: return "Email";
-      case InvitationElementType.PHONE: return "Phone";
-      case InvitationElementType.MULTIPLE_CHOICE: return "Multiple Choice";
-      case InvitationElementType.CHECKBOX: return "Checkboxes";
-      case InvitationElementType.DROPDOWN: return "Dropdown";
-      case InvitationElementType.FILE_UPLOAD: return "File Upload";
-      case InvitationElementType.DATE: return "Date";
-      case InvitationElementType.TIME: return "Time";
-      case InvitationElementType.NUMBER: return "Number";
-      case InvitationElementType.RATING: return "Rating";
-      case InvitationElementType.LINEAR_SCALE: return "Linear Scale";
-      case InvitationElementType.URL: return "Website URL";
-      default: return "Question";
+      case InvitationElementType.SHORT_TEXT:
+        return "Short Answer";
+      case InvitationElementType.LONG_TEXT:
+        return "Long Answer";
+      case InvitationElementType.EMAIL:
+        return "Email";
+      case InvitationElementType.PHONE:
+        return "Phone";
+      case InvitationElementType.MULTIPLE_CHOICE:
+        return "Multiple Choice";
+      case InvitationElementType.CHECKBOX:
+        return "Checkboxes";
+      case InvitationElementType.DROPDOWN:
+        return "Dropdown";
+      case InvitationElementType.FILE_UPLOAD:
+        return "File Upload";
+      case InvitationElementType.DATE:
+        return "Date";
+      case InvitationElementType.TIME:
+        return "Time";
+      case InvitationElementType.NUMBER:
+        return "Number";
+      case InvitationElementType.RATING:
+        return "Rating";
+      case InvitationElementType.LINEAR_SCALE:
+        return "Linear Scale";
+      case InvitationElementType.URL:
+        return "Website URL";
+      default:
+        return "Question";
     }
   };
 
@@ -269,35 +314,6 @@ export default function CreateInvitationFormPage() {
             </Button>
           </div>
         </div>
-
-        {/* Form Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Form Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">Form Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="e.g., Software Engineer Application"
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Brief description of this application form..."
-                rows={3}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Form Elements */}
         <Card>
           <CardHeader>
@@ -389,7 +405,9 @@ export default function CreateInvitationFormPage() {
                 onClick={() => addFormElement(InvitationElementType.MULTIPLE_CHOICE)}
               >
                 {getElementIcon(InvitationElementType.MULTIPLE_CHOICE)}
-                <span className="ml-2">{getElementLabel(InvitationElementType.MULTIPLE_CHOICE)}</span>
+                <span className="ml-2">
+                  {getElementLabel(InvitationElementType.MULTIPLE_CHOICE)}
+                </span>
               </Button>
               <Button
                 variant="outline"

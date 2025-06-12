@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   Save,
@@ -25,8 +29,8 @@ import { InvitationElementType, InvitationFormElement, InvitationFormData } from
 import { InvitationsAPI } from "@/lib/api/invitations";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { FormElementEditor } from "../../_components/form-element-editor";
-import { FormPreview } from "../../_components/form-preview";
+import { FormElementEditor } from "../_components/form-element-editor";
+import { FormPreview } from "../_components/form-preview";
 
 export default function CreateInvitationFormPage() {
   const params = useParams();
@@ -147,7 +151,6 @@ export default function CreateInvitationFormPage() {
   };
 
   const handleSave = async () => {
-    console.log(formData)
     if (!formData.title.trim()) {
       toast.error("Please enter a form title");
       return;
@@ -314,6 +317,35 @@ export default function CreateInvitationFormPage() {
             </Button>
           </div>
         </div>
+
+        {/* Form Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Form Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="title">Form Title</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="e.g., Software Engineer Application"
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Brief description of this application form..."
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Form Elements */}
         <Card>
           <CardHeader>

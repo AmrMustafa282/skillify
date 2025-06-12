@@ -15,7 +15,6 @@ interface getAssessmentsProps {
 }
 
 export default async function AssessmentsPage({ params }: getAssessmentsProps) {
-  
   async function getAssessments() {
     const res = await server.get(`${API_URL}/tests`);
     return res.data.data.filter((item: any) => item.jobId === params.job_id) as Assessment[];

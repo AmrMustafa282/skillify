@@ -179,15 +179,15 @@ const ORG_NAV = [
     isActive: true,
     params: "job_id",
     items: [
+      // {
+      //   title: "Overview",
+      //   url: (orgId?: string, jobId?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
+      // },
       {
-        title: "Overview",
+        title: "Send Invitation",
         url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
-      },
-      {
-        title: "Create Invitation",
-        url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/invitations/create`,
+          `/dashboard/organization/${orgId}/job/${jobId}/send-invitation`,
         // url: "invitations/create",
       },
       // {
