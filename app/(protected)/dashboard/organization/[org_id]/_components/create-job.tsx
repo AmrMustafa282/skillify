@@ -50,7 +50,7 @@ export function CreateJobDialog({ setJobs }: { setJobs: any }) {
   async function onSubmit(data: CreateJobFormValues) {
     try {
       const res = await axios.post(
-        `${API_URL}/jobs`,
+        `${API_URL}/organizations/${params.org_id}/jobs`,
         {
           title: data.title,
           description: data.description,

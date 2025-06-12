@@ -172,73 +172,7 @@ const ORG_NAV = [
       // },
     ],
   },
-  {
-    title: "Invitations",
-    url: "#",
-    icon: Mail,
-    isActive: true,
-    params: "job_id",
-    items: [
-      // {
-      //   title: "Overview",
-      //   url: (orgId?: string, jobId?: string) =>
-      //     `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
-      // },
-      {
-        title: "Send Invitation",
-        url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/send-invitation`,
-        // url: "invitations/create",
-      },
-      // {
-      //   title: "Tutorials",
-      //   url: "#",
-      // },
-      // {
-      //   title: "Changelog",
-      //   url: "#",
-      // },
-    ],
-  },
-  {
-    title: "Job-Invitation",
-    url: "#",
-    icon: BookOpen,
-    isActive: true,
-    params: "invitation_id",
-    items: [
-      {
-        title: "Edit",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}`,
-      },
-      {
-        title: "Add Questions",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/add-questions`,
-      },
-      {
-        title: "Add Coding",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/code`,
-      },
-      {
-        title: "Preview",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/preview`,
-      },
-      {
-        title: "Responses",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/responses`,
-      },
-      {
-        title: "Analytics",
-        url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/analytics`,
-      },
-    ],
-  },
+
   {
     title: "Assessments",
     url: "#",
@@ -273,11 +207,6 @@ const ORG_NAV = [
     isActive: true,
     params: "assessment_id",
     items: [
-      // {
-      //   title: "Overview-dummy",
-      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
-      //     `/dashboard/organization/${orgId}/job/${jobId}/invitations`,
-      // },
       {
         title: "Edit",
         url: (orgId?: string, jobId?: string, assessment_id?: string) =>
@@ -310,26 +239,57 @@ const ORG_NAV = [
       },
     ],
   },
+
+  {
+    title: "Invitations",
+    url: "#",
+    icon: Mail,
+    isActive: true,
+    params: "assessment_id",
+    items: [
+      {
+        title: "Send Invitation",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/send-invitation`,
+      },
+    ],
+  },
   // {
-  //   title: "Settings",
+  //   title: "Job-Invitation",
   //   url: "#",
-  //   // icon: Settings2,
+  //   icon: BookOpen,
+  //   isActive: true,
+  //   params: "invitation_id",
   //   items: [
   //     {
-  //       title: "General",
-  //       url: "#",
+  //       title: "Edit",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}`,
   //     },
   //     {
-  //       title: "Team",
-  //       url: "#",
+  //       title: "Add Questions",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/add-questions`,
   //     },
   //     {
-  //       title: "Billing",
-  //       url: "#",
+  //       title: "Add Coding",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/code`,
   //     },
   //     {
-  //       title: "Limits",
-  //       url: "#",
+  //       title: "Preview",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/preview`,
+  //     },
+  //     {
+  //       title: "Responses",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/responses`,
+  //     },
+  //     {
+  //       title: "Analytics",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/analytics`,
   //     },
   //   ],
   // },
@@ -375,8 +335,7 @@ export function NavMain() {
                                   subItem.url(
                                     params.org_id as string,
                                     params.job_id as string,
-                                    params.assessment_id as string,
-                                    params.invitation_id as string
+                                    params.assessment_id as string
                                   )
                                 );
                               } else {

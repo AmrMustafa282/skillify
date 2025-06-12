@@ -78,7 +78,9 @@ const CreateAssessmentForm = ({
     };
 
     try {
-      const endpoint = assessment ? `${API_URL}/tests/${assessment.id}` : `${API_URL}/tests`;
+      const endpoint = assessment
+        ? `${API_URL}/tests/${assessment.id}`
+        : `${API_URL}/jobs/${job_id}/tests`;
 
       const method = assessment ? axios.patch : axios.post;
 

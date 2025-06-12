@@ -45,7 +45,7 @@ const JobsPage = () => {
 
   const deleteOrg = async () => {
     try {
-      const res = await axios.delete(`${API_URL}/orgs/${params.org_id}`, {
+      const res = await axios.delete(`${API_URL}/organizations/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) toast.success("Organization deleted successfully");
@@ -59,7 +59,7 @@ const JobsPage = () => {
     setIsLoading(true);
     try {
       const res = await axios.patch(
-        `${API_URL}/orgs/${params.org_id}`,
+        `${API_URL}/organizations/${params.org_id}`,
         {
           name,
         },
@@ -103,7 +103,7 @@ const JobsPage = () => {
   useEffect(() => {
     const getOrg = async () => {
       try {
-        const res = await axios(`${API_URL}/orgs/${params.org_id}`, {
+        const res = await axios(`${API_URL}/organizations/${params.org_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -117,7 +117,7 @@ const JobsPage = () => {
     };
     const getOrgJobs = async () => {
       try {
-        const res = await axios(`${API_URL}/jobs/org/${params.org_id}`, {
+        const res = await axios(`${API_URL}/organizations/${params.org_id}/jobs`, {
           withCredentials: true,
         });
         if (res.data.success) {

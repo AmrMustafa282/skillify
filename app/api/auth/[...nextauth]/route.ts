@@ -114,6 +114,7 @@ export const authConfig = {
             email: profile?.email,
             name: profile?.name,
             oauthId: profile?.sub,
+            role: "ROLE_ADMIN",
           });
 
           if (!res.data.data.user) {
@@ -132,6 +133,7 @@ export const authConfig = {
           const res = await axios.post(`${process.env.API_URL}/auth/oauth/github`, {
             email: profile?.email,
             name: profile?.name,
+            role: "ROLE_ADMIN",
             oauthId: (profile as { id: string })?.id,
           });
 

@@ -30,7 +30,7 @@ const OrgPage = () => {
 
   const fetchOrg = async () => {
     try {
-      const res = await axios(`${API_URL}/orgs/${params.org_id}`, {
+      const res = await axios(`${API_URL}/organizations/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -60,7 +60,7 @@ const OrgPage = () => {
     setIsLoading(true);
     try {
       const res = await axios.patch(
-        `${API_URL}/orgs/${params.org_id}`,
+        `${API_URL}/organizations/${params.org_id}`,
         {
           name,
         },
@@ -84,7 +84,7 @@ const OrgPage = () => {
 
   const deleteOrg = async () => {
     try {
-      const res = await axios.delete(`${API_URL}/orgs/${params.org_id}`, {
+      const res = await axios.delete(`${API_URL}/organizations/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) toast.success("Organization deleted successfully");

@@ -33,7 +33,7 @@ const CreateOrg = () => {
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await axios.post(`${API_URL}/orgs`, values, {
+      const res = await axios.post(`${API_URL}/organizations`, values, {
         withCredentials: true,
       });
       if (res.data.success) {

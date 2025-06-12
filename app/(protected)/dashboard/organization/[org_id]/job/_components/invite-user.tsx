@@ -64,7 +64,7 @@ export function InviteUserDialog() {
   async function onSubmit(data: InviteUserFormValues) {
     try {
       const res = await axios.post(
-        `${API_URL}/orgs/${params.org_id}/members`,
+        `${API_URL}/organizations/${params.org_id}/members`,
         {
           userEmail: data.email,
           roleName: data.role,

@@ -8,7 +8,7 @@ import { Org } from "@/types";
 import { API_URL } from "@/config";
 
 async function getOrgs() {
-  const res = await server.get(`${API_URL}/orgs/user/current`);
+  const res = await server.get(`${API_URL}/organizations/user/current`);
   return res.data.data as Org[];
 }
 
