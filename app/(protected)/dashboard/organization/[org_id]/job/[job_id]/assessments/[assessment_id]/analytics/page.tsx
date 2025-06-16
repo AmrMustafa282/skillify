@@ -53,6 +53,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import axios from "axios";
+import { PY_URL } from "@/config";
 
 // Types based on your API responses
 interface AnalysisJob {
@@ -219,7 +220,7 @@ const AnalyticsPage = () => {
   const checkExistingReport = async (testId: string) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/reports/test/${testId}`);
+      const response = await axios.get(`${PY_URL}/reports/test/${testId}`);
       setCurrentReport(response.data);
       setActiveTab("report");
     } catch (error: any) {
@@ -241,7 +242,7 @@ const AnalyticsPage = () => {
     try {
       setAnalyzing(true);
       setError(null);
-      const response = await axios.post(`http://localhost:5000/api/analyze/test/${testId}`);
+      const response = await axios.post(`${PY_URL}/analyze/test/${testId}`);
 
       setCurrentJob({
         job_id: response.data.job_id,
@@ -266,7 +267,7 @@ const AnalyticsPage = () => {
 
   const fetchJobStatus = async (jobId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/analysis/jobs/${jobId}`);
+      const response = await axios.get(`${PY_URL}/analysis/jobs/${jobId}`);
       setCurrentJob(response.data);
 
       if (response.data.status === "completed") {
@@ -281,7 +282,7 @@ const AnalyticsPage = () => {
 
   const fetchJobLogs = async (jobId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/analysis/jobs/${jobId}/logs`);
+      const response = await axios.get(`${PY_URL}/analysis/jobs/${jobId}/logs`);
       setLogs(response.data);
     } catch (error) {
       console.error("Error fetching job logs:", error);
@@ -297,7 +298,7 @@ const AnalyticsPage = () => {
     try {
       setGenerating(true);
       setError(null);
-      const response = await axios.post(`http://localhost:5000/api/reports/generate/${testId}`);
+      const response = await axios.post(`${PY_URL}/reports/generate/${testId}`);
 
       // Fetch the generated report
       setTimeout(() => checkExistingReport(testId), 2000);

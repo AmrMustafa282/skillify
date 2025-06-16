@@ -36,6 +36,9 @@ import {
   getImplementationByLanguage,
   type PredefinedQuestion,
 } from "@/lib/predefined-questions";
+import axios from "axios";
+import { PY_URL } from "@/config";
+import toast from "react-hot-toast";
 
 // Types for our question structure
 interface TestCase {
@@ -168,18 +171,13 @@ export default function CreateCodingProblemPage() {
     };
   };
 
-  if (selectedQuestion) {
-    console.log("selectedQuestion", convertPredefinedToOutput(selectedQuestion, selectedLanguage));
-  }
-  console.log("customQuestion", customQuestion);
-
   // Handle selecting a predefined question
   const handleSelectPredefinedQuestion = (question: PredefinedQuestion) => {
     setSelectedQuestion(question);
   };
 
   // Handle creating final question output
-  const handleCreateQuestion = () => {
+  const handleCreateQuestion = async() => {
     let finalQuestion: QuestionOutput;
 
     if (mode === "predefined" && selectedQuestion) {
@@ -187,13 +185,18 @@ export default function CreateCodingProblemPage() {
     } else {
       finalQuestion = customQuestion as QuestionOutput;
     }
+    try {
+      const res = await axios.post(`${PY_URL}/assessments/${assessment_id}/code`,finalQuestion);
 
-    // Here you would typically save to your backend
-    console.log("Final Question Output:", JSON.stringify(finalQuestion, null, 2));
-
-    // Navigate back to the assessments page
+      if (res.data.success) {
+        toast.success("Question created successfully!");
     const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${assessment_id}/code`;
     router.push(basePath);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create question");
+    }
+
   };
 
   // Handle updating custom question fields

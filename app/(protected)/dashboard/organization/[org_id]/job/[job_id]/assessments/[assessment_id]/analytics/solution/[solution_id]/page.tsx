@@ -54,6 +54,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useTheme } from "next-themes";
+import { PY_URL } from "@/config";
 
 // Types based on your API response
 interface SolutionAnalysis {
@@ -158,7 +159,7 @@ const SolutionAnalysisPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://localhost:5000/api/analysis/${solutionId}`);
+      const response = await axios.get(`${PY_URL}/analysis/${solutionId}`);
       setAnalysis(response.data);
     } catch (error: any) {
       setError(error.response?.data?.message || "Failed to fetch solution analysis");

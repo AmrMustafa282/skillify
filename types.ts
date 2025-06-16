@@ -245,6 +245,7 @@ export interface AssessmentProps {
   name: string;
   description: string;
   timeLimit: number;
+  orgId: string;
   jobId: string;
   jobTitle: string;
   startTime: string;

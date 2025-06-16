@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
 import { DatePicker } from "@/components/ui/date-picker";
 import axios from "axios";
-import { API_URL } from "@/config";
+import { API_URL, PY_URL } from "@/config";
 import toast from "react-hot-toast";
 import { assessmentSchema } from "../_components/assessment-schema";
 import { Save, X } from "lucide-react";
@@ -89,6 +89,13 @@ const CreateAssessmentForm = ({
       });
 
       if (res.data.success) {
+        const py_endpoint = assessment
+          ? `${PY_URL}/assessments/${assessment.id}`
+          : `${PY_URL}/assessments`;
+        const response = await method(py_endpoint, {
+          ...formattedValues,
+          testId: res.data.data?.id,
+        });
         toast.success(
           assessment ? "Assessment updated successfully" : "Assessment created successfully"
         );

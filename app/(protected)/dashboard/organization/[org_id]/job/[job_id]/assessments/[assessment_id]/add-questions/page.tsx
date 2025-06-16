@@ -46,7 +46,7 @@ import {
 } from "@/types";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { API_URL } from "@/config";
+import { API_URL, PY_URL } from "@/config";
 import { Badge } from "@/components/ui/badge";
 import { getStatusForArrays } from "@/lib/utils";
 
@@ -326,21 +326,17 @@ export default function CreateFormPage() {
         if (!element.deleted) counter++;
         return {
           ...element,
-          id: element.id.includes("element") ? null : element.id,
+          id: element.id ? element.id : element.order,
           order: element.deleted ? 0 : counter,
           deleted: element.deleted ? true : false,
         };
       });
 
       const res = await axios.patch(
-        `${API_URL}/questions/batch`,
+        `${PY_URL}/assessments/${assessment_id}`,
         {
-          testId: assessment_id,
           questions: elements,
         },
-        {
-          withCredentials: true,
-        }
       );
 
       if (res.data.success) {
@@ -395,10 +391,10 @@ export default function CreateFormPage() {
 
       try {
         setLoadingTestQuestions(true);
-        const questionsRes = await axios.get(`${API_URL}/tests/${assessment_id}/questions`, {
-          withCredentials: true,
-        });
-        const questionsData = questionsRes.data.data as AssessmentQuestion[];
+        // const questionsRes = await axios.get(`${API_URL}/tests/${assessment_id}/questions`);
+        const questionsRes = await axios.get(`${PY_URL}/assessments/${assessment_id}`);
+
+        const questionsData = questionsRes.data.questions as AssessmentQuestion[];
         if (questionsData && questionsData.length > 0) {
           const sortedQuestion = [...questionsData].sort((a, b) => a.order - b.order);
           setFormElements(sortedQuestion);

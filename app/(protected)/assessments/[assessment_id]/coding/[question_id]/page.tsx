@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { PY_URL } from "@/config";
 
 // Types
 interface TestCase {
@@ -57,9 +58,7 @@ interface CodingQuestion {
 // API function to fetch coding question
 const fetchCodingQuestion = async (testId: string, questionId: string): Promise<CodingQuestion> => {
   try {
-    const response = await axios.get(
-      `http://localhost:5000/api/assessments/${testId}/code/${questionId}`
-    );
+    const response = await axios.get(`${PY_URL}/assessments/${testId}/code/${questionId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching coding question:", error);
@@ -147,14 +146,11 @@ const CodingDashboard = () => {
 
     try {
       // API call to test code using your exact endpoint
-      const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/test-code`,
-        {
-          question_id: questionId,
-          code,
-          language: question.language,
-        }
-      );
+      const response = await axios.post(`${PY_URL}/assessments/${assessmentId}/test-code`, {
+        question_id: questionId,
+        code,
+        language: question.language,
+      });
 
       console.log("Code execution result:", response.data);
 
@@ -236,7 +232,7 @@ const CodingDashboard = () => {
       };
 
       const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/submit/coding`,
+        `${PY_URL}/assessments/${assessmentId}/submit/coding`,
         submissionData
       );
 

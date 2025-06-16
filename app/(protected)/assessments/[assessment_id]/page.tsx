@@ -23,13 +23,17 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { PY_URL } from "@/config";
 
 // Types
 interface Question {
   order: string;
   type: "MCQ" | "OPEN_ENDED";
   question: string;
-  options?: string[];
+  options?: Array<{
+    id: string;
+    text: string;
+  }>;
   timeLimit?: number;
 }
 
@@ -122,7 +126,10 @@ const transformAssessment = (apiAssessment: ApiAssessment): Assessment => {
       order: q.order.toString(),
       type: q.type,
       question: q.text,
-      options: q.options?.choices.map((choice) => choice.text),
+      options: q.options?.choices.map((choice) => ({
+        id: choice.id,
+        text: choice.text,
+      })),
       timeLimit: undefined, // Not provided in API response
     })),
     codingQuestions: apiAssessment.codingQuestions.map((cq) => ({
@@ -188,7 +195,7 @@ const AssessmentPage = () => {
 
         // First, check assessment status to determine if we should even load the assessment
         const statusResponse = await axios.get(
-          `http://localhost:5000/api/assessments/${assessmentId}/status?candidate_id=${session?.user?.email}`
+          `${PY_URL}/assessments/${assessmentId}/status?candidate_id=${session?.user?.email}`
         );
         console.log("Assessment status:", statusResponse.data);
         const statusData: AssessmentStatusResponse = statusResponse.data;
@@ -209,9 +216,7 @@ const AssessmentPage = () => {
         }
 
         // Now load assessment data for non-expired, non-completed assessments
-        const assessmentResponse = await axios.get(
-          `http://localhost:5000/api/assessments/${assessmentId}`
-        );
+        const assessmentResponse = await axios.get(`${PY_URL}/assessments/${assessmentId}`);
         console.log("Assessment data:", assessmentResponse.data);
         const transformedAssessment = transformAssessment(assessmentResponse.data);
         setAssessment(transformedAssessment);
@@ -227,7 +232,7 @@ const AssessmentPage = () => {
             // Get full solution data to restore draft answers and current question
             try {
               const solutionResponse = await axios.get(
-                `http://localhost:5000/api/assessments/${assessmentId}/candidate/${session?.user?.email || "candidate-current"}/solution`
+                `${PY_URL}/assessments/${assessmentId}/candidate/${session?.user?.email || "candidate-current"}/solution`
               );
               const solutionData = solutionResponse.data;
 
@@ -334,13 +339,10 @@ const AssessmentPage = () => {
     if (!hasStarted) return;
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/heartbeat`,
-        {
-          candidate_id: session?.user?.email || "candidate-current",
-          timestamp: new Date().toISOString(),
-        }
-      );
+      const response = await axios.post(`${PY_URL}/assessments/${assessmentId}/heartbeat`, {
+        candidate_id: session?.user?.email || "candidate-current",
+        timestamp: new Date().toISOString(),
+      });
 
       console.log("Heartbeat sent successfully:", response.data);
 
@@ -369,7 +371,8 @@ const AssessmentPage = () => {
       } else if (error.response?.status === 409) {
         setError("Assessment has already been completed.");
         setAssessmentStatus("completed");
-        router.push(`/assessments/${assessmentId}/results`);
+        // router.push(`/assessments/${assessmentId}/results`);
+        router.refresh();
       } else if (error.code === "NETWORK_ERROR" || !error.response) {
         // Don't show error for network issues during heartbeat - just log it
         console.warn("Heartbeat failed due to network issues - will retry on next interval");
@@ -382,13 +385,10 @@ const AssessmentPage = () => {
   // Auto-submit assessment using your dedicated endpoint
   const handleAutoSubmit = async (reason: string = "time_expired") => {
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/auto-submit`,
-        {
-          candidate_id: session?.user?.email || "candidate-current",
-          reason: reason,
-        }
-      );
+      const response = await axios.post(`${PY_URL}/assessments/${assessmentId}/auto-submit`, {
+        candidate_id: session?.user?.email || "candidate-current",
+        reason: reason,
+      });
 
       console.log("Assessment auto-submitted:", response.data);
 
@@ -397,7 +397,7 @@ const AssessmentPage = () => {
       localStorage.removeItem(`assessment_${assessmentId}_solution_id`);
 
       // Redirect to dashboard or results
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       console.error("Failed to auto-submit assessment:", error);
       // Fallback to regular submit if auto-submit fails
@@ -464,7 +464,7 @@ const AssessmentPage = () => {
 
       console.log("coding answers", codingAnswers);
       await retryApiCall(() =>
-        axios.post(`http://localhost:5000/api/assessments/${assessmentId}/save-progress`, {
+        axios.post(`${PY_URL}/assessments/${assessmentId}/save-progress`, {
           candidate_id: session?.user?.email || "candidate-current", // Your API expects candidate_id
           draft_answers: draftAnswers,
           current_question: currentQuestionIndex,
@@ -605,12 +605,9 @@ const AssessmentPage = () => {
   const handleStartAssessment = async () => {
     try {
       // API call to start assessment using your exact endpoint
-      const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/start`,
-        {
-          candidate_id: session?.user?.email,
-        }
-      );
+      const response = await axios.post(`${PY_URL}/assessments/${assessmentId}/start`, {
+        candidate_id: session?.user?.email,
+      });
 
       console.log("Assessment started:", response.data);
       setHasStarted(true);
@@ -680,6 +677,7 @@ const AssessmentPage = () => {
   };
 
   const handleSubmitAssessment = async () => {
+    console.log("Submitting answers:", answers);
     setIsSubmitting(true);
     try {
       // Prepare answers in the format your API expects
@@ -687,16 +685,16 @@ const AssessmentPage = () => {
         question_id: questionId,
         answer_type: assessment?.questions.find((q) => q.order === questionId)?.type || "MCQ",
         value,
+        submitted_at: new Date().toISOString(),
       }));
 
+      console.log("Formatted answers for submission:", formattedAnswers);
+
       // API call to submit assessment using your exact endpoint
-      const response = await axios.post(
-        `http://localhost:5000/api/assessments/${assessmentId}/submit/complete`,
-        {
-          candidate_id: session?.user?.email,
-          answers: formattedAnswers,
-        }
-      );
+      const response = await axios.post(`${PY_URL}/assessments/${assessmentId}/submit/complete`, {
+        candidate_id: session?.user?.email,
+        answers: formattedAnswers,
+      });
 
       console.log("Assessment submitted successfully:", response.data);
 
@@ -704,7 +702,7 @@ const AssessmentPage = () => {
       localStorage.removeItem(`assessment_${assessmentId}_state`);
       localStorage.removeItem(`assessment_${assessmentId}_solution_id`);
 
-      router.push("/dashboard");
+      router.push("/");
     } catch (error: any) {
       console.error("Failed to submit assessment:", error);
       if (error.response?.status === 409) {
@@ -713,7 +711,7 @@ const AssessmentPage = () => {
       // For demo purposes, still redirect even if API fails
       localStorage.removeItem(`assessment_${assessmentId}_state`);
       localStorage.removeItem(`assessment_${assessmentId}_solution_id`);
-      router.push("/dashboard");
+      router.push("/");
     } finally {
       setIsSubmitting(false);
     }
@@ -1098,16 +1096,13 @@ const AssessmentPage = () => {
                             }
                           >
                             {currentQuestion.options?.map((option, index) => (
-                              <div key={index} className="flex items-center space-x-2">
-                                <RadioGroupItem
-                                  value={`q${currentQuestion.order}_${String.fromCharCode(97 + index)}`}
-                                  id={`option-${index}`}
-                                />
+                              <div key={option.id} className="flex items-center space-x-2">
+                                <RadioGroupItem value={option.id} id={`option-${index}`} />
                                 <Label
                                   htmlFor={`option-${index}`}
                                   className="text-base cursor-pointer"
                                 >
-                                  {option}
+                                  {option.text}
                                 </Label>
                               </div>
                             ))}

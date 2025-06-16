@@ -6,7 +6,7 @@ import CreateAssessmentForm from "../_components/create-assessment-form";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { API_URL } from "@/config";
+import { API_URL, PY_URL } from "@/config";
 import Loader from "@/components/ui/Loader";
 import {
   DropdownMenu,
@@ -37,8 +37,9 @@ export default function CreateAssessmentPage() {
         withCredentials: true,
       });
       if (res.data.success) {
+        const response = await axios.delete(`${PY_URL}/assessments/${assessment_id}`)
         toast.success("Assessment deleted successfully");
-        router.back();
+        router.push(`/dashboard/organization/${assessment?.orgId}/job/${assessment?.jobId}/assessments`);
       }
     } catch (error: any) {
       console.log(error.message);
