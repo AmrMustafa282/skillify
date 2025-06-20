@@ -213,12 +213,12 @@ const ORG_NAV = [
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}`,
       },
       {
-        title: "Add Questions",
+        title: "Questions",
         url: (orgId?: string, jobId?: string, assessment_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/add-questions`,
       },
       {
-        title: "Add Coding",
+        title: "Coding",
         url: (orgId?: string, jobId?: string, assessment_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/code`,
       },

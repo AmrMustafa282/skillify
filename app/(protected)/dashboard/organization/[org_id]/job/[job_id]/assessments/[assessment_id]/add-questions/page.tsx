@@ -332,12 +332,9 @@ export default function CreateFormPage() {
         };
       });
 
-      const res = await axios.patch(
-        `${PY_URL}/assessments/${assessment_id}`,
-        {
-          questions: elements,
-        },
-      );
+      const res = await axios.patch(`${PY_URL}/assessments/${assessment_id}`, {
+        questions: elements,
+      });
 
       if (res.data.success) {
         console.log("Form saved:", elements);
@@ -422,7 +419,7 @@ export default function CreateFormPage() {
             <FormHeaderSkeleton />
           ) : (
             <div className="flex justify-between ">
-              <div>
+              <div className="w-[80%]">
                 <h1 className="text-2xl font-bold border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent w-full">
                   {formTitle}
                 </h1>
@@ -430,7 +427,9 @@ export default function CreateFormPage() {
                   {formDescription}
                 </p>
               </div>
-              <SavingStatus status={savingStatus} />
+              <div>
+                <SavingStatus status={savingStatus} />
+              </div>
             </div>
           )}
         </div>

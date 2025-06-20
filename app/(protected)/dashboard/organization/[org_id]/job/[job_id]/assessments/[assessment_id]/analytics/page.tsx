@@ -10,7 +10,6 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   BarChart,
   Bar,
@@ -51,6 +50,7 @@ import {
   Brain,
   MessageSquare,
   ArrowDown,
+  ChartPie,
 } from "lucide-react";
 import axios from "axios";
 import { PY_URL } from "@/config";
@@ -137,7 +137,9 @@ interface Report {
 const AnalyticsPage = () => {
   const params = useParams();
   const router = useRouter();
-  const formId = params.assessment_id as string;
+  const assessment_id = params.assessment_id as string;
+  const jogId = params.job_id as string;
+  const orgId = params.org_id as string;
 
   // State management
   const [activeTab, setActiveTab] = useState("overview");
@@ -154,11 +156,11 @@ const AnalyticsPage = () => {
 
   // Check for existing report on component mount
   useEffect(() => {
-    if (formId) {
-      setTestId(formId);
-      checkExistingReport(formId);
+    if (assessment_id) {
+      setTestId(assessment_id);
+      checkExistingReport(assessment_id);
     }
-  }, [formId]);
+  }, [assessment_id]);
 
   // Auto-refresh logs when analyzing
   useEffect(() => {
@@ -322,7 +324,7 @@ const AnalyticsPage = () => {
           </div>
           <div className="flex items-center space-x-3">
             <Badge variant="outline" className="px-3 py-1">
-              Test ID: {formId}
+              Test ID: {assessment_id}
             </Badge>
           </div>
         </div>
@@ -388,7 +390,7 @@ const AnalyticsPage = () => {
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{formId}</div>
+                  <div className="text-2xl font-bold">{assessment_id}</div>
                   <p className="text-xs text-muted-foreground">Assessment identifier</p>
                 </CardContent>
               </Card>
@@ -1134,18 +1136,32 @@ const AnalyticsPage = () => {
                               </p>
                               <p className="text-xs text-gray-600">Tests</p>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/organization/org1/job/job1/assessments/${formId}/analytics/solution/${candidate.solution_id}`
-                                )
-                              }
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/organization/${orgId}/job/${jogId}/assessments/${assessment_id}/analytics/solution/${candidate.solution_id}`
+                                  )
+                                }
+                              >
+                                <ChartPie  className="h-4 w-4" />
+                                Analytics
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/organization/${orgId}/job/${jogId}/assessments/${assessment_id}/analytics/answers/${candidate.solution_id}`
+                                  )
+                                }
+                              >
+                                <FileText  className="h-4 w-4" />
+                                Answers
+                              </Button>
+                            </div>
                           </div>
                         </motion.div>
                       ))}

@@ -37,9 +37,9 @@ export default function useAssessments() {
     };
 
     async function fetchAssessments() {
-      if (session?.user?.id) {
+      if (session?.user?.email) {
         try {
-          const res = await axios.get(`${API_URL}/test-assignments/candidate/${session.user.id}`, {
+          const res = await axios.get(`${API_URL}/test-assignments/candidate/${session.user.email}`, {
             withCredentials: true,
           });
           if (res.data.success) {

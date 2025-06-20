@@ -129,7 +129,7 @@ export const columns: ColumnDef<Assessment>[] = [
                 )
               }
             >
-              Add Questions
+              Questions
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
@@ -138,7 +138,7 @@ export const columns: ColumnDef<Assessment>[] = [
                 )
               }
             >
-              Add Coding
+              Coding
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
