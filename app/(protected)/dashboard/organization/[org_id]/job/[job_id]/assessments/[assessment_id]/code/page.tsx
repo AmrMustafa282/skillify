@@ -111,7 +111,7 @@ export default async function AddCodingPage({
       description: "Create Java coding challenges with JUnit testing framework",
     },
     {
-      name: "C++",
+      name: "CPP",
       icon: "/langs/cpp.svg",
       description: "Create C++ coding challenges with modern C++ features",
     },

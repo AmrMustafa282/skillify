@@ -140,7 +140,7 @@ export const columns: ColumnDef<Assessment>[] = [
             >
               Coding
             </DropdownMenuItem>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() =>
                 window.location.assign(
                   `/dashboard/organization/${assessment.orgId}/job/${assessment.jobId}/assessments/${assessment.id}/preview`
@@ -148,7 +148,7 @@ export const columns: ColumnDef<Assessment>[] = [
               }
             >
               Preview
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem
               onClick={() =>
                 window.location.assign(

@@ -33,8 +33,12 @@ import {
   QUESTION_TOPICS,
   SUPPORTED_LANGUAGES,
   searchQuestions,
-  getImplementationByLanguage,
+  getImplementationForLanguage,
+  getTestCasesForLanguage,
+  getStarterCodeForLanguage,
+  getSolutionCodeForLanguage,
   type PredefinedQuestion,
+  getImplementationByLanguage,
 } from "@/lib/predefined-questions";
 import axios from "axios";
 import { PY_URL } from "@/config";
@@ -153,6 +157,9 @@ export default function CreateCodingProblemPage() {
       throw new Error(`Language ${language} not supported for question ${question.title}`);
     }
 
+    // Get language-specific test cases
+    const testCases = getTestCasesForLanguage(question, language);
+
     return {
       order: parseInt(question.id.split("-")[0]) || 1,
       title: question.title,
@@ -160,7 +167,7 @@ export default function CreateCodingProblemPage() {
       language: implementation.language,
       starterCode: implementation.starterCode,
       solutionCode: implementation.solutionCode,
-      testCases: question.testCases,
+      testCases: testCases, // Now using language-specific test cases
       evaluationCriteria: question.evaluationCriteria,
       gradingRules: question.gradingRules,
       metadata: {
@@ -177,7 +184,7 @@ export default function CreateCodingProblemPage() {
   };
 
   // Handle creating final question output
-  const handleCreateQuestion = async() => {
+  const handleCreateQuestion = async () => {
     let finalQuestion: QuestionOutput;
 
     if (mode === "predefined" && selectedQuestion) {
@@ -186,17 +193,16 @@ export default function CreateCodingProblemPage() {
       finalQuestion = customQuestion as QuestionOutput;
     }
     try {
-      const res = await axios.post(`${PY_URL}/assessments/${assessment_id}/code`,finalQuestion);
+      const res = await axios.post(`${PY_URL}/assessments/${assessment_id}/code`, finalQuestion);
 
       if (res.data.success) {
         toast.success("Question created successfully!");
-    const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${assessment_id}/code`;
-    router.push(basePath);
+        const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${assessment_id}/code`;
+        // router.push(basePath);
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to create question");
     }
-
   };
 
   // Handle updating custom question fields
@@ -489,25 +495,35 @@ export default function CreateCodingProblemPage() {
 
                   {/* Test Cases */}
                   <div>
-                    <h5 className="font-medium text-sm text-gray-700 mb-3">Test Cases</h5>
+                    <h5 className="font-medium text-sm text-gray-700 mb-3">
+                      Test Cases ({selectedLanguage})
+                    </h5>
                     <div className="space-y-2">
-                      {selectedQuestion.testCases.map((testCase, index) => (
-                        <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                            <div>
-                              <span className="font-medium">Input:</span>{" "}
-                              <code>{testCase.input}</code>
-                            </div>
-                            <div>
-                              <span className="font-medium">Output:</span>{" "}
-                              <code>{testCase.expected_output}</code>
-                            </div>
-                            <div>
-                              <span className="font-medium">Weight:</span> {testCase.weight}
+                      {getTestCasesForLanguage(selectedQuestion, selectedLanguage).map(
+                        (testCase, index) => (
+                          <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                              <div>
+                                <span className="font-medium">Input:</span>{" "}
+                                <code>{testCase.input}</code>
+                              </div>
+                              <div>
+                                <span className="font-medium">Output:</span>{" "}
+                                <code>{testCase.expected_output}</code>
+                              </div>
+                              <div>
+                                <span className="font-medium">Weight:</span> {testCase.weight}
+                              </div>
+                              {testCase.description && (
+                                <div className="col-span-3">
+                                  <span className="font-medium">Description:</span>{" "}
+                                  {testCase.description}
+                                </div>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </div>
 

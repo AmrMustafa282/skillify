@@ -354,12 +354,21 @@ export default function UpdateCodingProblemPage() {
                         <div className="space-y-2">
                           <Label>Expected Output</Label>
                           <Input
-                            placeholder="e.g., [0,1]"
+                            placeholder={
+                              customQuestion.language === "python"
+                                ? "e.g., [0,1] or True/False"
+                                : "e.g., [0,1] or true/false"
+                            }
                             value={testCase.expected_output}
                             onChange={(e) =>
                               updateTestCase(index, "expected_output", e.target.value)
                             }
                           />
+                          <p className="text-xs text-gray-500">
+                            {customQuestion.language === "python"
+                              ? "For boolean outputs, use True/False (capitalized)"
+                              : "For boolean outputs, use true/false (lowercase)"}
+                          </p>
                         </div>
                         <div className="space-y-2">
                           <Label>Weight</Label>

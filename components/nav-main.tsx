@@ -222,11 +222,11 @@ const ORG_NAV = [
         url: (orgId?: string, jobId?: string, assessment_id?: string) =>
           `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/code`,
       },
-      {
-        title: "Preview",
-        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/preview`,
-      },
+      // {
+      //   title: "Preview",
+      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/preview`,
+      // },
       // {
       //   title: "Responses",
       //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
