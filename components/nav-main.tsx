@@ -26,27 +26,27 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const PERSONAL_NAV = [
-  {
-    title: "Job Offers",
-    url: "#",
-    icon: SquareTerminal,
-    isActive: true,
-    params: "",
-    items: [
-      {
-        title: "Ovreview",
-        url: "dashboard/",
-      },
-      {
-        title: "Starred",
-        url: "#",
-      },
-      {
-        title: "Settings",
-        url: "#",
-      },
-    ],
-  },
+  // {
+  //   title: "Job Offers",
+  //   url: "#",
+  //   icon: SquareTerminal,
+  //   isActive: true,
+  //   params: "",
+  //   items: [
+  //     {
+  //       title: "Ovreview",
+  //       url: "dashboard/",
+  //     },
+  //     {
+  //       title: "Starred",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Settings",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
   {
     title: "Assessments",
     icon: BookOpen,
@@ -57,10 +57,6 @@ const PERSONAL_NAV = [
         title: "Ovreview",
         url: "/dashboard/assessments",
       },
-      // {
-      //   title: "Settings",
-      //   url: "#",
-      // },
     ],
   },
   // {

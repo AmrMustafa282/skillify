@@ -10,6 +10,7 @@ export const assessmentSchema = z
     jobId: z.string().min(1, { message: "Job ID is required" }),
     startDate: z.date({ required_error: "Start date is required" }),
     endDate: z.date({ required_error: "End date is required" }),
+    status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   })
   .refine((data) => data.endDate >= data.startDate, {
     path: ["endDate"],

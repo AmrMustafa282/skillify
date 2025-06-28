@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Save,
@@ -12,6 +12,7 @@ import {
   BookOpen,
   Sparkles,
   Eye,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,20 +27,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  MultiSelect,
+  createMultiSelectOptions,
+  createDifficultyOptions,
+  createCompanyOptions,
+  createTopicOptions,
+} from "@/components/ui/multi-select";
 import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
 import { MarkdownEditor } from "@/components/markdown-editor";
 import {
-  PREDEFINED_QUESTIONS,
-  QUESTION_TOPICS,
-  SUPPORTED_LANGUAGES,
+  PredefinedQuestion,
+  predefinedQuestionsAPI,
+  usePredefinedQuestions,
   searchQuestions,
   getImplementationForLanguage,
   getTestCasesForLanguage,
   getStarterCodeForLanguage,
   getSolutionCodeForLanguage,
-  type PredefinedQuestion,
-  getImplementationByLanguage,
-} from "@/lib/predefined-questions";
+  SUPPORTED_LANGUAGES,
+} from "@/lib/predefined-questions-api";
 import axios from "axios";
 import { PY_URL } from "@/config";
 import toast from "react-hot-toast";
@@ -81,6 +88,7 @@ export default function CreateCodingProblemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { org_id, job_id, assessment_id } = useParams();
+  const { loadQuestionsForSelector, loadFilterOptions, api } = usePredefinedQuestions();
 
   // Main state
   const [mode, setMode] = useState<"predefined" | "custom">("predefined");
@@ -89,11 +97,18 @@ export default function CreateCodingProblemPage() {
     searchParams.get("template") || "python"
   );
 
+  // API data state
+  const [questions, setQuestions] = useState<PredefinedQuestion[]>([]);
+  const [topics, setTopics] = useState<string[]>([]);
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTopic, setSelectedTopic] = useState<string>("all");
-  const [selectedCompany, setSelectedCompany] = useState<string>("all");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
 
   // Custom question state
   const [customQuestion, setCustomQuestion] = useState<Partial<QuestionOutput>>({
@@ -122,29 +137,91 @@ export default function CreateCodingProblemPage() {
     },
   });
 
+  // Load initial data
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  // Load questions when filters change
+  useEffect(() => {
+    if (!initialLoading) {
+      loadFilteredQuestions();
+    }
+  }, [selectedTopics, selectedDifficulties, selectedLanguage, searchQuery]);
+
+  const loadInitialData = async () => {
+    try {
+      setInitialLoading(true);
+      const [filterOptions, questionsResponse] = await Promise.all([
+        loadFilterOptions(),
+        api.getQuestions({ limit: 100 }), // Load first 100 questions
+      ]);
+
+      setTopics(filterOptions.topics);
+      setQuestions(questionsResponse.questions);
+
+      // Extract unique companies from questions
+      const allCompanies = questionsResponse.questions.flatMap((q) => q.metadata.companies);
+      setCompanies([...new Set(allCompanies)].sort());
+    } catch (error) {
+      console.error("Failed to load initial data:", error);
+      toast.error("Failed to load questions. Please try again.");
+    } finally {
+      setInitialLoading(false);
+    }
+  };
+
+  const loadFilteredQuestions = async () => {
+    try {
+      setLoading(true);
+
+      // For API calls, we'll load all questions and filter client-side for multi-select
+      // This is more efficient for the current use case
+      const response = await api.getQuestions({ limit: 200 });
+      setQuestions(response.questions);
+    } catch (error) {
+      console.error("Failed to load filtered questions:", error);
+      toast.error("Failed to filter questions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Get filtered questions based on search and filters
   const getFilteredQuestions = () => {
-    let questions = PREDEFINED_QUESTIONS;
+    let filteredQuestions = questions;
 
+    // Apply search query
     if (searchQuery) {
-      questions = searchQuestions(searchQuery);
-    }
-
-    if (selectedTopic !== "all") {
-      questions = questions.filter((q) => q.metadata.topic === selectedTopic);
-    }
-
-    if (selectedCompany !== "all") {
-      questions = questions.filter((q) => q.metadata.companies.includes(selectedCompany));
-    }
-
-    if (selectedDifficulty !== "all") {
-      questions = questions.filter(
-        (q) => q.metadata.difficulty === selectedDifficulty.toUpperCase()
+      filteredQuestions = filteredQuestions.filter(
+        (question) =>
+          question.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          question.text.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    return questions;
+    // Apply topic filters
+    if (selectedTopics.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        selectedTopics.includes(question.metadata.topic)
+      );
+    }
+
+    // Apply difficulty filters
+    if (selectedDifficulties.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        selectedDifficulties.includes(question.metadata.difficulty)
+      );
+    }
+
+    // Apply company filters
+    if (selectedCompanies.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        question.metadata.companies.some((company) => selectedCompanies.includes(company))
+      );
+    }
+
+    return filteredQuestions;
   };
 
   // Convert predefined question to our output format
@@ -152,7 +229,7 @@ export default function CreateCodingProblemPage() {
     question: PredefinedQuestion,
     language: string
   ): QuestionOutput => {
-    const implementation = getImplementationByLanguage(question, language);
+    const implementation = getImplementationForLanguage(question, language);
     if (!implementation) {
       throw new Error(`Language ${language} not supported for question ${question.title}`);
     }
@@ -198,7 +275,7 @@ export default function CreateCodingProblemPage() {
       if (res.data.success) {
         toast.success("Question created successfully!");
         const basePath = `/dashboard/organization/${org_id}/job/${job_id}/assessments/${assessment_id}/code`;
-        // router.push(basePath);
+        router.push(basePath);
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to create question");
@@ -249,13 +326,24 @@ export default function CreateCodingProblemPage() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={handleCreateQuestion}
-          disabled={mode === "predefined" && !selectedQuestion}
-        >
-          <Save className="mr-2 h-4 w-4" />
-          Create Question
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={loadInitialData}
+            disabled={loading || initialLoading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading || initialLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button
+            onClick={handleCreateQuestion}
+            disabled={mode === "predefined" && !selectedQuestion}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            Create Question
+          </Button>
+        </div>
       </div>
 
       {/* Mode Selection */}
@@ -317,112 +405,123 @@ export default function CreateCodingProblemPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Topic</Label>
-                  <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All topics" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Topics</SelectItem>
-                      {QUESTION_TOPICS.map((topic) => (
-                        <SelectItem key={topic} value={topic}>
-                          {topic}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Topics</Label>
+                  <MultiSelect
+                    options={createTopicOptions(topics)}
+                    selected={selectedTopics}
+                    onChange={setSelectedTopics}
+                    placeholder="Select topics..."
+                    maxDisplay={2}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Company</Label>
-                  <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All companies" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Companies</SelectItem>
-                      <SelectItem value="Google">Google</SelectItem>
-                      <SelectItem value="Amazon">Amazon</SelectItem>
-                      <SelectItem value="Microsoft">Microsoft</SelectItem>
-                      <SelectItem value="Facebook">Facebook</SelectItem>
-                      <SelectItem value="Apple">Apple</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Companies</Label>
+                  <MultiSelect
+                    options={createCompanyOptions(companies)}
+                    selected={selectedCompanies}
+                    onChange={setSelectedCompanies}
+                    placeholder="Select companies..."
+                    maxDisplay={2}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Difficulty</Label>
-                  <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All levels" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Levels</SelectItem>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Difficulties</Label>
+                  <MultiSelect
+                    options={createDifficultyOptions(["EASY", "MEDIUM", "HARD"])}
+                    selected={selectedDifficulties}
+                    onChange={setSelectedDifficulties}
+                    placeholder="Select difficulties..."
+                    maxDisplay={3}
+                  />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Questions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getFilteredQuestions().map((question) => (
-              <Card
-                key={question.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedQuestion?.id === question.id ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => handleSelectPredefinedQuestion(question)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg">{question.title}</CardTitle>
-                    <Badge
-                      variant={
-                        question.metadata.difficulty === "EASY"
-                          ? "default"
-                          : question.metadata.difficulty === "MEDIUM"
-                            ? "secondary"
-                            : "destructive"
-                      }
-                    >
-                      {question.metadata.difficulty}
-                    </Badge>
+          {initialLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Loading questions...
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loading && (
+                <div className="col-span-full flex items-center justify-center py-8">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Filtering questions...
                   </div>
-                  <CardDescription className="line-clamp-2">
-                    {question.text.split("\n")[0]}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      {question.metadata.estimatedDuration} min
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Tag className="h-4 w-4" />
-                      {question.metadata.topic}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building2 className="h-4 w-4" />
-                      {question.metadata.companies.slice(0, 2).join(", ")}
-                      {question.metadata.companies.length > 2 &&
-                        ` +${question.metadata.companies.length - 2}`}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {question.metadata.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
+                </div>
+              )}
+              {!loading && getFilteredQuestions().length === 0 && (
+                <div className="col-span-full flex items-center justify-center py-12">
+                  <div className="text-center text-muted-foreground">
+                    <BookOpen className="h-8 w-8 mx-auto mb-2" />
+                    <p>No questions found matching your criteria.</p>
+                    <p className="text-sm">Try adjusting your filters or search terms.</p>
+                  </div>
+                </div>
+              )}
+              {!loading &&
+                getFilteredQuestions().map((question) => (
+                  <Card
+                    key={question.id}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      selectedQuestion?.id === question.id ? "ring-2 ring-primary" : ""
+                    }`}
+                    onClick={() => handleSelectPredefinedQuestion(question)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg">{question.title}</CardTitle>
+                        <Badge
+                          variant={
+                            question.metadata.difficulty === "EASY"
+                              ? "default"
+                              : question.metadata.difficulty === "MEDIUM"
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
+                          {question.metadata.difficulty}
                         </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      </div>
+                      <CardDescription className="line-clamp-2">
+                        {question.text.split("\n")[0]}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          {question.metadata.estimatedDuration} min
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Tag className="h-4 w-4" />
+                          {question.metadata.topic}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Building2 className="h-4 w-4" />
+                          {question.metadata.companies.slice(0, 2).join(", ")}
+                          {question.metadata.companies.length > 2 &&
+                            ` +${question.metadata.companies.length - 2}`}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {question.metadata.tags.slice(0, 3).map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
 
           {/* Selected Question Preview */}
           {selectedQuestion && (
@@ -539,7 +638,7 @@ export default function CreateCodingProblemPage() {
                           title="Starter Code"
                           language={selectedLanguage}
                           value={
-                            getImplementationByLanguage(selectedQuestion, selectedLanguage)
+                            getImplementationForLanguage(selectedQuestion, selectedLanguage)
                               ?.starterCode || "// No implementation available for this language"
                           }
                           onChange={() => {}}
@@ -552,7 +651,7 @@ export default function CreateCodingProblemPage() {
                           title="Solution Code"
                           language={selectedLanguage}
                           value={
-                            getImplementationByLanguage(selectedQuestion, selectedLanguage)
+                            getImplementationForLanguage(selectedQuestion, selectedLanguage)
                               ?.solutionCode || "// No implementation available for this language"
                           }
                           onChange={() => {}}

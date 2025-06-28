@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Save, Edit, Trash2 } from "lucide-react";
+import { Save, Edit, Trash2, RefreshCw, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,24 @@ import {
 } from "@/components/ui/select";
 import { MonacoCodeEditor } from "@/components/assessment/monaco-code-editor";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import {
+  MultiSelect,
+  createMultiSelectOptions,
+  createDifficultyOptions,
+  createCompanyOptions,
+  createTopicOptions,
+} from "@/components/ui/multi-select";
+import {
+  PredefinedQuestion,
+  predefinedQuestionsAPI,
+  usePredefinedQuestions,
+  getImplementationForLanguage,
+  SUPPORTED_LANGUAGES,
+} from "@/lib/predefined-questions-api";
 import axios from "axios";
 import { PY_URL } from "@/config";
 import toast from "react-hot-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface TestCase {
   input: string;
@@ -55,9 +70,28 @@ interface QuestionOutput {
 export default function UpdateCodingProblemPage() {
   const router = useRouter();
   const { org_id, job_id, assessment_id, code_id: questionOrder } = useParams();
+  const { loadQuestionsForSelector, loadFilterOptions, api } = usePredefinedQuestions();
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  // Predefined questions state
+  const [showPredefinedQuestions, setShowPredefinedQuestions] = useState(false);
+  const [predefinedQuestions, setPredefinedQuestions] = useState<PredefinedQuestion[]>([]);
+  const [selectedPredefinedQuestion, setSelectedPredefinedQuestion] =
+    useState<PredefinedQuestion | null>(null);
+  const [predefinedLoading, setPredefinedLoading] = useState(false);
+
+  // Filter options state
+  const [topics, setTopics] = useState<string[]>([]);
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [difficulties, setDifficulties] = useState<string[]>([]);
+
+  // Filter state
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Custom question state
   const [customQuestion, setCustomQuestion] = useState<Partial<QuestionOutput>>({
@@ -136,6 +170,92 @@ export default function UpdateCodingProblemPage() {
     } finally {
       setInitialLoading(false);
     }
+  };
+
+  const loadPredefinedQuestions = async () => {
+    try {
+      setPredefinedLoading(true);
+
+      // Load both questions and filter options
+      const [questionsResponse, filterOptions] = await Promise.all([
+        api.getQuestions({ limit: 100 }),
+        loadFilterOptions(),
+      ]);
+
+      setPredefinedQuestions(questionsResponse.questions);
+      setTopics(filterOptions.topics);
+      setCompanies(filterOptions.companies);
+      setDifficulties(filterOptions.difficulties);
+    } catch (error) {
+      console.error("Failed to load predefined questions:", error);
+      toast.error("Failed to load predefined questions. Please try again.");
+    } finally {
+      setPredefinedLoading(false);
+    }
+  };
+
+  const getFilteredPredefinedQuestions = () => {
+    let filteredQuestions = predefinedQuestions;
+
+    // Apply search query
+    if (searchQuery) {
+      filteredQuestions = filteredQuestions.filter(
+        (question) =>
+          question.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          question.text.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply topic filters
+    if (selectedTopics.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        selectedTopics.includes(question.metadata.topic)
+      );
+    }
+
+    // Apply difficulty filters
+    if (selectedDifficulties.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        selectedDifficulties.includes(question.metadata.difficulty)
+      );
+    }
+
+    // Apply company filters
+    if (selectedCompanies.length > 0) {
+      filteredQuestions = filteredQuestions.filter((question) =>
+        question.metadata.companies.some((company) => selectedCompanies.includes(company))
+      );
+    }
+
+    return filteredQuestions;
+  };
+
+  const applyPredefinedQuestion = (question: PredefinedQuestion) => {
+    const implementation = getImplementationForLanguage(
+      question,
+      customQuestion.language || "python"
+    );
+
+    if (!implementation) {
+      toast.error(`No implementation available for ${customQuestion.language}`);
+      return;
+    }
+
+    setCustomQuestion({
+      ...customQuestion,
+      title: question.title,
+      text: question.text,
+      starterCode: implementation.starterCode,
+      solutionCode: implementation.solutionCode,
+      testCases: implementation.testCases,
+      evaluationCriteria: question.evaluationCriteria,
+      gradingRules: question.gradingRules,
+      metadata: question.metadata,
+    });
+
+    setSelectedPredefinedQuestion(question);
+    setShowPredefinedQuestions(false);
+    toast.success("Question loaded from predefined template!");
   };
 
   // Handle updating question
@@ -247,6 +367,141 @@ export default function UpdateCodingProblemPage() {
         </Button>
       </div>
 
+      {/* Load from Predefined Questions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Load from Predefined Questions
+          </CardTitle>
+          <CardDescription>Replace current question with a predefined template</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPredefinedQuestions(!showPredefinedQuestions);
+                if (!showPredefinedQuestions && predefinedQuestions.length === 0) {
+                  loadPredefinedQuestions();
+                }
+              }}
+              disabled={predefinedLoading}
+              className="flex items-center gap-2"
+            >
+              {predefinedLoading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <BookOpen className="h-4 w-4" />
+              )}
+              {showPredefinedQuestions ? "Hide" : "Show"} Predefined Questions
+            </Button>
+            {selectedPredefinedQuestion && (
+              <div className="text-sm text-muted-foreground">
+                Currently using:{" "}
+                <span className="font-medium">{selectedPredefinedQuestion.title}</span>
+              </div>
+            )}
+          </div>
+
+          {showPredefinedQuestions && (
+            <div className="mt-4 space-y-4">
+              {predefinedLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Loading questions...
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Filter Controls */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label>Search</Label>
+                      <Input
+                        placeholder="Search questions..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Topics</Label>
+                      <MultiSelect
+                        options={createTopicOptions(topics)}
+                        selected={selectedTopics}
+                        onChange={setSelectedTopics}
+                        placeholder="Select topics..."
+                        maxDisplay={1}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Companies</Label>
+                      <MultiSelect
+                        options={createCompanyOptions(companies)}
+                        selected={selectedCompanies}
+                        onChange={setSelectedCompanies}
+                        placeholder="Select companies..."
+                        maxDisplay={1}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Difficulties</Label>
+                      <MultiSelect
+                        options={createDifficultyOptions(difficulties)}
+                        selected={selectedDifficulties}
+                        onChange={setSelectedDifficulties}
+                        placeholder="Select difficulties..."
+                        maxDisplay={2}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Questions Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                    {getFilteredPredefinedQuestions().map((question) => (
+                      <Card
+                        key={question.id}
+                        className="cursor-pointer transition-all hover:shadow-md"
+                        onClick={() => applyPredefinedQuestion(question)}
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between">
+                            <CardTitle className="text-sm">{question.title}</CardTitle>
+                            <Badge
+                              variant={
+                                question.metadata.difficulty === "EASY"
+                                  ? "default"
+                                  : question.metadata.difficulty === "MEDIUM"
+                                    ? "secondary"
+                                    : "destructive"
+                              }
+                              className="text-xs"
+                            >
+                              {question.metadata.difficulty}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {question.text.split("\n")[0]}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <span>{question.metadata.topic}</span>
+                            <span>•</span>
+                            <span>{question.metadata.estimatedDuration} min</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Custom Question Update Form */}
       <div className="space-y-6">
         <Card>
@@ -290,6 +545,8 @@ export default function UpdateCodingProblemPage() {
                     <SelectItem value="python">Python</SelectItem>
                     <SelectItem value="javascript">JavaScript</SelectItem>
                     <SelectItem value="java">Java</SelectItem>
+                    <SelectItem value="go">Go</SelectItem>
+                    <SelectItem value="ruby">Ruby</SelectItem>
                     <SelectItem value="cpp">C++</SelectItem>
                   </SelectContent>
                 </Select>
@@ -367,7 +624,9 @@ export default function UpdateCodingProblemPage() {
                           <p className="text-xs text-gray-500">
                             {customQuestion.language === "python"
                               ? "For boolean outputs, use True/False (capitalized)"
-                              : "For boolean outputs, use true/false (lowercase)"}
+                              : customQuestion.language === "ruby"
+                                ? "For boolean outputs, use true/false (lowercase)"
+                                : "For boolean outputs, use true/false (lowercase)"}
                           </p>
                         </div>
                         <div className="space-y-2">

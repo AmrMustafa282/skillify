@@ -70,10 +70,6 @@ export default function CreateAssessmentPage() {
   return (
     <div className="h-full flex flex-col">
       <div>
-        {/* <Button variant="ghost" onClick={() => router.back()} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Forms
-        </Button> */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">{assessment?.name}</h1>
           {onEdit || (
@@ -91,7 +87,7 @@ export default function CreateAssessmentPage() {
           )}
         </div>
       </div>
-      <CreateAssessmentForm onShow={!onEdit} handleCancel={handleCancel} assessment={assessment} />
+      <CreateAssessmentForm onShow={!onEdit} setOnShow={setOnEdit} handleCancel={handleCancel} assessment={assessment} />
     </div>
   );
 }

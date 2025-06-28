@@ -4,7 +4,6 @@ import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,13 +23,24 @@ import toast from "react-hot-toast";
 import { assessmentSchema } from "../_components/assessment-schema";
 import { Save, X } from "lucide-react";
 import type { AssessmentProps } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const CreateAssessmentForm = ({
   onShow = false,
+  setOnShow,
   handleCancel,
   assessment,
 }: {
   onShow?: boolean;
+  setOnShow: (show: boolean)=> void;
   handleCancel?: () => void;
   assessment?: AssessmentProps;
 }) => {
@@ -52,6 +62,7 @@ const CreateAssessmentForm = ({
       jobId: job_id as string,
       startDate: undefined,
       endDate: undefined,
+      status: (assessment?.status as "DRAFT" | "PUBLISHED" | "ARCHIVED") || "DRAFT",
     },
   });
 
@@ -59,7 +70,6 @@ const CreateAssessmentForm = ({
     if (assessment) {
       const startDate = parseISODate(assessment.startTime);
       const endDate = parseISODate(assessment.endTime);
-
       form.setValue("startDate", startDate!);
       form.setValue("endDate", endDate!);
     }
@@ -81,7 +91,6 @@ const CreateAssessmentForm = ({
       const endpoint = assessment
         ? `${API_URL}/tests/${assessment.id}`
         : `${API_URL}/jobs/${job_id}/tests`;
-
       const method = assessment ? axios.patch : axios.post;
 
       const res = await method(endpoint, formattedValues, {
@@ -92,13 +101,16 @@ const CreateAssessmentForm = ({
         const py_endpoint = assessment
           ? `${PY_URL}/assessments/${assessment.id}`
           : `${PY_URL}/assessments`;
-        const response = await method(py_endpoint, {
+        await method(py_endpoint, {
           ...formattedValues,
           testId: res.data.data?.id,
         });
+
         toast.success(
           assessment ? "Assessment updated successfully" : "Assessment created successfully"
         );
+
+        setOnShow(false)
       }
 
       const assessmentId = assessment ? assessment.id : res.data.data.id;
@@ -135,6 +147,33 @@ const CreateAssessmentForm = ({
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Assessment Status</FormLabel>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange} disabled={onShow}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select assessment status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Status</SelectLabel>
+                      <SelectItem value="DRAFT">Draft</SelectItem>
+                      <SelectItem value="PUBLISHED">Published</SelectItem>
+                      <SelectItem value="ARCHIVED">Archived</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="description"
@@ -148,6 +187,7 @@ const CreateAssessmentForm = ({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="timeLimit"
@@ -166,6 +206,7 @@ const CreateAssessmentForm = ({
             </FormItem>
           )}
         />
+
         <div className="flex flex-col md:flex-row md:items-center gap-8">
           <FormField
             control={form.control}
@@ -183,6 +224,7 @@ const CreateAssessmentForm = ({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="endDate"
@@ -200,12 +242,13 @@ const CreateAssessmentForm = ({
             )}
           />
         </div>
+
         {!onShow && (
           <div className="w-full flex justify-end flex-grow items-end gap-4 mt-12">
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="w-full bg-transparent"
               onClick={handleCancel}
               disabled={form.formState.isSubmitting}
             >
