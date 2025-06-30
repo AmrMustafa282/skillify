@@ -1,13 +1,12 @@
-"use client";
-
-import PricingSection from "./_components/pricing-section";
+"use client"
 import FAQ from "./_components/faq";
 import CTA from "./_components/cta";
+import SubscriptionPlans from "@/components/plans";
 
 export default function PricingPage() {
   return (
     <div>
-      <PricingSection />
+      <SubscriptionPlans />
       <FAQ />
       <CTA />
     </div>

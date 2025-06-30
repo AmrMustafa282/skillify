@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import UserAvatar from "@/components/user-avatar";
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles, User } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 
 const UserButton = ({
   user,
@@ -24,7 +25,8 @@ const UserButton = ({
         username?: string | null;
       })
     | undefined;
-}) => {
+  }) => {
+  const router = useRouter()
   return (
     <DropdownMenu>
       {user && (
@@ -45,25 +47,29 @@ const UserButton = ({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/subscription/plans")}>
                 <Sparkles />
-                Upgrade to Pro
+                Upgrade
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
+              <DropdownMenuItem onClick={() => router.push("/account")}>
+                <User />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/subscription")}>
+                <BadgeCheck />
+                My Plan
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/subscription/history")}>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <Bell />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut()}>

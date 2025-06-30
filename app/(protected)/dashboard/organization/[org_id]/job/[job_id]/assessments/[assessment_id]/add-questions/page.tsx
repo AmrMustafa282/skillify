@@ -336,12 +336,10 @@ export default function CreateFormPage() {
         questions: elements,
       });
 
-      if (res.data.success) {
+      if (res.data) {
         console.log("Form saved:", elements);
         toast.success("Form saved successfully!");
         localStorage.removeItem(`form_${assessment_id}`);
-        setOriginalElements(res.data.data.resultingQuestions);
-        setFormElements(res.data.data.resultingQuestions);
       }
     } catch (error) {
       console.error("Error saving form:", error);

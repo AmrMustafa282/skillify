@@ -328,3 +328,76 @@ export interface AssessmentPreviewProps {
   description: string;
   elements: AssessmentQuestion[];
 }
+
+export interface SubscriptionStatus {
+  status: string;
+  success: boolean;
+  data: {
+    planName: string;
+    displayName: string;
+    status: string;
+    startedAt: string;
+    endedAt: string | null;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    trialEnd: string | null;
+    currentOrganizations: number;
+    maxOrganizations: number;
+    maxTests: number;
+    hasReachedLimit: boolean;
+    canCreateOrganization: boolean;
+    usagePercentage: number;
+    daysRemaining: number | null;
+    trial: boolean;
+    activeAndValid: boolean;
+  };
+  timestamp: string;
+}
+
+export interface Plan {
+  id: string;
+  name: string;
+  displayName: string;
+  maxOrganizations: number;
+  maxTests: number;
+  active: boolean;
+}
+
+export interface SubscriptionHistory {
+  status: string;
+  success: boolean;
+  data: Array<{
+    id: string;
+    plan: Plan;
+    status: string;
+    startedAt: string;
+    endedAt: string | null;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    trialEnd: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  timestamp: string;
+}
+
+export interface SubscriptionPlans {
+  status: string;
+  success: boolean;
+  data: Array<{
+    plan: Plan;
+    canStartTrial: boolean;
+    hasUsedTrial: boolean;
+    restrictionReason: string | null;
+    currentPlan: boolean;
+  }>;
+  timestamp: string;
+}
+
+export interface SubscriptionPlan {
+  plan: Plan;
+  canStartTrial: boolean;
+  hasUsedTrial: boolean;
+  restrictionReason: string | null;
+  currentPlan: boolean;
+}

@@ -36,6 +36,12 @@ const CreateOrg = () => {
       const res = await axios.post(`${API_URL}/organizations`, values, {
         withCredentials: true,
       });
+
+      if (res.data.error) {
+        toast.error(res.data.error);
+        return;
+      }
+
       if (res.data.success) {
         toast.success("Organization created successfully.");
         form.reset();
@@ -43,11 +49,11 @@ const CreateOrg = () => {
           router.push("/dashboard/organization");
         }, 1000);
       }
-    } catch (error: any) {
-      toast.error("An unexpected error occurred.");
-      toast.error(error.message);
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Something went wrong. Please try again.");
     }
   }
+
 
   return (
     <div>

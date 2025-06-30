@@ -10,6 +10,7 @@ import CTA from "@/components/cta";
 import Footer from "@/components/footer";
 import { motion } from "framer-motion";
 import PricingSection from "./(pages)/pricing/_components/pricing-section";
+import SubscriptionPlans from "@/components/plans";
 
 const MotionDiv = motion.div;
 
@@ -65,7 +66,7 @@ export default function Home() {
         <HowItWorks />
         <Testimonials />
         <Integrations />
-        <PricingSection />
+        <SubscriptionPlans />
         <FAQ />
         <CTA />
         <Footer />

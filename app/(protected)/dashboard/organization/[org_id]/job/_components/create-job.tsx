@@ -60,6 +60,10 @@ export function CreateJobDialog({ setJobs }: { setJobs: any }) {
           withCredentials: true,
         }
       );
+      if (res.data.error) {
+        toast.error(res.data.error);
+        return;
+      }
       if (res.data.success) {
         toast.success("Job created successfully");
         form.reset();

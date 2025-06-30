@@ -40,7 +40,7 @@ const CreateAssessmentForm = ({
   assessment,
 }: {
   onShow?: boolean;
-  setOnShow: (show: boolean)=> void;
+  setOnShow?: (show: boolean) => void;
   handleCancel?: () => void;
   assessment?: AssessmentProps;
 }) => {
@@ -97,7 +97,11 @@ const CreateAssessmentForm = ({
         withCredentials: true,
       });
 
-      if (res.data.success) {
+      if (res.data?.error) {
+        toast.error(res.data.error);
+        return;
+      }
+      if (res.data?.success) {
         const py_endpoint = assessment
           ? `${PY_URL}/assessments/${assessment.id}`
           : `${PY_URL}/assessments`;
@@ -109,18 +113,13 @@ const CreateAssessmentForm = ({
         toast.success(
           assessment ? "Assessment updated successfully" : "Assessment created successfully"
         );
+        if (setOnShow) setOnShow(false);
 
-        setOnShow(false)
+        const assessmentId = assessment ? assessment.id : res.data.data.id;
+        if (!assessment) router.push(`${assessmentId}/add-questions`);
       }
-
-      const assessmentId = assessment ? assessment.id : res.data.data.id;
-      if (!assessment) router.push(`${assessmentId}/add-questions`);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data.message);
-      } else {
-        toast.error("An unexpected error occurred");
-      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "An unexpected error occurred");
     }
   }
 

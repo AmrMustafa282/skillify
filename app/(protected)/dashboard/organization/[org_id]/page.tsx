@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Org } from "@/types";
 import { API_URL } from "@/config";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
 const OrgPage = () => {
   const params = useParams();
@@ -28,6 +29,8 @@ const OrgPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
 
+  const { data: session } = useSession()
+  console.log(session)
   const fetchOrg = async () => {
     try {
       const res = await axios(`${API_URL}/organizations/${params.org_id}`, {
