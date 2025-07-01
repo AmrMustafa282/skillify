@@ -108,6 +108,7 @@ const CreateAssessmentForm = ({
         await method(py_endpoint, {
           ...formattedValues,
           testId: res.data.data?.id,
+          duration: assessment?.timeLimit
         });
 
         toast.success(
@@ -146,6 +147,19 @@ const CreateAssessmentForm = ({
             </FormItem>
           )}
         />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Assessment Description</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={onShow} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
         <FormField
           control={form.control}
@@ -173,19 +187,6 @@ const CreateAssessmentForm = ({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Assessment Description</FormLabel>
-              <FormControl>
-                <Input {...field} disabled={onShow} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
