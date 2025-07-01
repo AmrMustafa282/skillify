@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { Github, Settings } from "lucide-react";
 import { ModeToggle } from "./ui/toggle-theme";
 
 import { useSession } from "next-auth/react";
