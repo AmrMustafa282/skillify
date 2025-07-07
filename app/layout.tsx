@@ -4,6 +4,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import AuthProvider from "@/providers/AuthProvider";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 // const inter = Inter({ subsets: ["latin-ext"] });
 
@@ -15,22 +16,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`bg-background text-foreground antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`bg-background text-foreground antialiased`} suppressHydrationWarning>
         {/* <MouseMoveEffect /> */}
-        {/* <ThemeProvider
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        > */}
-        <main className="flex flex-col  h-screen">
-          <AuthProvider>
-            <div>{children}</div>
-          </AuthProvider>
-          <Toaster position="top-center" reverseOrder={false} />
-        </main>
-        {/* </ThemeProvider> */}
+        >
+          <main className="flex flex-col h-screen">
+            <AuthProvider>
+              <div>{children}</div>
+            </AuthProvider>
+            <Toaster position="top-center" reverseOrder={false} />
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

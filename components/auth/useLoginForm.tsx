@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import * as z from "zod";
 import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
-import Cookies from "js-cookie";
 import { getSession } from "next-auth/react";
 
 const formSchema = z.object({
@@ -40,7 +39,7 @@ export function useLoginForm() {
       });
 
       if (result?.error) {
-        console.error("Login failed:", result.error);
+        router.replace("/login?error=Invalid+email+or+password.");
       } else {
         const session: any = await getSession();
         if (session) {

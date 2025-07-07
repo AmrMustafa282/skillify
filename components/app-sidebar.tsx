@@ -1,22 +1,6 @@
-import * as React from "react";
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  House,
-} from "lucide-react";
+"use client";
 
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import type React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,292 +8,32 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { View } from "@/types";
+import { useScreenSize } from "@/hooks/use-screen-size";
 
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/app/api/auth/[...nextauth]/route";
-import { server } from "@/lib/api";
+// Props for the client component
+interface AppSidebarProps {
+  headerContent?: React.ReactNode;
+  mainContent?: React.ReactNode;
+  footerContent?: React.ReactNode;
+}
 
-const DATA = {
-  [View.PERSONAL]: {
-    navMain: [
-      {
-        title: "Job Offers",
-        url: "#",
-        // icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Ovreview",
-            url: "dashboard/",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Models",
-        url: "#",
-        // icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        // icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        // icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        // icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        // icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        // icon: Map,
-      },
-    ],
-  },
-  [View.ORGANIZATION]: {
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-        url: "/dashboard/organization/1",
-        id: "1",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-        url: "/dashboard/organization/2",
-        id: "2",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-        url: "/dashboard/organization/3",
-        id: "3",
-      },
-    ],
-    navMain: [
-      {
-        title: "Job Offers",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Ovreview",
-            url: "dashboard/",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Models",
-        url: "#",
-        icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  },
-};
+export function AppSidebar({ headerContent, mainContent, footerContent }: AppSidebarProps) {
+  const { screenSize, isTablet, isDesktop } = useScreenSize();
 
-const PERSONAL_ORG = {
-  name: "Personal",
-  plan: "Free",
-  url: "/dashboard",
-};
+  // Determine collapsible mode based on screen size
+  let collapsibleMode: "offcanvas" | "icon" | "none" = "offcanvas";
 
-export async function AppSidebar() {
-  const session = await getServerSession(authConfig);
-  // console.log(session?.user)
-  let USER = { username: "", email: "", avatar: "" };
-  let ORGS;
-  if (session) {
-    USER = {
-      username: session.user?.username || "",
-      email: session.user?.email || "",
-      avatar: "",
-    };
-    try {
-      const res = await server.get(`${process.env.NEXT_PUBLIC_API_URL}/orgs/user/current`);
-      ORGS = res.data.data.map((org: any) => ({
-        name: org.name,
-        plan: org.plan,
-        url: `/dashboard/organization/${org.id}`,
-        id: org.id,
-      }));
-    } catch (error) {
-      console.error("Error during fetching orgs:", error);
-    }
+  if (isTablet) {
+    collapsibleMode = "icon";
+  } else if (isDesktop) {
+    collapsibleMode = "icon";
   }
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <TeamSwitcher orgs={ORGS} personal={PERSONAL_ORG} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain />
-        {/* <NavProjects projects={DATA["personal"].projects} /> */}
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={USER} />
-      </SidebarFooter>
+    <Sidebar collapsible={collapsibleMode}>
+      <SidebarHeader>{headerContent}</SidebarHeader>
+      <SidebarContent>{mainContent}</SidebarContent>
+      <SidebarFooter>{footerContent}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

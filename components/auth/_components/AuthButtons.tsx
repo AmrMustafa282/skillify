@@ -3,7 +3,7 @@ import React from "react";
 
 export const AuthButtons: React.FC = () => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-4">
       <AuthSignInButton provider={"github"}>
         <svg
           xmlns="http://www.w3.org/2000/svg"

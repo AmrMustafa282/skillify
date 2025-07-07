@@ -33,6 +33,7 @@ import {
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { API_URL } from "@/config";
 
 const roles = [
   { id: "ROLE_ORG_ADMIN", name: "Admin" },
@@ -66,7 +67,7 @@ export function InviteUserDialog({ onSuccess }: InviteUserDialogProps) {
   async function onSubmit(data: InviteUserFormValues) {
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}/members`,
+        `${API_URL}/organizations/${params.org_id}/members`,
         {
           userEmail: data.email,
           roleName: data.role,

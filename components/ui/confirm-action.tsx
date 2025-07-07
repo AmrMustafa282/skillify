@@ -9,25 +9,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { Button } from "./button";
 
 interface ConfirmActionProps {
   action?: string;
-  onAction: any;
+  Icon?: LucideIcon;
+  onAction: () => void;
   title?: string;
   desc?: string;
 }
 
-const ConfirmAction = ({ action, onAction, title, desc }: ConfirmActionProps) => {
+const ConfirmAction = ({ action, onAction, title, desc, Icon }: ConfirmActionProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger className="w-full" asChild>
         <Button
-          className="w-full p-2 justify-start text-red-500 hover:text-red-600"
-          variant={"ghost"}
+          className="w-full p-2 justify-start items-center text-red-500 hover:text-red-600 gap-2"
+          variant="ghost"
         >
-          {action ?? <Trash2 />}
+          {Icon && <Icon className="w-5 h-5" />}
+          {action}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -40,7 +42,7 @@ const ConfirmAction = ({ action, onAction, title, desc }: ConfirmActionProps) =>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onAction}>Confirm</AlertDialogAction>{" "}
+          <AlertDialogAction onClick={onAction}>Confirm</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

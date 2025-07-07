@@ -147,32 +147,44 @@ export interface BaseFormElement {
   type: ElementType;
   question: string;
   required: boolean;
+  order?: number;
+  deleted?: boolean;
+  options?: {
+    choices: InvitationQuestionOption[];
+  };
+}
+
+export interface InvitationQuestionOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  order?: number;
 }
 
 // Specific form element interfaces
 export interface TextFormElement extends BaseFormElement {
   type: ElementType.SHORT_TEXT | ElementType.LONG_TEXT;
-  options: never[];
+  // options: never[];
 }
 
 export interface ChoiceFormElement extends BaseFormElement {
   type: ElementType.MULTIPLE_CHOICE | ElementType.CHECKBOX | ElementType.DROPDOWN;
-  options: string[];
+  // options: string[];
 }
 
 export interface DateFormElement extends BaseFormElement {
   type: ElementType.DATE;
-  options: never[];
+  // options: never[];
 }
 
 export interface TimeFormElement extends BaseFormElement {
   type: ElementType.TIME;
-  options: never[];
+  // options: never[];
 }
 
 export interface FileFormElement extends BaseFormElement {
   type: ElementType.FILE_UPLOAD;
-  options: never[];
+  // options: never[];
 }
 
 // Union type for all form elements
@@ -226,4 +238,166 @@ export interface FormPreviewProps {
 export interface ColorPickerProps {
   color: string;
   onChange: (color: string) => void;
+}
+
+export interface AssessmentProps {
+  id: string;
+  name: string;
+  description: string;
+  timeLimit: number;
+  orgId: string;
+  jobId: string;
+  jobTitle: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Assessment {
+  id: string;
+  name: string;
+  description: string;
+  timeLimit: number;
+  jobId: string;
+  orgId: string;
+  jobTitle: string;
+  startTime: string;
+  endTime: string;
+  status: AssessmentStatus;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AssessmentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export type AssessmentQuestionType = "MCQ" | "OPEN_ENDED";
+
+export interface AssessmentQuestion {
+  id: string;
+  type: AssessmentQuestionType;
+  text: string;
+  options?: {
+    choices: AssessmentQuestionOption[];
+  };
+  correctAnswer?: {
+    value: string;
+  };
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  order: number;
+  required: boolean;
+  deleted?: boolean;
+}
+export interface TestAssignment {
+  id: string;
+  testId: string;
+  testTitle: string;
+  candidateEmail: string;
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+}
+
+export interface AssessmentQuestionOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  order?: number;
+}
+
+export interface AssessmentQuestionEditorProps {
+  element: AssessmentQuestion;
+  updateElement: (id: string, updates: Partial<AssessmentQuestion>) => void;
+}
+
+export interface AssessmentFormData {
+  title: string;
+  description: string;
+  elements: AssessmentQuestion[];
+}
+
+export interface AssessmentPreviewProps {
+  title: string;
+  description: string;
+  elements: AssessmentQuestion[];
+}
+
+export interface SubscriptionStatus {
+  status: string;
+  success: boolean;
+  data: {
+    planName: string;
+    displayName: string;
+    status: string;
+    startedAt: string;
+    endedAt: string | null;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    trialEnd: string | null;
+    currentOrganizations: number;
+    maxOrganizations: number;
+    maxTests: number;
+    hasReachedLimit: boolean;
+    canCreateOrganization: boolean;
+    usagePercentage: number;
+    daysRemaining: number | null;
+    trial: boolean;
+    activeAndValid: boolean;
+  };
+  timestamp: string;
+}
+
+export interface Plan {
+  id: string;
+  name: string;
+  displayName: string;
+  maxOrganizations: number;
+  maxTests: number;
+  active: boolean;
+}
+
+export interface SubscriptionHistory {
+  status: string;
+  success: boolean;
+  data: Array<{
+    id: string;
+    plan: Plan;
+    status: string;
+    startedAt: string;
+    endedAt: string | null;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    trialEnd: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  timestamp: string;
+}
+
+export interface SubscriptionPlans {
+  status: string;
+  success: boolean;
+  data: Array<{
+    plan: Plan;
+    canStartTrial: boolean;
+    hasUsedTrial: boolean;
+    restrictionReason: string | null;
+    currentPlan: boolean;
+  }>;
+  timestamp: string;
+}
+
+export interface SubscriptionPlan {
+  plan: Plan;
+  canStartTrial: boolean;
+  hasUsedTrial: boolean;
+  restrictionReason: string | null;
+  currentPlan: boolean;
 }

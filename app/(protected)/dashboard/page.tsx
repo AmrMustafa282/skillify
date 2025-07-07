@@ -1,13 +1,23 @@
-export default function Page() {
+import { columns } from "./_components/assignment-columns";
+import { DataTable } from "@/components/ui/data-table";
+import { server } from "@/lib/api";
+import { TestAssignment } from "@/types";
+import { API_URL } from "@/config";
+
+async function getOrgs() {
+  const res = await server.get(`${API_URL}/users/me/test-assignments`);
+  return res.data.data.content as TestAssignment[];
+}
+
+export default async function AssessmentsPage() {
+  const data = await getOrgs();
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="h-12 rounded-xl bg-muted/50" />
-        <div className="h-12  rounded-xl bg-muted/50" />
-        <div className="h-12  rounded-xl bg-muted/50" />
+    <div>
+      <div className="flex w-full justify-between items-center mb-12">
+        <h1 className="text-3xl font-bold">Assessments ({data.length})</h1>
       </div>
-      {/* <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
-      main dashboard content
+      <DataTable columns={columns} data={data} />
     </div>
   );
 }

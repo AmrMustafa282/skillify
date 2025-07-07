@@ -1,3 +1,4 @@
+import { API_URL } from "@/config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ const baseSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["ROLE_ADMIN", "ROLE_USER"]),
 });
 
 const userSchema = baseSchema;
@@ -21,21 +23,22 @@ export function useSignupForm() {
       username: "",
       email: "",
       password: "",
+      role: "ROLE_ADMIN",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
-      const req = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, values, {
+      const req = await axios.post(`${API_URL}/auth/register`, values, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (req.status === 200) {
+      if (req.data.success) {
         toast.success("Signup successful");
         setTimeout(() => {
           router.replace("/login");
-        }, 2000);
+        }, 1000);
       }
     } catch (err) {
       let message = "Signup failed";
@@ -43,7 +46,7 @@ export function useSignupForm() {
       if (err instanceof AxiosError) {
         message += `: ${err.response?.data.error}`;
       }
-      toast.error(message);
+      router.replace(`/signup?error=${message.split(" ").join("+")}`);
     }
   };
 

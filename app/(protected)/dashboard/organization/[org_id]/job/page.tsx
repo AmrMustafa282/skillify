@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
-import { MoreHorizontal, Save, Settings, X } from "lucide-react";
+import { Edit, MoreHorizontal, Save, Settings, Trash2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Job, Org } from "@/types";
+import { API_URL } from "@/config";
 
 const JobsPage = () => {
   const params = useParams();
@@ -44,7 +45,7 @@ const JobsPage = () => {
 
   const deleteOrg = async () => {
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+      const res = await axios.delete(`${API_URL}/organizations/${params.org_id}`, {
         withCredentials: true,
       });
       if (res.data.success) toast.success("Organization deleted successfully");
@@ -57,8 +58,8 @@ const JobsPage = () => {
     if (!editedOrg) return;
     setIsLoading(true);
     try {
-      const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`,
+      const res = await axios.patch(
+        `${API_URL}/organizations/${params.org_id}`,
         {
           name,
         },
@@ -83,7 +84,7 @@ const JobsPage = () => {
     if (!job_id || !orgId) return;
     setIsLoading(true);
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job_id}`, {
+      const res = await axios.delete(`${API_URL}/jobs/${job_id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -102,7 +103,7 @@ const JobsPage = () => {
   useEffect(() => {
     const getOrg = async () => {
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${params.org_id}`, {
+        const res = await axios(`${API_URL}/organizations/${params.org_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -116,7 +117,7 @@ const JobsPage = () => {
     };
     const getOrgJobs = async () => {
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/jobs/org/${params.org_id}`, {
+        const res = await axios(`${API_URL}/organizations/${params.org_id}/jobs`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -228,8 +229,10 @@ const JobsPage = () => {
             <Settings className="h-6 w-6" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            <ConfirmAction action="Delete" onAction={deleteOrg}></ConfirmAction>
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+              <Edit /> Edit
+            </DropdownMenuItem>
+            <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteOrg}></ConfirmAction>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

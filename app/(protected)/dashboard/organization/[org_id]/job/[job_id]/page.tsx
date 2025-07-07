@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Edit, Save, Settings, X } from "lucide-react";
+import { Edit, Save, Settings, Trash2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -19,12 +19,15 @@ import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/utils";
 import { Job } from "@/types";
 import Loader from "@/components/ui/Loader";
+import { API_URL } from "@/config";
+import ConfirmAction from "@/components/ui/confirm-action";
+import { Switch } from "@/components/ui/switch";
 
 const JobPage = () => {
   const params = useParams();
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
-  const [editedJob, setEditedJob] = useState<Job | null>(null);
+  const [editedJob, setEditedJob] = useState<(Job & { isActive?: boolean }) | null>(null);
   const [onEdit, setOnEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,9 +46,9 @@ const JobPage = () => {
 
     setIsLoading(true);
     try {
-      const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/jobs/${params.job_id}`,
-        editedJob,
+      const res = await axios.patch(
+        `${API_URL}/jobs/${params.job_id}`,
+        { ...editedJob, isActive: editedJob.active },
         {
           withCredentials: true,
         }
@@ -69,7 +72,7 @@ const JobPage = () => {
 
     setIsLoading(true);
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job.id}`, {
+      const res = await axios.delete(`${API_URL}/jobs/${job.id}`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -89,7 +92,7 @@ const JobPage = () => {
     const getJob = async () => {
       setIsLoading(true);
       try {
-        const res = await axios(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${params.job_id}`, {
+        const res = await axios(`${API_URL}/jobs/${params.job_id}`, {
           withCredentials: true,
         });
         if (res.data.success) {
@@ -135,26 +138,14 @@ const JobPage = () => {
         <div className="flex items-center gap-2">
           {onEdit || (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
+              <DropdownMenuTrigger className="focus">
+                <Settings className="h-6 w-6" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" /> Edit Job
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+                  <Edit /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => {
-                    // This assumes your ConfirmAction component is used differently
-                    // If it's a modal trigger, you might need to adjust this
-                    const confirmed = window.confirm("Are you sure you want to delete this job?");
-                    if (confirmed) deleteJob();
-                  }}
-                >
-                  Delete Job
-                </DropdownMenuItem>
+                <ConfirmAction action="Delete" Icon={Trash2} onAction={deleteJob}></ConfirmAction>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -190,20 +181,25 @@ const JobPage = () => {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-1">Status</h3>
-                <Badge variant={job.active ? "default" : "secondary"}>
-                  {job.active ? "Active" : "Inactive"}
-                </Badge>
-                {onEdit && (
-                  <div className="mt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditedJob({ ...editedJob!, active: !editedJob?.active })}
-                    >
-                      Set as {editedJob?.active ? "Inactive" : "Active"}
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-4 items-center">
+                  <Badge variant={job.active ? "default" : "secondary"}>
+                    {job.active ? "Active" : "Inactive"}
+                  </Badge>
+                  {onEdit && (
+                    <div className="mt-2">
+                      <Switch
+                        checked={editedJob?.active || false}
+                        onCheckedChange={(checked) =>
+                          setEditedJob({
+                            ...editedJob!,
+                            active: checked,
+                          })
+                        }
+                      />
+                      <span className="ml-2">{editedJob?.active ? "Active" : "Inactive"}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <Separator />

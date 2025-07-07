@@ -11,12 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Job } from "../page";
+import { Job } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import ConfirmAction from "@/components/ui/confirm-action";
 import axios from "axios";
+import { API_URL } from "@/config";
 
 // id: string;
 // title: string;
@@ -30,7 +31,7 @@ import axios from "axios";
 
 const deleteJob = async (orgId: string, job_id: string) => {
   try {
-    const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job_id}`, {
+    const res = await axios.delete(`${API_URL}/jobs/${job_id}`, {
       withCredentials: true,
     });
     if (res.data.success) {

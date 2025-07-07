@@ -26,24 +26,36 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const PERSONAL_NAV = [
+  // {
+  //   title: "Job Offers",
+  //   url: "#",
+  //   icon: SquareTerminal,
+  //   isActive: true,
+  //   params: "",
+  //   items: [
+  //     {
+  //       title: "Ovreview",
+  //       url: "dashboard/",
+  //     },
+  //     {
+  //       title: "Starred",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Settings",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
   {
-    title: "Job Offers",
-    url: "#",
-    icon: SquareTerminal,
+    title: "Assessments",
+    icon: BookOpen,
     isActive: true,
     params: "",
     items: [
       {
         title: "Ovreview",
-        url: "dashboard/",
-      },
-      {
-        title: "Starred",
-        url: "#",
-      },
-      {
-        title: "Settings",
-        url: "#",
+        url: "/dashboard/assessments",
       },
     ],
   },
@@ -125,14 +137,14 @@ const ORG_NAV = [
         title: "Ovreview",
         url: "/dashboard/organization",
       },
-      {
-        title: "Starred",
-        url: "#",
-      },
-      {
-        title: "Settings",
-        url: "#",
-      },
+      // {
+      //   title: "Starred",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Settings",
+      //   url: "#",
+      // },
     ],
   },
   {
@@ -146,114 +158,134 @@ const ORG_NAV = [
         title: "Overview",
         url: (orgId?: string) => `/dashboard/organization/${orgId}/job`,
       },
+      // {
+      //   title: "Explorer",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Quantum",
+      //   url: "#",
+      // },
+    ],
+  },
+
+  {
+    title: "Assessments",
+    url: "#",
+    icon: BookOpen,
+    isActive: true,
+    params: "job_id",
+    items: [
       {
-        title: "Explorer",
-        url: "#",
+        title: "Overview",
+        url: (orgId?: string, jobId?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments`,
       },
       {
-        title: "Quantum",
-        url: "#",
+        title: "Create Assessment",
+        url: (orgId?: string, jobId?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/create`,
+      },
+      // {
+      //   title: "Tutorials",
+      //   url: "#",
+      // },
+      // {
+      //   title: "Changelog",
+      //   url: "#",
+      // },
+    ],
+  },
+  {
+    title: "Job-Assessment",
+    url: "#",
+    icon: BookOpen,
+    isActive: true,
+    params: "assessment_id",
+    items: [
+      {
+        title: "Edit",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}`,
+      },
+      {
+        title: "Questions",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/add-questions`,
+      },
+      {
+        title: "Coding",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/code`,
+      },
+      // {
+      //   title: "Preview",
+      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/preview`,
+      // },
+      // {
+      //   title: "Responses",
+      //   url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+      //     `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/responses`,
+      // },
+      {
+        title: "Analytics",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/analytics`,
       },
     ],
   },
+
   {
     title: "Invitations",
     url: "#",
     icon: Mail,
     isActive: true,
-    params: "job_id",
+    params: "assessment_id",
     items: [
       {
-        title: "Overview",
-        url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
-      },
-      {
-        title: "Create-Invitation",
-        url: "create-invitation/form/create",
-      },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
-      },
-    ],
-  },
-  {
-    title: "Assessment",
-    url: "#",
-    icon: BookOpen,
-    isActive: true,
-    params: "job_id",
-    items: [
-      {
-        title: "Overview",
-        url: (orgId?: string, jobId?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-assessment`,
-      },
-      {
-        title: "Create-Assessment",
-        url: "create-assessment/form/create",
-      },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
-      },
-    ],
-  },
-  {
-    title: "Job-Invitation",
-    url: "#",
-    icon: BookOpen,
-    isActive: true,
-    params: "form_id",
-    items: [
-      {
-        title: "Overview",
-        url: (orgId?: string, jobId?: string, form_id?: string) =>
-          `/dashboard/organization/${orgId}/job/${jobId}/create-invitation`,
-      },
-      {
-        title: "Create-Invitation",
-        url: "create-invitation/form/create",
-      },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
+        title: "Send Invitation",
+        url: (orgId?: string, jobId?: string, assessment_id?: string) =>
+          `/dashboard/organization/${orgId}/job/${jobId}/assessments/${assessment_id}/send-invitation`,
       },
     ],
   },
   // {
-  //   title: "Settings",
+  //   title: "Job-Invitation",
   //   url: "#",
-  //   // icon: Settings2,
+  //   icon: BookOpen,
+  //   isActive: true,
+  //   params: "invitation_id",
   //   items: [
   //     {
-  //       title: "General",
-  //       url: "#",
+  //       title: "Edit",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}`,
   //     },
   //     {
-  //       title: "Team",
-  //       url: "#",
+  //       title: "Add Questions",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/add-questions`,
   //     },
   //     {
-  //       title: "Billing",
-  //       url: "#",
+  //       title: "Add Coding",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/code`,
   //     },
   //     {
-  //       title: "Limits",
-  //       url: "#",
+  //       title: "Preview",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/preview`,
+  //     },
+  //     {
+  //       title: "Responses",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/responses`,
+  //     },
+  //     {
+  //       title: "Analytics",
+  //       url: (orgId?: string, jobId?: string, assessment_id?: string, invitation_id?: string) =>
+  //         `/dashboard/organization/${orgId}/job/${jobId}/assessments/${invitation_id}/analytics`,
   //     },
   //   ],
   // },
@@ -299,7 +331,7 @@ export function NavMain() {
                                   subItem.url(
                                     params.org_id as string,
                                     params.job_id as string,
-                                    params.form_id as string
+                                    params.assessment_id as string
                                   )
                                 );
                               } else {
